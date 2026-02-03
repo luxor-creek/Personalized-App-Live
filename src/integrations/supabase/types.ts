@@ -40,6 +40,8 @@ export type Database = {
       }
       landing_page_templates: {
         Row: {
+          about_content: string | null
+          client_logos_url: string | null
           contact_email: string | null
           contact_phone: string | null
           contact_subtitle: string | null
@@ -59,6 +61,7 @@ export type Database = {
           id: string
           name: string
           personalization_config: Json | null
+          portfolio_strip_url: string | null
           pricing_subtitle: string | null
           pricing_tiers: Json | null
           pricing_title: string | null
@@ -70,6 +73,8 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          about_content?: string | null
+          client_logos_url?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           contact_subtitle?: string | null
@@ -89,6 +94,7 @@ export type Database = {
           id?: string
           name: string
           personalization_config?: Json | null
+          portfolio_strip_url?: string | null
           pricing_subtitle?: string | null
           pricing_tiers?: Json | null
           pricing_title?: string | null
@@ -100,6 +106,8 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          about_content?: string | null
+          client_logos_url?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           contact_subtitle?: string | null
@@ -119,6 +127,7 @@ export type Database = {
           id?: string
           name?: string
           personalization_config?: Json | null
+          portfolio_strip_url?: string | null
           pricing_subtitle?: string | null
           pricing_tiers?: Json | null
           pricing_title?: string | null

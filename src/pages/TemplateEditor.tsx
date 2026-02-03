@@ -1,17 +1,39 @@
+import { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTemplateEditor } from "@/hooks/useTemplateEditor";
-import EditorToolbar from "@/components/editor/EditorToolbar";
+import EditorSidebar from "@/components/editor/EditorSidebar";
 import EditableText from "@/components/editor/EditableText";
 import EditableVideo from "@/components/editor/EditableVideo";
+import EditableImage from "@/components/editor/EditableImage";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import kickerLogo from "@/assets/kicker-logo.png";
 import clientLogos from "@/assets/client-logos.png";
 import portfolioStrip from "@/assets/portfolio-strip.png";
 import { ArrowDown, Play, DollarSign, Mail, ExternalLink } from "lucide-react";
 
+const DEFAULT_ABOUT_CONTENT = `Most police recruitment videos aren't broken.
+They're just outdated.
+
+They were made for a time when interest was high and competition was low. Today, recruits are more cautious, more informed, and quicker to walk away if something feels unrealistic or unclear.
+
+We see the same pattern again and again.
+Departments invest in a video that looks professional, but doesn't answer the questions candidates are really asking. The result. Fewer qualified applicants and more drop-off later in the process.
+
+**Kicker builds recruitment videos with one goal.**
+**Help the right people self-select into the job.**
+
+That means showing the work honestly. Letting officers speak in their own words. Being clear about expectations, career paths, and what the job actually demands.
+
+We recently wrapped a recruitment video for the Pittsburgh Police Department using this approach. The department saw stronger engagement and better-fit applicants because the video did its job early in the funnel.
+
+If your current recruitment video is more than a few years old, it's worth asking a simple question.
+*Is it helping your pipeline. Or quietly hurting it.*`;
+
 const TemplateEditor = () => {
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
+  const { toast } = useToast();
   const {
     template,
     loading,
@@ -49,6 +71,13 @@ const TemplateEditor = () => {
     }
   };
 
+  const handleInsertToken = (token: string) => {
+    toast({
+      title: "Token copied!",
+      description: `${token} copied to clipboard. Paste it into any text field.`,
+    });
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -69,21 +98,61 @@ const TemplateEditor = () => {
     );
   }
 
-  // Render based on template type
+  // Render the About section content with markdown-like formatting
+  const renderAboutContent = (content: string) => {
+    return content.split('\n\n').map((paragraph, index) => {
+      // Handle bold text
+      let processedText = paragraph;
+      const isBold = paragraph.startsWith('**') && paragraph.endsWith('**');
+      const isItalic = paragraph.startsWith('*') && paragraph.endsWith('*') && !isBold;
+      
+      if (isBold) {
+        processedText = paragraph.slice(2, -2);
+        return (
+          <p key={index} className="text-foreground font-semibold">
+            {processedText.split('\n').map((line, i) => (
+              <span key={i}>{line}{i < processedText.split('\n').length - 1 && <br />}</span>
+            ))}
+          </p>
+        );
+      }
+      
+      if (isItalic) {
+        processedText = paragraph.slice(1, -1);
+        return (
+          <p key={index} className="text-foreground font-medium">
+            <span className="text-primary">{processedText}</span>
+          </p>
+        );
+      }
+
+      return (
+        <p key={index}>
+          {paragraph.split('\n').map((line, i) => (
+            <span key={i}>{line}{i < paragraph.split('\n').length - 1 && <br />}</span>
+          ))}
+        </p>
+      );
+    });
+  };
+
+  // B2B Demo template
   if (template.slug === "b2b-demo") {
     return (
       <div className="min-h-screen bg-white">
-        <EditorToolbar
+        {/* Sidebar */}
+        <EditorSidebar
           templateName={template.name}
           hasChanges={hasChanges}
           isSaving={saving}
           onSave={handleSave}
           onCancel={handleCancel}
           onPreview={handlePreview}
+          onInsertToken={handleInsertToken}
         />
 
-        {/* Add padding for fixed toolbar */}
-        <div className="pt-24">
+        {/* Main content - with right margin for sidebar */}
+        <div className="mr-80">
           {/* Hero Section */}
           <section className="pt-24 pb-16 bg-gradient-to-b from-amber-50/50 to-white">
             <div className="container mx-auto px-4">
@@ -158,11 +227,15 @@ const TemplateEditor = () => {
               <p className="text-gray-500 text-sm font-medium mb-6">
                 Trusted by B2B teams across the US & Canada
               </p>
-              <img 
-                src={clientLogos} 
-                alt="Client logos" 
-                className="max-w-2xl mx-auto opacity-60"
-              />
+              <div className="flex justify-center">
+                <EditableImage
+                  src={template.client_logos_url || clientLogos}
+                  alt="Client logos"
+                  onImageChange={(url) => updateField("client_logos_url", url)}
+                  fieldName="Client Logos"
+                  className="max-w-2xl opacity-60"
+                />
+              </div>
             </div>
           </section>
 
@@ -184,15 +257,6 @@ const TemplateEditor = () => {
                     fieldName="Features Subtitle"
                     multiline
                   />
-                </div>
-                
-                {/* Placeholder for feature content */}
-                <div className="bg-muted/30 border-2 border-dashed border-muted-foreground/20 rounded-lg p-8 text-center">
-                  <p className="text-muted-foreground">
-                    Feature cards and checklist items can be edited here.
-                    <br />
-                    <span className="text-sm">(Full feature card editing coming soon)</span>
-                  </p>
                 </div>
               </div>
             </div>
@@ -228,17 +292,19 @@ const TemplateEditor = () => {
   // Default template (Police Recruitment) - Full page with all sections
   return (
     <div className="min-h-screen bg-background">
-      <EditorToolbar
+      {/* Sidebar */}
+      <EditorSidebar
         templateName={template.name}
         hasChanges={hasChanges}
         isSaving={saving}
         onSave={handleSave}
         onCancel={handleCancel}
         onPreview={handlePreview}
+        onInsertToken={handleInsertToken}
       />
 
-      {/* Add padding for fixed toolbar */}
-      <div className="pt-24">
+      {/* Main content - with right margin for sidebar */}
+      <div className="mr-80">
         {/* Hero Section */}
         <section className="min-h-screen hero-gradient relative overflow-hidden">
           {/* Subtle background pattern */}
@@ -329,10 +395,12 @@ const TemplateEditor = () => {
             </p>
             
             <div className="flex justify-center">
-              <img 
-                src={clientLogos} 
-                alt="Trusted by HP, ExxonMobil, Pittsburgh Police, Cenovus, North Central Texas Council of Governments, Ntrepid Intelligence, Novartis, Alameda County, Optum, Pulse Electronics, Harris Utilities, L3 Wescam" 
-                className="max-w-full h-auto"
+              <EditableImage
+                src={template.client_logos_url || clientLogos}
+                alt="Client logos"
+                onImageChange={(url) => updateField("client_logos_url", url)}
+                fieldName="Client Logos"
+                className="max-w-full"
               />
             </div>
           </div>
@@ -350,47 +418,20 @@ const TemplateEditor = () => {
                   value={template.features_title || "Why Departments Choose Kicker Video"}
                   onChange={(value) => updateField("features_title", value)}
                   fieldName="About Section Title"
+                  supportsPersonalization
                 />
               </h2>
             </div>
 
             <div className="max-w-3xl mx-auto">
               <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
-                <p>
-                  Most police recruitment videos aren't broken.
-                  <br />
-                  They're just outdated.
-                </p>
-                
-                <p>
-                  They were made for a time when interest was high and competition was low. Today, recruits are more cautious, more informed, and quicker to walk away if something feels unrealistic or unclear.
-                </p>
-                
-                <p>
-                  We see the same pattern again and again.
-                  <br />
-                  Departments invest in a video that looks professional, but doesn't answer the questions candidates are really asking. The result. Fewer qualified applicants and more drop-off later in the process.
-                </p>
-                
-                <p className="text-foreground font-semibold">
-                  Kicker builds recruitment videos with one goal.
-                  <br />
-                  Help the right people self-select into the job.
-                </p>
-                
-                <p>
-                  That means showing the work honestly. Letting officers speak in their own words. Being clear about expectations, career paths, and what the job actually demands.
-                </p>
-                
-                <p>
-                  We recently wrapped a recruitment video for the Pittsburgh Police Department using this approach. The department saw stronger engagement and better-fit applicants because the video did its job early in the funnel.
-                </p>
-                
-                <p className="text-foreground font-medium">
-                  If your current recruitment video is more than a few years old, it's worth asking a simple question.
-                  <br />
-                  <span className="text-primary">Is it helping your pipeline. Or quietly hurting it.</span>
-                </p>
+                <EditableText
+                  value={template.about_content || DEFAULT_ABOUT_CONTENT}
+                  onChange={(value) => updateField("about_content", value)}
+                  fieldName="About Section Body"
+                  multiline
+                  supportsPersonalization
+                />
               </div>
             </div>
           </div>
@@ -399,10 +440,11 @@ const TemplateEditor = () => {
         {/* Portfolio Strip */}
         <section className="bg-background">
           <div className="w-full">
-            <img 
-              src={portfolioStrip} 
-              alt="Portfolio examples: Alameda County Waste Management Authority, Active Shooter Awareness training video, Police community engagement" 
-              className="w-full h-auto"
+            <EditableImage
+              src={template.portfolio_strip_url || portfolioStrip}
+              alt="Portfolio examples"
+              onImageChange={(url) => updateField("portfolio_strip_url", url)}
+              fieldName="Portfolio Strip"
             />
           </div>
         </section>
@@ -419,6 +461,7 @@ const TemplateEditor = () => {
                   value={template.contact_title || "Ready to Transform Your Recruitment Strategy?"}
                   onChange={(value) => updateField("contact_title", value)}
                   fieldName="Contact Title"
+                  supportsPersonalization
                 />
               </h2>
               <div className="text-lg text-muted-foreground mb-10 max-w-2xl mx-auto">
@@ -427,6 +470,7 @@ const TemplateEditor = () => {
                   onChange={(value) => updateField("contact_subtitle", value)}
                   fieldName="Contact Subtitle"
                   multiline
+                  supportsPersonalization
                 />
               </div>
 
@@ -451,7 +495,11 @@ const TemplateEditor = () => {
                   className="flex items-center gap-2 hover:text-primary transition-colors"
                 >
                   <Mail className="w-4 h-4" />
-                  hello@kickervideo.com
+                  <EditableText
+                    value={template.contact_email || "hello@kickervideo.com"}
+                    onChange={(value) => updateField("contact_email", value)}
+                    fieldName="Contact Email"
+                  />
                 </a>
                 <span className="hidden sm:block text-border">|</span>
                 <a 
