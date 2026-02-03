@@ -23,20 +23,11 @@ interface SnovProspect {
   company?: string;
 }
 
-interface SnovListResponse {
-  success: boolean;
-  data: SnovProspect[];
-  lastId?: number;
-}
-
 interface SendCampaignRequest {
-  listId: number;
-  campaignId: string;
+  listId: number;           // Snov.io source list ID to get prospects from
+  campaignId: string;       // Our internal campaign ID for personalized pages
+  snovCampaignListId: number; // Snov.io list ID that has the drip campaign attached
   templateId?: string;
-  emailSubject: string;
-  emailBody: string;
-  fromEmail: string;
-  fromName: string;
 }
 
 // Get Snov.io access token
@@ -127,40 +118,64 @@ async function getProspectsFromList(
   return allProspects;
 }
 
-// Send email via Snov.io transactional API
-async function sendEmail(
+// Add prospect to Snov.io list (triggers drip campaign automatically)
+async function addProspectToSnovList(
   accessToken: string,
-  to: string,
-  subject: string,
-  body: string,
-  fromEmail: string,
-  fromName: string
-): Promise<boolean> {
-  console.log(`Sending email to ${to}...`);
+  listId: number,
+  prospect: {
+    email: string;
+    firstName: string;
+    lastName: string;
+    company?: string;
+    landingPageUrl: string;
+  }
+): Promise<{ success: boolean; error?: string }> {
+  console.log(`Adding prospect ${prospect.email} to Snov.io list ${listId}...`);
 
-  const response = await fetch("https://api.snov.io/v1/send-email", {
+  const formData = new URLSearchParams();
+  formData.append("access_token", accessToken);
+  formData.append("email", prospect.email);
+  formData.append("firstName", prospect.firstName);
+  formData.append("lastName", prospect.lastName);
+  formData.append("listId", listId.toString());
+  formData.append("updateContact", "true");
+  
+  // Add company if available
+  if (prospect.company) {
+    formData.append("companyName", prospect.company);
+  }
+  
+  // Add personalized landing page URL as a custom field
+  formData.append("customFields[landing_page_url]", prospect.landingPageUrl);
+
+  const response = await fetch("https://api.snov.io/v1/add-prospect-to-list", {
     method: "POST",
     headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/x-www-form-urlencoded",
     },
-    body: JSON.stringify({
-      email: to,
-      subject,
-      message: body,
-      fromEmail,
-      fromName,
-    }),
+    body: formData.toString(),
   });
 
+  const responseText = await response.text();
+  console.log(`Add prospect response for ${prospect.email}:`, responseText.slice(0, 300));
+
   if (!response.ok) {
-    const error = await response.text();
-    console.error(`Failed to send email to ${to}:`, error);
-    return false;
+    console.error(`Failed to add prospect ${prospect.email}:`, responseText);
+    return { success: false, error: responseText };
   }
 
-  console.log(`Email sent successfully to ${to}`);
-  return true;
+  try {
+    const data = JSON.parse(responseText);
+    if (data.success) {
+      console.log(`Prospect ${prospect.email} added successfully`);
+      return { success: true };
+    } else {
+      return { success: false, error: data.message || "Unknown error" };
+    }
+  } catch {
+    // If response is not JSON but status was OK
+    return { success: true };
+  }
 }
 
 const handler = async (req: Request): Promise<Response> => {
@@ -177,24 +192,21 @@ const handler = async (req: Request): Promise<Response> => {
     const {
       listId,
       campaignId,
+      snovCampaignListId,
       templateId,
-      emailSubject,
-      emailBody,
-      fromEmail,
-      fromName,
     }: SendCampaignRequest = await req.json();
 
     // Validate required fields
-    if (!listId || !campaignId || !emailSubject || !emailBody || !fromEmail || !fromName) {
-      throw new Error("Missing required fields: listId, campaignId, emailSubject, emailBody, fromEmail, fromName");
+    if (!listId || !campaignId || !snovCampaignListId) {
+      throw new Error("Missing required fields: listId (source list), campaignId (internal), snovCampaignListId (target list with drip campaign)");
     }
 
-    console.log(`Starting campaign send for list ${listId}, campaign ${campaignId}`);
+    console.log(`Starting campaign send: source list ${listId} -> target list ${snovCampaignListId}, internal campaign ${campaignId}`);
 
     // Get Snov.io access token
     const accessToken = await getSnovAccessToken();
 
-    // Get prospects from the list
+    // Get prospects from the source list
     const prospects = await getProspectsFromList(accessToken, listId);
 
     if (prospects.length === 0) {
@@ -203,10 +215,11 @@ const handler = async (req: Request): Promise<Response> => {
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
+
     // Get the base URL for personalized pages from environment variable
     const baseUrl = Deno.env.get("SITE_BASE_URL") || "https://video.kickervideo.com";
 
-    let sentCount = 0;
+    let addedCount = 0;
     let errorCount = 0;
     const results: Array<{ email: string; success: boolean; pageUrl?: string; error?: string }> = [];
 
@@ -224,12 +237,15 @@ const handler = async (req: Request): Promise<Response> => {
 
       try {
         // Create a personalized page for this prospect
+        const firstName = prospect.firstName || prospect.name?.split(" ")[0] || "Friend";
+        const lastName = prospect.lastName || prospect.name?.split(" ").slice(1).join(" ") || null;
+
         const { data: pageData, error: pageError } = await supabase
           .from("personalized_pages")
           .insert({
             campaign_id: campaignId,
-            first_name: prospect.firstName || prospect.name?.split(" ")[0] || "Friend",
-            last_name: prospect.lastName || prospect.name?.split(" ").slice(1).join(" ") || null,
+            first_name: firstName,
+            last_name: lastName,
             company: prospect.company || null,
             template_id: templateId || null,
           })
@@ -245,65 +261,54 @@ const handler = async (req: Request): Promise<Response> => {
 
         const pageUrl = `${baseUrl}/view/${pageData.token}`;
 
-        // Replace placeholders in email body
-        let personalizedBody = emailBody
-          .replace(/{{first_name}}/gi, prospect.firstName || prospect.name?.split(" ")[0] || "Friend")
-          .replace(/{{last_name}}/gi, prospect.lastName || "")
-          .replace(/{{company}}/gi, prospect.company || "")
-          .replace(/{{page_url}}/gi, pageUrl)
-          .replace(/{{landing_page_url}}/gi, pageUrl);
+        // Add prospect to the Snov.io list with drip campaign
+        const addResult = await addProspectToSnovList(accessToken, snovCampaignListId, {
+          email: primaryEmail,
+          firstName,
+          lastName: lastName || "",
+          company: prospect.company,
+          landingPageUrl: pageUrl,
+        });
 
-        let personalizedSubject = emailSubject
-          .replace(/{{first_name}}/gi, prospect.firstName || prospect.name?.split(" ")[0] || "Friend")
-          .replace(/{{last_name}}/gi, prospect.lastName || "")
-          .replace(/{{company}}/gi, prospect.company || "");
-
-        // Send the email
-        const sent = await sendEmail(
-          accessToken,
-          primaryEmail,
-          personalizedSubject,
-          personalizedBody,
-          fromEmail,
-          fromName
-        );
-
-        if (sent) {
-          sentCount++;
+        if (addResult.success) {
+          addedCount++;
           results.push({ email: primaryEmail, success: true, pageUrl });
         } else {
           errorCount++;
-          results.push({ email: primaryEmail, success: false, error: "Email send failed" });
+          results.push({ email: primaryEmail, success: false, pageUrl, error: addResult.error });
         }
 
-        // Rate limiting - wait 500ms between emails
-        await new Promise(resolve => setTimeout(resolve, 500));
+        // Rate limiting - wait 300ms between API calls
+        await new Promise(resolve => setTimeout(resolve, 300));
 
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const errorMessage = error instanceof Error ? error.message : String(error);
         console.error(`Error processing prospect ${primaryEmail}:`, error);
-        results.push({ email: primaryEmail, success: false, error: error.message });
+        results.push({ email: primaryEmail, success: false, error: errorMessage });
         errorCount++;
       }
     }
 
-    console.log(`Campaign complete. Sent: ${sentCount}, Errors: ${errorCount}`);
+    console.log(`Campaign complete. Added to Snov.io list: ${addedCount}, Errors: ${errorCount}`);
 
     return new Response(
       JSON.stringify({
         success: true,
-        message: `Campaign sent to ${sentCount} contacts`,
-        sent: sentCount,
+        message: `Added ${addedCount} prospects to Snov.io drip campaign list`,
+        added: addedCount,
         errors: errorCount,
         total: prospects.length,
+        snovCampaignListId,
         results,
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
 
-  } catch (error: any) {
+  } catch (error: unknown) {
+    const errorMessage = error instanceof Error ? error.message : String(error);
     console.error("Error in snov-send-campaign:", error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

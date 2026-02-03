@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.snov-send-campaign]
 verify_jwt = false
+
+[functions.snov-get-campaigns]
+verify_jwt = false
