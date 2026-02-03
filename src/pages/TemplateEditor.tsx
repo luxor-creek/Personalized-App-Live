@@ -5,6 +5,7 @@ import EditorSidebar from "@/components/editor/EditorSidebar";
 import EditableText from "@/components/editor/EditableText";
 import EditableVideo from "@/components/editor/EditableVideo";
 import EditableImage from "@/components/editor/EditableImage";
+import RichTextEditor from "@/components/editor/RichTextEditor";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import kickerLogo from "@/assets/kicker-logo.png";
@@ -98,43 +99,6 @@ const TemplateEditor = () => {
     );
   }
 
-  // Render the About section content with markdown-like formatting
-  const renderAboutContent = (content: string) => {
-    return content.split('\n\n').map((paragraph, index) => {
-      // Handle bold text
-      let processedText = paragraph;
-      const isBold = paragraph.startsWith('**') && paragraph.endsWith('**');
-      const isItalic = paragraph.startsWith('*') && paragraph.endsWith('*') && !isBold;
-      
-      if (isBold) {
-        processedText = paragraph.slice(2, -2);
-        return (
-          <p key={index} className="text-foreground font-semibold">
-            {processedText.split('\n').map((line, i) => (
-              <span key={i}>{line}{i < processedText.split('\n').length - 1 && <br />}</span>
-            ))}
-          </p>
-        );
-      }
-      
-      if (isItalic) {
-        processedText = paragraph.slice(1, -1);
-        return (
-          <p key={index} className="text-foreground font-medium">
-            <span className="text-primary">{processedText}</span>
-          </p>
-        );
-      }
-
-      return (
-        <p key={index}>
-          {paragraph.split('\n').map((line, i) => (
-            <span key={i}>{line}{i < paragraph.split('\n').length - 1 && <br />}</span>
-          ))}
-        </p>
-      );
-    });
-  };
 
   // B2B Demo template
   if (template.slug === "b2b-demo") {
@@ -425,11 +389,10 @@ const TemplateEditor = () => {
 
             <div className="max-w-3xl mx-auto">
               <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
-                <EditableText
+                <RichTextEditor
                   value={template.about_content || DEFAULT_ABOUT_CONTENT}
                   onChange={(value) => updateField("about_content", value)}
                   fieldName="About Section Body"
-                  multiline
                   supportsPersonalization
                 />
               </div>
