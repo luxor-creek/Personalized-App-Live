@@ -1,0 +1,574 @@
+import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/supabase/client";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { useToast } from "@/hooks/use-toast";
+import kickerLogo from "@/assets/kicker-logo.png";
+import { Plus, Upload, ExternalLink, Trash2, BarChart3, LogOut } from "lucide-react";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+
+interface Campaign {
+  id: string;
+  name: string;
+  created_at: string;
+  page_count?: number;
+  view_count?: number;
+}
+
+interface PersonalizedPage {
+  id: string;
+  token: string;
+  first_name: string;
+  last_name: string | null;
+  company: string | null;
+  custom_message: string | null;
+  created_at: string;
+  view_count?: number;
+}
+
+const Admin = () => {
+  const { user, loading: authLoading, signOut } = useAuth();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  
+  const [campaigns, setCampaigns] = useState<Campaign[]>([]);
+  const [selectedCampaign, setSelectedCampaign] = useState<Campaign | null>(null);
+  const [pages, setPages] = useState<PersonalizedPage[]>([]);
+  const [loading, setLoading] = useState(true);
+  
+  // Create campaign dialog
+  const [createDialogOpen, setCreateDialogOpen] = useState(false);
+  const [newCampaignName, setNewCampaignName] = useState("");
+  
+  // CSV upload dialog
+  const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const [uploading, setUploading] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      fetchCampaigns();
+    }
+  }, [user]);
+
+  useEffect(() => {
+    if (selectedCampaign) {
+      fetchPages(selectedCampaign.id);
+    }
+  }, [selectedCampaign]);
+
+  const fetchCampaigns = async () => {
+    setLoading(true);
+    try {
+      const { data, error } = await supabase
+        .from("campaigns")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      // Get page counts and view counts for each campaign
+      const campaignsWithStats = await Promise.all(
+        (data || []).map(async (campaign) => {
+          const { count: pageCount } = await supabase
+            .from("personalized_pages")
+            .select("*", { count: "exact", head: true })
+            .eq("campaign_id", campaign.id);
+
+          const { data: viewData } = await supabase
+            .from("page_views")
+            .select("personalized_pages!inner(campaign_id)")
+            .eq("personalized_pages.campaign_id", campaign.id);
+
+          return {
+            ...campaign,
+            page_count: pageCount || 0,
+            view_count: viewData?.length || 0,
+          };
+        })
+      );
+
+      setCampaigns(campaignsWithStats);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchPages = async (campaignId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from("personalized_pages")
+        .select("*")
+        .eq("campaign_id", campaignId)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+
+      // Get view counts for each page
+      const pagesWithViews = await Promise.all(
+        (data || []).map(async (page) => {
+          const { count } = await supabase
+            .from("page_views")
+            .select("*", { count: "exact", head: true })
+            .eq("personalized_page_id", page.id);
+
+          return {
+            ...page,
+            view_count: count || 0,
+          };
+        })
+      );
+
+      setPages(pagesWithViews);
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const createCampaign = async () => {
+    if (!newCampaignName.trim()) return;
+
+    try {
+      const { error } = await supabase.from("campaigns").insert({
+        name: newCampaignName.trim(),
+        user_id: user?.id,
+      });
+
+      if (error) throw error;
+
+      toast({ title: "Campaign created!" });
+      setNewCampaignName("");
+      setCreateDialogOpen(false);
+      fetchCampaigns();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const deleteCampaign = async (campaignId: string) => {
+    if (!confirm("Are you sure? This will delete all personalized pages in this campaign.")) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("campaigns")
+        .delete()
+        .eq("id", campaignId);
+
+      if (error) throw error;
+
+      toast({ title: "Campaign deleted" });
+      if (selectedCampaign?.id === campaignId) {
+        setSelectedCampaign(null);
+        setPages([]);
+      }
+      fetchCampaigns();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCsvUpload = async () => {
+    if (!csvFile || !selectedCampaign) return;
+
+    setUploading(true);
+    try {
+      const text = await csvFile.text();
+      const lines = text.split("\n").filter((line) => line.trim());
+      
+      if (lines.length < 2) {
+        throw new Error("CSV must have a header row and at least one data row");
+      }
+
+      const headers = lines[0].split(",").map((h) => h.trim().toLowerCase());
+      
+      // Validate required headers
+      const firstNameIndex = headers.findIndex((h) => 
+        h === "first_name" || h === "firstname" || h === "first name"
+      );
+      
+      if (firstNameIndex === -1) {
+        throw new Error("CSV must have a 'first_name' column");
+      }
+
+      const lastNameIndex = headers.findIndex((h) => 
+        h === "last_name" || h === "lastname" || h === "last name"
+      );
+      const companyIndex = headers.findIndex((h) => 
+        h === "company" || h === "organization"
+      );
+      const messageIndex = headers.findIndex((h) => 
+        h === "custom_message" || h === "message" || h === "custom message"
+      );
+
+      const pagesToCreate = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(",").map((v) => v.trim().replace(/^"|"$/g, ""));
+        
+        if (!values[firstNameIndex]) continue;
+
+        pagesToCreate.push({
+          campaign_id: selectedCampaign.id,
+          first_name: values[firstNameIndex],
+          last_name: lastNameIndex >= 0 ? values[lastNameIndex] || null : null,
+          company: companyIndex >= 0 ? values[companyIndex] || null : null,
+          custom_message: messageIndex >= 0 ? values[messageIndex] || null : null,
+        });
+      }
+
+      if (pagesToCreate.length === 0) {
+        throw new Error("No valid rows found in CSV");
+      }
+
+      const { error } = await supabase
+        .from("personalized_pages")
+        .insert(pagesToCreate);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success!",
+        description: `Created ${pagesToCreate.length} personalized pages`,
+      });
+      
+      setCsvFile(null);
+      setUploadDialogOpen(false);
+      fetchPages(selectedCampaign.id);
+      fetchCampaigns();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const deletePage = async (pageId: string) => {
+    try {
+      const { error } = await supabase
+        .from("personalized_pages")
+        .delete()
+        .eq("id", pageId);
+
+      if (error) throw error;
+
+      toast({ title: "Page deleted" });
+      if (selectedCampaign) {
+        fetchPages(selectedCampaign.id);
+        fetchCampaigns();
+      }
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const getPageUrl = (token: string) => {
+    return `${window.location.origin}/view/${token}`;
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copied to clipboard!" });
+  };
+
+  if (authLoading || loading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Loading...</div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="border-b border-border bg-card">
+        <div className="container mx-auto px-4 py-4 flex items-center justify-between">
+          <img src={kickerLogo} alt="Kicker Video" className="h-8" />
+          <div className="flex items-center gap-4">
+            <span className="text-sm text-muted-foreground">{user?.email}</span>
+            <Button variant="outline" size="sm" onClick={signOut}>
+              <LogOut className="w-4 h-4 mr-2" />
+              Sign Out
+            </Button>
+          </div>
+        </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="grid lg:grid-cols-3 gap-8">
+          {/* Campaigns Sidebar */}
+          <div className="lg:col-span-1">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-xl font-bold text-foreground">Campaigns</h2>
+              <Dialog open={createDialogOpen} onOpenChange={setCreateDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button size="sm">
+                    <Plus className="w-4 h-4 mr-2" />
+                    New
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Create Campaign</DialogTitle>
+                    <DialogDescription>
+                      Create a new campaign to organize your personalized landing pages.
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="space-y-4 pt-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="campaignName">Campaign Name</Label>
+                      <Input
+                        id="campaignName"
+                        value={newCampaignName}
+                        onChange={(e) => setNewCampaignName(e.target.value)}
+                        placeholder="e.g., Pittsburgh PD Q1 2024"
+                      />
+                    </div>
+                    <Button onClick={createCampaign} className="w-full">
+                      Create Campaign
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+
+            <div className="space-y-2">
+              {campaigns.length === 0 ? (
+                <p className="text-muted-foreground text-sm py-4">
+                  No campaigns yet. Create one to get started.
+                </p>
+              ) : (
+                campaigns.map((campaign) => (
+                  <div
+                    key={campaign.id}
+                    className={`p-4 rounded-lg border cursor-pointer transition-colors ${
+                      selectedCampaign?.id === campaign.id
+                        ? "border-primary bg-primary/5"
+                        : "border-border bg-card hover:border-primary/50"
+                    }`}
+                    onClick={() => setSelectedCampaign(campaign)}
+                  >
+                    <div className="flex items-start justify-between">
+                      <div>
+                        <h3 className="font-medium text-foreground">{campaign.name}</h3>
+                        <div className="flex items-center gap-3 mt-1 text-sm text-muted-foreground">
+                          <span>{campaign.page_count} pages</span>
+                          <span className="flex items-center gap-1">
+                            <BarChart3 className="w-3 h-3" />
+                            {campaign.view_count} views
+                          </span>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          deleteCampaign(campaign.id);
+                        }}
+                      >
+                        <Trash2 className="w-4 h-4 text-destructive" />
+                      </Button>
+                    </div>
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Pages Content */}
+          <div className="lg:col-span-2">
+            {selectedCampaign ? (
+              <>
+                <div className="flex items-center justify-between mb-6">
+                  <div>
+                    <h2 className="text-xl font-bold text-foreground">
+                      {selectedCampaign.name}
+                    </h2>
+                    <p className="text-muted-foreground text-sm">
+                      {pages.length} personalized pages
+                    </p>
+                  </div>
+                  <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+                    <DialogTrigger asChild>
+                      <Button>
+                        <Upload className="w-4 h-4 mr-2" />
+                        Upload CSV
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent>
+                      <DialogHeader>
+                        <DialogTitle>Upload CSV</DialogTitle>
+                        <DialogDescription>
+                          Upload a CSV file with columns: first_name (required), last_name, company, custom_message
+                        </DialogDescription>
+                      </DialogHeader>
+                      <div className="space-y-4 pt-4">
+                        <div className="space-y-2">
+                          <Label htmlFor="csvFile">CSV File</Label>
+                          <Input
+                            id="csvFile"
+                            type="file"
+                            accept=".csv"
+                            onChange={(e) => setCsvFile(e.target.files?.[0] || null)}
+                          />
+                        </div>
+                        <div className="text-sm text-muted-foreground bg-muted p-3 rounded">
+                          <p className="font-medium mb-1">Example CSV format:</p>
+                          <code className="text-xs">
+                            first_name,last_name,company,custom_message<br/>
+                            James,Smith,ACME Corp,We're excited to share this with you<br/>
+                            Sarah,Johnson,XYZ Inc,
+                          </code>
+                        </div>
+                        <Button 
+                          onClick={handleCsvUpload} 
+                          className="w-full"
+                          disabled={!csvFile || uploading}
+                        >
+                          {uploading ? "Creating pages..." : "Upload & Create Pages"}
+                        </Button>
+                      </div>
+                    </DialogContent>
+                  </Dialog>
+                </div>
+
+                {pages.length === 0 ? (
+                  <div className="text-center py-12 bg-card rounded-lg border border-border">
+                    <Upload className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
+                    <h3 className="text-lg font-medium text-foreground mb-2">
+                      No pages yet
+                    </h3>
+                    <p className="text-muted-foreground mb-4">
+                      Upload a CSV to create personalized landing pages
+                    </p>
+                  </div>
+                ) : (
+                  <div className="bg-card rounded-lg border border-border overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Name</TableHead>
+                          <TableHead>Company</TableHead>
+                          <TableHead>Views</TableHead>
+                          <TableHead>Link</TableHead>
+                          <TableHead></TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {pages.map((page) => (
+                          <TableRow key={page.id}>
+                            <TableCell>
+                              {page.first_name} {page.last_name}
+                            </TableCell>
+                            <TableCell>{page.company || "-"}</TableCell>
+                            <TableCell>{page.view_count}</TableCell>
+                            <TableCell>
+                              <div className="flex items-center gap-2">
+                                <code className="text-xs bg-muted px-2 py-1 rounded">
+                                  {page.token.substring(0, 8)}...
+                                </code>
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => copyToClipboard(getPageUrl(page.token))}
+                                >
+                                  Copy
+                                </Button>
+                                <a
+                                  href={getPageUrl(page.token)}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                >
+                                  <Button variant="ghost" size="sm">
+                                    <ExternalLink className="w-4 h-4" />
+                                  </Button>
+                                </a>
+                              </div>
+                            </TableCell>
+                            <TableCell>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => deletePage(page.id)}
+                              >
+                                <Trash2 className="w-4 h-4 text-destructive" />
+                              </Button>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                )}
+              </>
+            ) : (
+              <div className="text-center py-12">
+                <h3 className="text-lg font-medium text-foreground mb-2">
+                  Select a campaign
+                </h3>
+                <p className="text-muted-foreground">
+                  Choose a campaign from the left to manage its personalized pages
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default Admin;

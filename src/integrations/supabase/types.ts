@@ -14,13 +14,113 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      campaigns: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      page_views: {
+        Row: {
+          id: string
+          ip_address: string | null
+          personalized_page_id: string
+          user_agent: string | null
+          viewed_at: string
+        }
+        Insert: {
+          id?: string
+          ip_address?: string | null
+          personalized_page_id: string
+          user_agent?: string | null
+          viewed_at?: string
+        }
+        Update: {
+          id?: string
+          ip_address?: string | null
+          personalized_page_id?: string
+          user_agent?: string | null
+          viewed_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "page_views_personalized_page_id_fkey"
+            columns: ["personalized_page_id"]
+            isOneToOne: false
+            referencedRelation: "personalized_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      personalized_pages: {
+        Row: {
+          campaign_id: string
+          company: string | null
+          created_at: string
+          custom_message: string | null
+          first_name: string
+          id: string
+          last_name: string | null
+          token: string
+        }
+        Insert: {
+          campaign_id: string
+          company?: string | null
+          created_at?: string
+          custom_message?: string | null
+          first_name: string
+          id?: string
+          last_name?: string | null
+          token?: string
+        }
+        Update: {
+          campaign_id?: string
+          company?: string | null
+          created_at?: string
+          custom_message?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string | null
+          token?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "personalized_pages_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      user_owns_campaign: { Args: { _campaign_id: string }; Returns: boolean }
+      user_owns_personalized_page: {
+        Args: { _page_id: string }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never
