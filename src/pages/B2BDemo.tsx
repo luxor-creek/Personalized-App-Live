@@ -1,9 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import VideoPlayer from "@/components/VideoPlayer";
+import SampleRequestForm from "@/components/SampleRequestForm";
 import kickerLogo from "@/assets/kicker-logo.png";
 import clientLogos from "@/assets/client-logos.png";
 import { 
@@ -21,30 +19,16 @@ import {
   ArrowRight,
   Mail,
   Download,
-  Clock,
-  MapPin,
-  ShieldCheck,
-  Send,
   Film,
   Calendar
 } from "lucide-react";
-import { useState } from "react";
 import { useTemplateContent } from "@/hooks/useTemplateContent";
 
 const B2BDemo = () => {
   const { template, loading } = useTemplateContent("b2b-demo");
-  
-  const [formData, setFormData] = useState({
-    fullName: "",
-    workEmail: "",
-    company: "",
-    primaryGoal: "",
-    timeline: "",
-    projectDetails: ""
-  });
 
   const scrollToContact = () => {
-    document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
+    document.getElementById("contact-form")?.scrollIntoView({ behavior: "smooth" });
   };
 
   const scrollToPricing = () => {
@@ -53,11 +37,6 @@ const B2BDemo = () => {
 
   const scrollToWork = () => {
     document.getElementById("work")?.scrollIntoView({ behavior: "smooth" });
-  };
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Form submitted:", formData);
   };
 
   if (loading) {
@@ -462,111 +441,8 @@ const B2BDemo = () => {
         </div>
       </section>
 
-      {/* Contact Section */}
-      <section id="contact" className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 text-center">
-              {contactTitle}
-            </h2>
-            <p className="text-lg text-gray-600 text-center mb-8">
-              {contactSubtitle}
-            </p>
-
-            {/* Info badges */}
-            <div className="flex flex-wrap justify-center gap-4 mb-12">
-              <div className="flex items-center gap-2 text-gray-600 text-sm">
-                <Clock className="w-4 h-4 text-gray-400" />
-                Typical timeline: 2–3 weeks (demo), 3–6 weeks (live action)
-              </div>
-              <div className="flex items-center gap-2 text-gray-600 text-sm">
-                <MapPin className="w-4 h-4 text-gray-400" />
-                Crews in 21 cities across US & Canada
-              </div>
-              <div className="flex items-center gap-2 text-gray-600 text-sm">
-                <ShieldCheck className="w-4 h-4 text-gray-400" />
-                Clear scopes with locked budgets
-              </div>
-            </div>
-
-            {/* Contact Info */}
-            <div className="flex flex-wrap justify-center gap-6 mb-12">
-              <a 
-                href="mailto:hello@kickervideo.com" 
-                className="flex items-center gap-2 text-gray-900 hover:text-amber-600 font-medium"
-              >
-                <Mail className="w-5 h-5" />
-                hello@kickervideo.com
-              </a>
-              <a 
-                href="tel:+18005551234" 
-                className="flex items-center gap-2 text-gray-600 hover:text-amber-600"
-              >
-                <Phone className="w-5 h-5" />
-                (800) 555‑1234
-              </a>
-            </div>
-
-            {/* Contact Form */}
-            <form onSubmit={handleSubmit} className="max-w-xl mx-auto space-y-4">
-              <Input 
-                placeholder="Full name"
-                value={formData.fullName}
-                onChange={(e) => setFormData({...formData, fullName: e.target.value})}
-                className="bg-white border-gray-300"
-              />
-              <Input 
-                type="email"
-                placeholder="Work email"
-                value={formData.workEmail}
-                onChange={(e) => setFormData({...formData, workEmail: e.target.value})}
-                className="bg-white border-gray-300"
-              />
-              <Input 
-                placeholder="Company"
-                value={formData.company}
-                onChange={(e) => setFormData({...formData, company: e.target.value})}
-                className="bg-white border-gray-300"
-              />
-              <Select 
-                value={formData.primaryGoal} 
-                onValueChange={(value) => setFormData({...formData, primaryGoal: value})}
-              >
-                <SelectTrigger className="bg-white border-gray-300">
-                  <SelectValue placeholder="Primary goal" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="product-demo">Product demo</SelectItem>
-                  <SelectItem value="explainer-video">Explainer video</SelectItem>
-                  <SelectItem value="brand-video">Brand video</SelectItem>
-                  <SelectItem value="testimonial">Testimonial</SelectItem>
-                  <SelectItem value="trade-show">Trade show asset</SelectItem>
-                </SelectContent>
-              </Select>
-              <Input 
-                placeholder="Timeline"
-                value={formData.timeline}
-                onChange={(e) => setFormData({...formData, timeline: e.target.value})}
-                className="bg-white border-gray-300"
-              />
-              <Textarea 
-                placeholder="Project details"
-                value={formData.projectDetails}
-                onChange={(e) => setFormData({...formData, projectDetails: e.target.value})}
-                className="bg-white border-gray-300 min-h-[120px]"
-              />
-              <Button 
-                type="submit" 
-                size="lg" 
-                className="w-full bg-gray-900 hover:bg-gray-800 text-white"
-              >
-                <Send className="w-4 h-4 mr-2" />
-                Send inquiry
-              </Button>
-            </form>
-          </div>
-        </div>
-      </section>
+      {/* Contact Section with Sample Request Form */}
+      <SampleRequestForm />
 
       {/* Footer */}
       <footer className="py-6 bg-gray-100 border-t border-gray-200">
