@@ -661,6 +661,40 @@ const TemplateEditor = () => {
 
   // B2B Demo template
   if (template.slug === "b2b-demo") {
+    // Default feature list items
+    const defaultFeatureList = [
+      { title: "Script to screen in weeks, not months.", description: "Detailed pre‑pro and rapid iteration." },
+      { title: "On‑brand, on‑budget.", description: "Clear scopes; no surprises." },
+      { title: "Local crews in 21 cities.", description: "Lower travel costs across US & Canada." },
+    ];
+    
+    // Default feature cards
+    const defaultFeatureCards = [
+      { title: "A guided process", description: "Kickoff, creative brief, pre‑pro, production, post. Aligned and transparent at every step." },
+      { title: "AI‑assisted efficiency", description: "Faster scripting, storyboards, and revisions without sacrificing quality." },
+      { title: "Outcomes that convert", description: "Sales‑ready demos, explainer videos, and launch assets your team can deploy fast." },
+      { title: "Seamless collaboration", description: "We plug into your workflow with timely check‑ins and clear revision windows." },
+    ];
+    
+    // Default testimonials
+    const defaultTestimonials = [
+      { quote: "They distilled our complex platform into a crisp, 2‑minute demo that our sales team uses daily.", author: "VP Marketing, SaaS" },
+      { quote: "Fast, organized, and on brand. The process was seamless even across two locations.", author: "Director of Product Marketing, Healthcare" },
+      { quote: "Great value for the quality. Clear scope and quick iterations saved us weeks.", author: "Head of Comms, Manufacturing" },
+    ];
+    
+    // Default pricing tiers
+    const defaultPricingTiers = [
+      { name: "Social & cut‑downs", description: "Short‑form assets, repurposed edits", price: "From <$1k", features: [":15–:45 edits • captions • thumbnails", "Fast turnaround"], cta: "Request scope", featured: false },
+      { name: "Product demo / explainer", description: "90–120s primary asset + cut‑downs", price: "$3k–$8k", features: ["Script, storyboard, VO/music", "Animation or live‑action"], cta: "Start your demo", featured: true },
+      { name: "Multi‑location shoot", description: "Crews in 21 cities to reduce travel", price: "$8k–$25k", features: ["Producer + crew + gear", "Full post‑production", "Price depends on # of locations"], cta: "Get a quote", featured: false },
+    ];
+
+    const featureList = (template.features_list as typeof defaultFeatureList)?.length > 0 ? template.features_list as typeof defaultFeatureList : defaultFeatureList;
+    const featureCards = (template.feature_cards as typeof defaultFeatureCards)?.length > 0 ? template.feature_cards as typeof defaultFeatureCards : defaultFeatureCards;
+    const testimonials = (template.testimonials as typeof defaultTestimonials)?.length > 0 ? template.testimonials as typeof defaultTestimonials : defaultTestimonials;
+    const pricingTiers = (template.pricing_tiers as typeof defaultPricingTiers)?.length > 0 ? template.pricing_tiers as typeof defaultPricingTiers : defaultPricingTiers;
+
     return (
       <div className="min-h-screen bg-white">
         {/* Sidebar */}
@@ -683,7 +717,7 @@ const TemplateEditor = () => {
                 {/* Badge */}
                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100/80 rounded-full text-amber-800 text-sm font-medium mb-8">
                   <RichTextEditor
-                    value={template.hero_badge || ""}
+                    value={template.hero_badge || "Kicker Video — B2B Video Production"}
                     onChange={(value) => updateField("hero_badge", value)}
                     fieldName="Hero Badge"
                     supportsPersonalization
@@ -705,7 +739,7 @@ const TemplateEditor = () => {
                 {/* Subheadline */}
                 <div className="text-lg md:text-xl text-gray-600 mb-8 max-w-3xl mx-auto leading-relaxed">
                   <RichTextEditor
-                    value={template.hero_subheadline || ""}
+                    value={template.hero_subheadline || "Built for marketing and product leaders who need a clear, on‑brand story."}
                     onChange={(value) => updateField("hero_subheadline", value)}
                     fieldName="Hero Subheadline"
                     supportsPersonalization
@@ -717,7 +751,7 @@ const TemplateEditor = () => {
                   <Button size="lg" className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-6">
                     <Play className="w-4 h-4 mr-2" />
                     <EditableText
-                      value={template.hero_cta_primary_text || "Book a call"}
+                      value={template.hero_cta_primary_text || "Book a 15‑min strategy call"}
                       onChange={(value) => updateField("hero_cta_primary_text", value)}
                       fieldName="Primary CTA"
                     />
@@ -733,7 +767,7 @@ const TemplateEditor = () => {
                 </div>
 
                 {/* Video Player */}
-                <div className="max-w-3xl mx-auto">
+                <div className="max-w-3xl mx-auto rounded-xl overflow-hidden shadow-2xl">
                   <EditableVideo
                     videoId={template.hero_video_id || "76979871"}
                     thumbnailUrl={template.hero_video_thumbnail_url || undefined}
@@ -748,9 +782,14 @@ const TemplateEditor = () => {
           {/* Trust Logos */}
           <section className="py-12 bg-white border-y border-gray-100">
             <div className="container mx-auto px-4 text-center">
-              <p className="text-gray-500 text-sm font-medium mb-6">
-                Trusted by B2B teams across the US & Canada
-              </p>
+              <div className="text-gray-500 text-sm font-medium mb-6">
+                <RichTextEditor
+                  value={template.about_content || "Trusted by B2B teams across the US & Canada"}
+                  onChange={(value) => updateField("about_content", value)}
+                  fieldName="Trust Section Text"
+                  supportsPersonalization
+                />
+              </div>
               <div className="flex justify-center">
                 <EditableImage
                   src={template.client_logos_url || clientLogos}
@@ -769,18 +808,274 @@ const TemplateEditor = () => {
               <div className="max-w-4xl mx-auto">
                 <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 text-center">
                   <RichTextEditor
-                    value={template.features_title || ""}
+                    value={template.features_title || "Clarity, speed, and on‑brand delivery"}
                     onChange={(value) => updateField("features_title", value)}
                     fieldName="Features Title"
+                    supportsPersonalization
                     isHeadline
                   />
                 </h2>
                 <div className="text-lg text-gray-600 text-center mb-12 max-w-2xl mx-auto">
                   <RichTextEditor
-                    value={template.features_subtitle || ""}
+                    value={template.features_subtitle || "We blend senior creative teams with AI‑assisted tooling to cut timelines and keep costs predictable."}
                     onChange={(value) => updateField("features_subtitle", value)}
                     fieldName="Features Subtitle"
+                    supportsPersonalization
                   />
+                </div>
+
+                {/* Check List */}
+                <div className="space-y-4 mb-12">
+                  {featureList.map((item: any, index: number) => (
+                    <div key={index} className="flex items-start gap-3">
+                      <Check className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <span className="font-semibold text-gray-700">
+                          <EditableText
+                            value={item.title}
+                            onChange={(value) => {
+                              const newList = [...featureList];
+                              newList[index] = { ...newList[index], title: value };
+                              updateField("features_list", newList);
+                            }}
+                            fieldName={`Feature ${index + 1} Title`}
+                          />
+                        </span>
+                        <span className="text-gray-700 ml-1">
+                          <EditableText
+                            value={item.description}
+                            onChange={(value) => {
+                              const newList = [...featureList];
+                              newList[index] = { ...newList[index], description: value };
+                              updateField("features_list", newList);
+                            }}
+                            fieldName={`Feature ${index + 1} Description`}
+                          />
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Feature Cards */}
+                <div className="grid md:grid-cols-2 gap-6">
+                  {featureCards.map((card: any, index: number) => (
+                    <div key={index} className="border border-gray-200 bg-gray-50/50 rounded-lg p-6">
+                      <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                        <EditableText
+                          value={card.title}
+                          onChange={(value) => {
+                            const newCards = [...featureCards];
+                            newCards[index] = { ...newCards[index], title: value };
+                            updateField("feature_cards", newCards);
+                          }}
+                          fieldName={`Card ${index + 1} Title`}
+                        />
+                      </h3>
+                      <div className="text-gray-600">
+                        <RichTextEditor
+                          value={card.description}
+                          onChange={(value) => {
+                            const newCards = [...featureCards];
+                            newCards[index] = { ...newCards[index], description: value };
+                            updateField("feature_cards", newCards);
+                          }}
+                          fieldName={`Card ${index + 1} Description`}
+                          supportsPersonalization
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Testimonials Section */}
+          <section className="py-20 bg-gray-50">
+            <div className="container mx-auto px-4">
+              <div className="max-w-4xl mx-auto">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 text-center">
+                  <RichTextEditor
+                    value={template.testimonials_title || "What B2B teams say"}
+                    onChange={(value) => updateField("testimonials_title", value)}
+                    fieldName="Testimonials Title"
+                    supportsPersonalization
+                    isHeadline
+                  />
+                </h2>
+                <div className="text-lg text-gray-600 text-center mb-12">
+                  <RichTextEditor
+                    value={template.testimonials_subtitle || "Marketing, product, and comms leaders across tech, healthcare, energy, and manufacturing."}
+                    onChange={(value) => updateField("testimonials_subtitle", value)}
+                    fieldName="Testimonials Subtitle"
+                    supportsPersonalization
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-6">
+                  {testimonials.map((testimonial: any, index: number) => (
+                    <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">
+                      <div className="text-gray-300 text-3xl mb-4">❝</div>
+                      <blockquote className="text-gray-700 mb-4">
+                        <RichTextEditor
+                          value={testimonial.quote}
+                          onChange={(value) => {
+                            const newTestimonials = [...testimonials];
+                            newTestimonials[index] = { ...newTestimonials[index], quote: value };
+                            updateField("testimonials", newTestimonials);
+                          }}
+                          fieldName={`Testimonial ${index + 1} Quote`}
+                          supportsPersonalization
+                        />
+                      </blockquote>
+                      <p className="text-sm text-gray-500 font-medium">
+                        <EditableText
+                          value={testimonial.author}
+                          onChange={(value) => {
+                            const newTestimonials = [...testimonials];
+                            newTestimonials[index] = { ...newTestimonials[index], author: value };
+                            updateField("testimonials", newTestimonials);
+                          }}
+                          fieldName={`Testimonial ${index + 1} Author`}
+                        />
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Pricing Section */}
+          <section className="py-20 bg-white">
+            <div className="container mx-auto px-4">
+              <div className="max-w-5xl mx-auto">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 text-center">
+                  <RichTextEditor
+                    value={template.pricing_title || "Project‑based pricing"}
+                    onChange={(value) => updateField("pricing_title", value)}
+                    fieldName="Pricing Title"
+                    supportsPersonalization
+                    isHeadline
+                  />
+                </h2>
+                <div className="text-lg text-gray-600 text-center mb-12">
+                  <RichTextEditor
+                    value={template.pricing_subtitle || "Every project is scoped to your needs. Typical ranges shown below."}
+                    onChange={(value) => updateField("pricing_subtitle", value)}
+                    fieldName="Pricing Subtitle"
+                    supportsPersonalization
+                  />
+                </div>
+
+                <div className="grid md:grid-cols-3 gap-6">
+                  {pricingTiers.map((tier: any, index: number) => (
+                    <div 
+                      key={index} 
+                      className={`border rounded-lg p-6 ${tier.featured ? 'border-amber-300 bg-amber-50/50 ring-2 ring-amber-200' : 'border-gray-200 bg-white'}`}
+                    >
+                      <h3 className="text-lg font-semibold text-gray-900 mb-1">
+                        <EditableText
+                          value={tier.name}
+                          onChange={(value) => {
+                            const newTiers = [...pricingTiers];
+                            newTiers[index] = { ...newTiers[index], name: value };
+                            updateField("pricing_tiers", newTiers);
+                          }}
+                          fieldName={`Tier ${index + 1} Name`}
+                        />
+                      </h3>
+                      <p className="text-sm text-gray-500 mb-4">
+                        <EditableText
+                          value={tier.description}
+                          onChange={(value) => {
+                            const newTiers = [...pricingTiers];
+                            newTiers[index] = { ...newTiers[index], description: value };
+                            updateField("pricing_tiers", newTiers);
+                          }}
+                          fieldName={`Tier ${index + 1} Description`}
+                        />
+                      </p>
+                      <p className="text-3xl font-bold text-gray-900 mb-4">
+                        <EditableText
+                          value={tier.price}
+                          onChange={(value) => {
+                            const newTiers = [...pricingTiers];
+                            newTiers[index] = { ...newTiers[index], price: value };
+                            updateField("pricing_tiers", newTiers);
+                          }}
+                          fieldName={`Tier ${index + 1} Price`}
+                        />
+                      </p>
+                      <ul className="space-y-2 mb-6">
+                        {(tier.features || []).map((feature: string, fIndex: number) => (
+                          <li key={fIndex} className="flex items-center gap-2 text-gray-600 text-sm">
+                            <Check className="w-4 h-4 text-green-600" />
+                            <EditableText
+                              value={feature}
+                              onChange={(value) => {
+                                const newTiers = [...pricingTiers];
+                                const newFeatures = [...(newTiers[index].features || [])];
+                                newFeatures[fIndex] = value;
+                                newTiers[index] = { ...newTiers[index], features: newFeatures };
+                                updateField("pricing_tiers", newTiers);
+                              }}
+                              fieldName={`Tier ${index + 1} Feature ${fIndex + 1}`}
+                            />
+                          </li>
+                        ))}
+                      </ul>
+                      <Button 
+                        variant={tier.featured ? "default" : "outline"} 
+                        className={`w-full ${tier.featured ? 'bg-amber-500 hover:bg-amber-600 text-gray-900' : 'border-gray-300'}`}
+                      >
+                        <EditableText
+                          value={tier.cta}
+                          onChange={(value) => {
+                            const newTiers = [...pricingTiers];
+                            newTiers[index] = { ...newTiers[index], cta: value };
+                            updateField("pricing_tiers", newTiers);
+                          }}
+                          fieldName={`Tier ${index + 1} CTA`}
+                        />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Work/Portfolio CTA Section */}
+          <section className="py-16 bg-gray-50 border-y border-gray-200">
+            <div className="container mx-auto px-4">
+              <div className="max-w-3xl mx-auto text-center">
+                <h3 className="text-2xl font-bold text-gray-900 mb-4">
+                  <RichTextEditor
+                    value={template.cta_banner_title || "Want to see more examples?"}
+                    onChange={(value) => updateField("cta_banner_title", value)}
+                    fieldName="Portfolio CTA Title"
+                    supportsPersonalization
+                    isHeadline
+                  />
+                </h3>
+                <div className="text-gray-600 mb-8">
+                  <RichTextEditor
+                    value={template.cta_banner_subtitle || "Explore explainer, brand, trade show, and testimonial work across tech, healthcare, energy, and manufacturing."}
+                    onChange={(value) => updateField("cta_banner_subtitle", value)}
+                    fieldName="Portfolio CTA Subtitle"
+                    supportsPersonalization
+                  />
+                </div>
+                <div className="flex flex-col sm:flex-row gap-4 justify-center">
+                  <Button size="lg" className="bg-gray-900 hover:bg-gray-800 text-white">
+                    <Mail className="w-4 h-4 mr-2" />
+                    Request a curated reel
+                  </Button>
+                  <Button variant="outline" size="lg" className="border-amber-600 text-amber-700 hover:bg-amber-50">
+                    Get a sample brief
+                  </Button>
                 </div>
               </div>
             </div>
@@ -789,25 +1084,67 @@ const TemplateEditor = () => {
           {/* Contact Section */}
           <section className="py-20 bg-white">
             <div className="container mx-auto px-4">
-              <div className="max-w-4xl mx-auto text-center">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">
+              <div className="max-w-4xl mx-auto">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4 text-center">
                   <RichTextEditor
-                    value={template.contact_title || "Ready to get started?"}
+                    value={template.contact_title || "Ready to plan your demo?"}
                     onChange={(value) => updateField("contact_title", value)}
                     fieldName="Contact Title"
+                    supportsPersonalization
                     isHeadline
                   />
                 </h2>
-                <div className="text-lg text-gray-600 mb-8">
+                <div className="text-lg text-gray-600 text-center mb-8">
                   <RichTextEditor
-                    value={template.contact_subtitle || ""}
+                    value={template.contact_subtitle || "Tell us about your audience, goals, and deadline. We'll return with a simple plan, scope, and timeline."}
                     onChange={(value) => updateField("contact_subtitle", value)}
                     fieldName="Contact Subtitle"
+                    supportsPersonalization
                   />
+                </div>
+
+                {/* Info badges */}
+                <div className="flex flex-wrap justify-center gap-4 mb-12">
+                  <div className="flex items-center gap-2 text-gray-600 text-sm">
+                    <RichTextEditor
+                      value={template.form_section_title || "Typical timeline: 2–3 weeks (demo), 3–6 weeks (live action)"}
+                      onChange={(value) => updateField("form_section_title", value)}
+                      fieldName="Timeline Info"
+                      supportsPersonalization
+                    />
+                  </div>
+                </div>
+
+                {/* Contact Info */}
+                <div className="flex flex-wrap justify-center gap-6 mb-12">
+                  <a href="mailto:hello@kickervideo.com" className="flex items-center gap-2 text-gray-900 hover:text-amber-600 font-medium">
+                    <Mail className="w-5 h-5" />
+                    <EditableText
+                      value={template.contact_email || "hello@kickervideo.com"}
+                      onChange={(value) => updateField("contact_email", value)}
+                      fieldName="Contact Email"
+                    />
+                  </a>
+                  <a href="tel:+18005551234" className="flex items-center gap-2 text-gray-600 hover:text-amber-600">
+                    <EditableText
+                      value={template.contact_phone || "(800) 555‑1234"}
+                      onChange={(value) => updateField("contact_phone", value)}
+                      fieldName="Contact Phone"
+                    />
+                  </a>
                 </div>
               </div>
             </div>
           </section>
+
+          {/* Footer */}
+          <footer className="py-6 bg-gray-100 border-t border-gray-200">
+            <div className="container mx-auto px-4 text-center">
+              <p className="text-sm text-gray-500">
+                © {new Date().getFullYear()} Kicker Video. All rights reserved.
+              </p>
+            </div>
+          </footer>
         </div>
       </div>
     );
