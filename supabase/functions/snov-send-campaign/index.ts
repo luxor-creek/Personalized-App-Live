@@ -145,10 +145,9 @@ async function addProspectToSnovList(
     formData.append("companyName", prospect.company);
   }
   
-  // Use the "socialUrl" field to pass the personalized landing page URL
-  // This is a workaround since socialUrl is a built-in Snov.io field that accepts URLs
-  // and can be used as {{socialUrl}} in email templates
-  formData.append("socialUrl", prospect.landingPageUrl);
+  // Use the "companyWebsite" field to pass the personalized landing page URL
+  // This is available as {{companyWebsite}} in Snov.io email templates
+  formData.append("companyWebsite", prospect.landingPageUrl);
 
   const response = await fetch("https://api.snov.io/v1/add-prospect-to-list", {
     method: "POST",
