@@ -147,17 +147,18 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    const data: SnovListsResponse = await response.json();
-    console.log(`Fetched ${data.data?.length || 0} lists`);
+    // Snov.io returns an array directly, not wrapped in {data: [...]}
+    const listsArray = await response.json();
+    console.log(`Fetched ${Array.isArray(listsArray) ? listsArray.length : 0} lists`);
+    console.log("Raw response:", JSON.stringify(listsArray).slice(0, 500));
 
     return new Response(
       JSON.stringify({
         success: true,
-        lists: data.data || [],
+        lists: Array.isArray(listsArray) ? listsArray : [],
       }),
       { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
-
   } catch (error: any) {
     console.error("Error in snov-get-lists:", error);
     return new Response(
