@@ -203,10 +203,8 @@ const handler = async (req: Request): Promise<Response> => {
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } }
       );
     }
-
-    // Get the base URL for personalized pages
-    const baseUrl = Deno.env.get("SUPABASE_URL")?.replace(".supabase.co", ".lovable.app") || 
-                    "https://recruitmentvideoproduction.lovable.app";
+    // Get the base URL for personalized pages from environment variable
+    const baseUrl = Deno.env.get("SITE_BASE_URL") || "https://video.kickervideo.com";
 
     let sentCount = 0;
     let errorCount = 0;
