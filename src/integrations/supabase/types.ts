@@ -19,6 +19,7 @@ export type Database = {
           created_at: string
           id: string
           name: string
+          template_id: string | null
           updated_at: string
           user_id: string
         }
@@ -26,6 +27,7 @@ export type Database = {
           created_at?: string
           id?: string
           name: string
+          template_id?: string | null
           updated_at?: string
           user_id: string
         }
@@ -33,10 +35,19 @@ export type Database = {
           created_at?: string
           id?: string
           name?: string
+          template_id?: string | null
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "campaigns_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "landing_page_templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       landing_page_templates: {
         Row: {

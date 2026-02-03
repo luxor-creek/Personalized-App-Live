@@ -33,13 +33,27 @@ import {
   TabsList,
   TabsTrigger,
 } from "@/components/ui/tabs";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface Campaign {
   id: string;
   name: string;
+  template_id: string | null;
   created_at: string;
   page_count?: number;
   view_count?: number;
+}
+
+interface LandingPageTemplate {
+  id: string;
+  name: string;
+  slug: string;
 }
 
 interface PersonalizedPage {
@@ -71,6 +85,8 @@ const Admin = () => {
   // Create campaign dialog
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newCampaignName, setNewCampaignName] = useState("");
+  const [selectedTemplateId, setSelectedTemplateId] = useState<string>("");
+  const [templates, setTemplates] = useState<LandingPageTemplate[]>([]);
   
   // CSV upload dialog
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
@@ -160,8 +176,28 @@ const Admin = () => {
   useEffect(() => {
     if (user && isAdmin) {
       fetchCampaigns();
+      fetchTemplates();
     }
   }, [user, isAdmin]);
+
+  const fetchTemplates = async () => {
+    try {
+      const { data, error } = await supabase
+        .from("landing_page_templates")
+        .select("id, name, slug")
+        .order("name");
+
+      if (error) throw error;
+      setTemplates(data || []);
+      
+      // Set default template if none selected
+      if (!selectedTemplateId && data && data.length > 0) {
+        setSelectedTemplateId(data[0].id);
+      }
+    } catch (error: any) {
+      console.error("Error fetching templates:", error.message);
+    }
+  };
 
   useEffect(() => {
     if (selectedCampaign) {
@@ -253,12 +289,13 @@ const Admin = () => {
   };
 
   const createCampaign = async () => {
-    if (!newCampaignName.trim() || !user) return;
+    if (!newCampaignName.trim() || !user || !selectedTemplateId) return;
 
     try {
       const { error } = await supabase.from("campaigns").insert({
         name: newCampaignName.trim(),
-        user_id: user.id, // Use actual authenticated user ID
+        user_id: user.id,
+        template_id: selectedTemplateId,
       });
 
       if (error) throw error;
@@ -346,6 +383,7 @@ const Admin = () => {
 
         pagesToCreate.push({
           campaign_id: selectedCampaign.id,
+          template_id: selectedCampaign.template_id,
           first_name: values[firstNameIndex],
           last_name: lastNameIndex >= 0 ? values[lastNameIndex] || null : null,
           company: companyIndex >= 0 ? values[companyIndex] || null : null,
@@ -392,6 +430,7 @@ const Admin = () => {
         .from("personalized_pages")
         .insert({
           campaign_id: selectedCampaign.id,
+          template_id: selectedCampaign.template_id,
           first_name: newPerson.first_name.trim(),
           last_name: newPerson.last_name.trim() || null,
           company: newPerson.company.trim() || null,
@@ -782,7 +821,25 @@ const Admin = () => {
                         placeholder="e.g., Q1 Outreach"
                       />
                     </div>
-                    <Button onClick={createCampaign} className="w-full">
+                    <div className="space-y-2">
+                      <Label htmlFor="template-select">Landing Page Template *</Label>
+                      <Select value={selectedTemplateId} onValueChange={setSelectedTemplateId}>
+                        <SelectTrigger id="template-select">
+                          <SelectValue placeholder="Select a landing page" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {templates.map((template) => (
+                            <SelectItem key={template.id} value={template.id}>
+                              {template.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <p className="text-xs text-muted-foreground">
+                        This template will be used for all personalized pages in this campaign.
+                      </p>
+                    </div>
+                    <Button onClick={createCampaign} className="w-full" disabled={!selectedTemplateId}>
                       Create Campaign
                     </Button>
                   </div>
@@ -802,7 +859,7 @@ const Admin = () => {
                 </p>
                 <Button onClick={() => setCreateDialogOpen(true)}>
                   <Plus className="w-4 h-4 mr-2" />
-                  Create Campaign
+                  New Campaign
                 </Button>
               </div>
             ) : (
