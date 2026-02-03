@@ -29,6 +29,9 @@ export interface TemplateData {
   contact_email: string | null;
   contact_phone: string | null;
   personalization_config: Record<string, boolean>;
+  about_content: string | null;
+  client_logos_url: string | null;
+  portfolio_strip_url: string | null;
 }
 
 export function useTemplateEditor(slug: string | undefined) {
@@ -87,6 +90,9 @@ export function useTemplateEditor(slug: string | undefined) {
           personalization_config: typeof data.personalization_config === 'object' && data.personalization_config !== null && !Array.isArray(data.personalization_config) 
             ? data.personalization_config as Record<string, boolean>
             : {},
+          about_content: (data as any).about_content ?? null,
+          client_logos_url: (data as any).client_logos_url ?? null,
+          portfolio_strip_url: (data as any).portfolio_strip_url ?? null,
         };
 
         setTemplate(templateData);
@@ -152,7 +158,10 @@ export function useTemplateEditor(slug: string | undefined) {
           contact_email: template.contact_email,
           contact_phone: template.contact_phone,
           personalization_config: template.personalization_config,
-        })
+          about_content: template.about_content,
+          client_logos_url: template.client_logos_url,
+          portfolio_strip_url: template.portfolio_strip_url,
+        } as any)
         .eq("id", template.id);
 
       if (updateError) throw updateError;
