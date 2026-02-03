@@ -41,6 +41,12 @@ export interface TemplateData {
   // Portfolio videos and custom section
   portfolio_videos: { title: string; videoId?: string; image?: string }[];
   custom_section_image_url: string | null;
+  // CTA Banner section
+  cta_banner_title: string | null;
+  cta_banner_subtitle: string | null;
+  // Form section
+  form_section_title: string | null;
+  form_section_subtitle: string | null;
 }
 
 export function useTemplateEditor(slug: string | undefined) {
@@ -111,6 +117,12 @@ export function useTemplateEditor(slug: string | undefined) {
           // Portfolio videos and custom section
           portfolio_videos: Array.isArray((data as any).portfolio_videos) ? (data as any).portfolio_videos : [],
           custom_section_image_url: (data as any).custom_section_image_url ?? null,
+          // CTA Banner section
+          cta_banner_title: (data as any).cta_banner_title ?? null,
+          cta_banner_subtitle: (data as any).cta_banner_subtitle ?? null,
+          // Form section
+          form_section_title: (data as any).form_section_title ?? null,
+          form_section_subtitle: (data as any).form_section_subtitle ?? null,
         };
 
         setTemplate(templateData);
@@ -186,6 +198,10 @@ export function useTemplateEditor(slug: string | undefined) {
           comparison_solution_items: template.comparison_solution_items,
           portfolio_videos: template.portfolio_videos,
           custom_section_image_url: template.custom_section_image_url,
+          cta_banner_title: template.cta_banner_title,
+          cta_banner_subtitle: template.cta_banner_subtitle,
+          form_section_title: template.form_section_title,
+          form_section_subtitle: template.form_section_subtitle,
         } as any)
         .eq("id", template.id);
 

@@ -63,11 +63,15 @@ export type Database = {
           contact_subtitle: string | null
           contact_title: string | null
           created_at: string
+          cta_banner_subtitle: string | null
+          cta_banner_title: string | null
           custom_section_image_url: string | null
           feature_cards: Json | null
           features_list: Json | null
           features_subtitle: string | null
           features_title: string | null
+          form_section_subtitle: string | null
+          form_section_title: string | null
           hero_badge: string | null
           hero_cta_primary_text: string | null
           hero_cta_secondary_text: string | null
@@ -103,11 +107,15 @@ export type Database = {
           contact_subtitle?: string | null
           contact_title?: string | null
           created_at?: string
+          cta_banner_subtitle?: string | null
+          cta_banner_title?: string | null
           custom_section_image_url?: string | null
           feature_cards?: Json | null
           features_list?: Json | null
           features_subtitle?: string | null
           features_title?: string | null
+          form_section_subtitle?: string | null
+          form_section_title?: string | null
           hero_badge?: string | null
           hero_cta_primary_text?: string | null
           hero_cta_secondary_text?: string | null
@@ -143,11 +151,15 @@ export type Database = {
           contact_subtitle?: string | null
           contact_title?: string | null
           created_at?: string
+          cta_banner_subtitle?: string | null
+          cta_banner_title?: string | null
           custom_section_image_url?: string | null
           feature_cards?: Json | null
           features_list?: Json | null
           features_subtitle?: string | null
           features_title?: string | null
+          form_section_subtitle?: string | null
+          form_section_title?: string | null
           hero_badge?: string | null
           hero_cta_primary_text?: string | null
           hero_cta_secondary_text?: string | null

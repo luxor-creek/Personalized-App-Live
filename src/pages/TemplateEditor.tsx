@@ -12,7 +12,7 @@ import kickerLogo from "@/assets/kicker-logo.png";
 import clientLogos from "@/assets/client-logos.png";
 import portfolioStrip from "@/assets/portfolio-strip.png";
 import { ArrowDown, Play, DollarSign, Mail, ExternalLink, X, Check } from "lucide-react";
-import SampleRequestForm from "@/components/SampleRequestForm";
+import EditableSampleRequestForm from "@/components/editor/EditableSampleRequestForm";
 
 const DEFAULT_ABOUT_CONTENT = `Most police recruitment videos aren't broken.
 They're just outdated.
@@ -582,16 +582,32 @@ const TemplateEditor = () => {
           <section className="py-16 px-6 bg-gradient-to-br from-indigo-600 to-indigo-700">
             <div className="max-w-4xl mx-auto text-center">
               <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-                Let's work together, <span className="text-amber-400">{"{{first_name}}"}</span>
+                <RichTextEditor
+                  value={(template as any).cta_banner_title || "Let's work together, {{first_name}}"}
+                  onChange={(value) => updateField("cta_banner_title" as any, value)}
+                  fieldName="CTA Banner Title"
+                  supportsPersonalization
+                  isHeadline
+                />
               </h2>
-              <p className="text-lg text-indigo-100 mb-8">
-                We're excited to show <span className="text-amber-300">{"{{company}}"}</span> what's possible. Get started in minutes.
-              </p>
+              <div className="text-lg text-indigo-100 mb-8">
+                <RichTextEditor
+                  value={(template as any).cta_banner_subtitle || "We're excited to show {{company}} what's possible. Get started in minutes."}
+                  onChange={(value) => updateField("cta_banner_subtitle" as any, value)}
+                  fieldName="CTA Banner Subtitle"
+                  supportsPersonalization
+                />
+              </div>
             </div>
           </section>
 
           {/* Sample Request Form Section */}
-          <SampleRequestForm />
+          <EditableSampleRequestForm
+            formTitle={template.form_section_title || "Request a Sample Video"}
+            formSubtitle={template.form_section_subtitle || "See what Viaxo can do with your content. We'll generate a sample video from your existing page—no creative brief required."}
+            onTitleChange={(value) => updateField("form_section_title", value)}
+            onSubtitleChange={(value) => updateField("form_section_subtitle", value)}
+          />
 
           {/* Final CTA Section */}
           <section className="py-16 px-6 bg-white">
