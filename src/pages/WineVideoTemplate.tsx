@@ -1,6 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import kickerLogo from "@/assets/kicker-logo.png";
+import SampleRequestForm from "@/components/SampleRequestForm";
 import { 
   Sparkles, 
   Calendar, 
@@ -328,6 +329,9 @@ const WineVideoTemplate = () => {
           </p>
         </div>
       </section>
+
+      {/* Sample Request Form Section */}
+      <SampleRequestForm />
 
       {/* Final CTA Section */}
       <section className="py-16 px-6 bg-white">
