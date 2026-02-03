@@ -1,6 +1,7 @@
 import VideoPlayer from "./VideoPlayer";
 import { Button } from "./ui/button";
 import { ArrowDown } from "lucide-react";
+import kickerLogo from "@/assets/kicker-logo.png";
 
 interface HeroSectionProps {
   thumbnailUrl?: string;
@@ -27,14 +28,7 @@ const HeroSection = ({ thumbnailUrl }: HeroSectionProps) => {
       <div className="container mx-auto px-4 py-12 lg:py-20 relative z-10">
         {/* Header */}
         <header className="flex items-center justify-between mb-12 lg:mb-16 animate-fade-up">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-lg bg-primary flex items-center justify-center">
-              <span className="font-display font-bold text-xl text-primary-foreground">K</span>
-            </div>
-            <span className="font-display text-2xl font-semibold text-foreground">
-              Kicker<span className="text-primary">Video</span>
-            </span>
-          </div>
+          <img src={kickerLogo} alt="Kicker Video" className="h-8 md:h-10" />
           <Button variant="heroOutline" size="lg" onClick={scrollToContact}>
             Get in Touch
           </Button>
