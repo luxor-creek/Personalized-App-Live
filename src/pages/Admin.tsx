@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import kickerLogo from "@/assets/kicker-logo.png";
-import { Plus, Upload, ExternalLink, Trash2, BarChart3, LogOut, Eye, Lock } from "lucide-react";
+import { Plus, Upload, ExternalLink, Trash2, BarChart3, LogOut, Eye, Lock, UserPlus } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import {
   Dialog,
   DialogContent,
@@ -71,6 +72,16 @@ const Admin = () => {
   const [uploadDialogOpen, setUploadDialogOpen] = useState(false);
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const [uploading, setUploading] = useState(false);
+  
+  // Add person dialog
+  const [addPersonDialogOpen, setAddPersonDialogOpen] = useState(false);
+  const [newPerson, setNewPerson] = useState({
+    first_name: "",
+    last_name: "",
+    company: "",
+    custom_message: "",
+  });
+  const [addingPerson, setAddingPerson] = useState(false);
 
   // Check for saved session
   useEffect(() => {
@@ -317,6 +328,49 @@ const Admin = () => {
     }
   };
 
+  const addSinglePerson = async () => {
+    if (!newPerson.first_name.trim() || !selectedCampaign) return;
+
+    setAddingPerson(true);
+    try {
+      const { data, error } = await supabase
+        .from("personalized_pages")
+        .insert({
+          campaign_id: selectedCampaign.id,
+          first_name: newPerson.first_name.trim(),
+          last_name: newPerson.last_name.trim() || null,
+          company: newPerson.company.trim() || null,
+          custom_message: newPerson.custom_message.trim() || null,
+        })
+        .select("token")
+        .single();
+
+      if (error) throw error;
+
+      const pageUrl = `${window.location.origin}/view/${data.token}`;
+      
+      toast({
+        title: "Page created!",
+        description: "Link copied to clipboard",
+      });
+      
+      navigator.clipboard.writeText(pageUrl);
+      
+      setNewPerson({ first_name: "", last_name: "", company: "", custom_message: "" });
+      setAddPersonDialogOpen(false);
+      fetchPages(selectedCampaign.id);
+      fetchCampaigns();
+    } catch (error: any) {
+      toast({
+        title: "Error",
+        description: error.message,
+        variant: "destructive",
+      });
+    } finally {
+      setAddingPerson(false);
+    }
+  };
+
   const deletePage = async (pageId: string) => {
     try {
       const { error } = await supabase
@@ -534,48 +588,117 @@ const Admin = () => {
                           {pages.length} personalized pages
                         </p>
                       </div>
-                      <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
-                        <DialogTrigger asChild>
-                          <Button>
-                            <Upload className="w-4 h-4 mr-2" />
-                            Upload CSV
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Upload CSV</DialogTitle>
-                            <DialogDescription>
-                              Upload a CSV file with columns: first_name (required), last_name, company, custom_message
-                            </DialogDescription>
-                          </DialogHeader>
-                          <div className="space-y-4 pt-4">
-                            <div className="space-y-2">
-                              <Label htmlFor="csvFile">CSV File</Label>
-                              <Input
-                                id="csvFile"
-                                type="file"
-                                accept=".csv"
-                                onChange={(e) => setCsvFile(e.target.files?.[0] || null)}
-                              />
-                            </div>
-                            <div className="text-sm text-muted-foreground bg-muted p-3 rounded">
-                              <p className="font-medium mb-1">Example CSV format:</p>
-                              <code className="text-xs">
-                                first_name,last_name,company,custom_message<br/>
-                                James,Smith,ACME Corp,We're excited to share this with you<br/>
-                                Sarah,Johnson,XYZ Inc,
-                              </code>
-                            </div>
-                            <Button 
-                              onClick={handleCsvUpload} 
-                              className="w-full"
-                              disabled={!csvFile || uploading}
-                            >
-                              {uploading ? "Creating pages..." : "Upload & Create Pages"}
+                      <div className="flex items-center gap-2">
+                        {/* Add Person Dialog */}
+                        <Dialog open={addPersonDialogOpen} onOpenChange={setAddPersonDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button variant="outline">
+                              <UserPlus className="w-4 h-4 mr-2" />
+                              Add Person
                             </Button>
-                          </div>
-                        </DialogContent>
-                      </Dialog>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Add Person</DialogTitle>
+                              <DialogDescription>
+                                Create a personalized landing page for one person
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 pt-4">
+                              <div className="grid grid-cols-2 gap-4">
+                                <div className="space-y-2">
+                                  <Label htmlFor="firstName">First Name *</Label>
+                                  <Input
+                                    id="firstName"
+                                    value={newPerson.first_name}
+                                    onChange={(e) => setNewPerson({ ...newPerson, first_name: e.target.value })}
+                                    placeholder="James"
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="lastName">Last Name</Label>
+                                  <Input
+                                    id="lastName"
+                                    value={newPerson.last_name}
+                                    onChange={(e) => setNewPerson({ ...newPerson, last_name: e.target.value })}
+                                    placeholder="Smith"
+                                  />
+                                </div>
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="company">Company</Label>
+                                <Input
+                                  id="company"
+                                  value={newPerson.company}
+                                  onChange={(e) => setNewPerson({ ...newPerson, company: e.target.value })}
+                                  placeholder="ACME Corp"
+                                />
+                              </div>
+                              <div className="space-y-2">
+                                <Label htmlFor="customMessage">Custom Message (optional)</Label>
+                                <Textarea
+                                  id="customMessage"
+                                  value={newPerson.custom_message}
+                                  onChange={(e) => setNewPerson({ ...newPerson, custom_message: e.target.value })}
+                                  placeholder="We created this video specifically for your team..."
+                                  rows={3}
+                                />
+                              </div>
+                              <Button 
+                                onClick={addSinglePerson} 
+                                className="w-full"
+                                disabled={!newPerson.first_name.trim() || addingPerson}
+                              >
+                                {addingPerson ? "Creating..." : "Create Page & Copy Link"}
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                        
+                        {/* Upload CSV Dialog */}
+                        <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button>
+                              <Upload className="w-4 h-4 mr-2" />
+                              Upload CSV
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Upload CSV</DialogTitle>
+                              <DialogDescription>
+                                Upload a CSV file with columns: first_name (required), last_name, company, custom_message
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 pt-4">
+                              <div className="space-y-2">
+                                <Label htmlFor="csvFile">CSV File</Label>
+                                <Input
+                                  id="csvFile"
+                                  type="file"
+                                  accept=".csv"
+                                  onChange={(e) => setCsvFile(e.target.files?.[0] || null)}
+                                />
+                              </div>
+                              <div className="text-sm text-muted-foreground bg-muted p-3 rounded">
+                                <p className="font-medium mb-1">Example CSV format:</p>
+                                <code className="text-xs">
+                                  first_name,last_name,company,custom_message<br/>
+                                  James,Smith,ACME Corp,We're excited to share this with you<br/>
+                                  Sarah,Johnson,XYZ Inc,
+                                </code>
+                              </div>
+                              <Button 
+                                onClick={handleCsvUpload} 
+                                className="w-full"
+                                disabled={!csvFile || uploading}
+                              >
+                                {uploading ? "Creating pages..." : "Upload & Create Pages"}
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
                     </div>
 
                     {pages.length === 0 ? (
