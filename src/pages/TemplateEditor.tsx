@@ -11,7 +11,7 @@ import { useToast } from "@/hooks/use-toast";
 import kickerLogo from "@/assets/kicker-logo.png";
 import clientLogos from "@/assets/client-logos.png";
 import portfolioStrip from "@/assets/portfolio-strip.png";
-import { ArrowDown, Play, DollarSign, Mail, ExternalLink } from "lucide-react";
+import { ArrowDown, Play, DollarSign, Mail, ExternalLink, X, Check } from "lucide-react";
 
 const DEFAULT_ABOUT_CONTENT = `Most police recruitment videos aren't broken.
 They're just outdated.
@@ -222,20 +222,53 @@ const TemplateEditor = () => {
                 />
               </div>
 
-              {/* Feature Cards */}
+              {/* Feature Cards - Editable */}
               <div className="grid md:grid-cols-3 gap-6">
-                <div className="p-6 bg-white rounded-lg text-center">
-                  <div className="text-2xl font-bold text-foreground mb-2">No Filming</div>
-                  <p className="text-muted-foreground">No camera crews</p>
-                </div>
-                <div className="p-6 bg-white rounded-lg text-center">
-                  <div className="text-2xl font-bold text-foreground mb-2">No Scriptwriting</div>
-                  <p className="text-muted-foreground">Content comes from your pages</p>
-                </div>
-                <div className="p-6 bg-white rounded-lg text-center">
-                  <div className="text-2xl font-bold text-foreground mb-2">No Delay</div>
-                  <p className="text-muted-foreground">Fast Turnaround</p>
-                </div>
+                {(template.feature_cards?.length > 0 
+                  ? template.feature_cards 
+                  : [
+                      { title: "No Filming", subtitle: "No camera crews" },
+                      { title: "No Scriptwriting", subtitle: "Content comes from your pages" },
+                      { title: "No Delay", subtitle: "Fast Turnaround" },
+                    ]
+                ).map((card: any, index: number) => (
+                  <div key={index} className="p-6 bg-white rounded-lg text-center">
+                    <div className="text-2xl font-bold text-foreground mb-2">
+                      <EditableText
+                        value={card.title || ""}
+                        onChange={(value) => {
+                          const newCards = [...(template.feature_cards?.length > 0 
+                            ? template.feature_cards 
+                            : [
+                                { title: "No Filming", subtitle: "No camera crews" },
+                                { title: "No Scriptwriting", subtitle: "Content comes from your pages" },
+                                { title: "No Delay", subtitle: "Fast Turnaround" },
+                              ])];
+                          newCards[index] = { ...newCards[index], title: value };
+                          updateField("feature_cards", newCards);
+                        }}
+                        fieldName={`Feature Card ${index + 1} Title`}
+                      />
+                    </div>
+                    <div className="text-muted-foreground">
+                      <EditableText
+                        value={card.subtitle || ""}
+                        onChange={(value) => {
+                          const newCards = [...(template.feature_cards?.length > 0 
+                            ? template.feature_cards 
+                            : [
+                                { title: "No Filming", subtitle: "No camera crews" },
+                                { title: "No Scriptwriting", subtitle: "Content comes from your pages" },
+                                { title: "No Delay", subtitle: "Fast Turnaround" },
+                              ])];
+                          newCards[index] = { ...newCards[index], subtitle: value };
+                          updateField("feature_cards", newCards);
+                        }}
+                        fieldName={`Feature Card ${index + 1} Subtitle`}
+                      />
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
           </section>
@@ -329,18 +362,123 @@ const TemplateEditor = () => {
                 />
               </h2>
 
-              {/* Testimonial Cards */}
+              {/* Testimonial Cards - Editable */}
               <div className="grid md:grid-cols-3 gap-6">
-                {[
-                  "Kicker made complex messaging simple and engaging. Fast, on-budget, and on-brand.",
-                  "Smooth process from brief to delivery. Their team felt like an extension of ours.",
-                  "The videos moved the needle on demos and deal velocity. Highly recommend.",
-                ].map((quote, index) => (
+                {(template.testimonials?.length > 0 
+                  ? template.testimonials 
+                  : [
+                      { quote: "Kicker made complex messaging simple and engaging. Fast, on-budget, and on-brand." },
+                      { quote: "Smooth process from brief to delivery. Their team felt like an extension of ours." },
+                      { quote: "The videos moved the needle on demos and deal velocity. Highly recommend." },
+                    ]
+                ).map((testimonial: any, index: number) => (
                   <div key={index} className="p-6 bg-gray-50 rounded-lg border-0">
                     <div className="w-6 h-6 text-amber-500 mb-4">❝</div>
-                    <p className="text-foreground leading-relaxed">"{quote}"</p>
+                    <div className="text-foreground leading-relaxed">
+                      <EditableText
+                        value={typeof testimonial === 'string' ? testimonial : (testimonial.quote || "")}
+                        onChange={(value) => {
+                          const existingTestimonials = template.testimonials?.length > 0 
+                            ? template.testimonials 
+                            : [
+                                { quote: "Kicker made complex messaging simple and engaging. Fast, on-budget, and on-brand." },
+                                { quote: "Smooth process from brief to delivery. Their team felt like an extension of ours." },
+                                { quote: "The videos moved the needle on demos and deal velocity. Highly recommend." },
+                              ];
+                          const newTestimonials = [...existingTestimonials];
+                          newTestimonials[index] = { quote: value };
+                          updateField("testimonials", newTestimonials);
+                        }}
+                        fieldName={`Testimonial ${index + 1}`}
+                        multiline
+                      />
+                    </div>
                   </div>
                 ))}
+              </div>
+            </div>
+          </section>
+
+          {/* Comparison Section - Problem vs Solution */}
+          <section className="py-16 px-6 bg-gray-50">
+            <div className="max-w-6xl mx-auto">
+              <div className="grid md:grid-cols-2 gap-8">
+                {/* Problem Side */}
+                <div>
+                  <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-4">
+                    THE PROBLEM
+                  </p>
+                  <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
+                    <RichTextEditor
+                      value={template.comparison_problem_title || "Why Viaxo Exists"}
+                      onChange={(value) => updateField("comparison_problem_title", value)}
+                      fieldName="Problem Title"
+                      isHeadline
+                    />
+                  </h2>
+                  <div className="space-y-4">
+                    {(template.comparison_problem_items?.length > 0 
+                      ? template.comparison_problem_items 
+                      : ["Traditional video production doesn't scale", "Static pages underperform in engagement", "Search and AI discovery prioritize video"]
+                    ).map((item, index) => (
+                      <div key={index} className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-sm">
+                        <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                        <EditableText
+                          value={item}
+                          onChange={(value) => {
+                            const newItems = [...(template.comparison_problem_items || [])];
+                            newItems[index] = value;
+                            updateField("comparison_problem_items", newItems);
+                          }}
+                          fieldName={`Problem Item ${index + 1}`}
+                          className="flex-1"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Solution Side */}
+                <div className="p-8 bg-white rounded-lg border border-gray-200">
+                  <p className="text-xs font-medium uppercase tracking-wider text-cyan-500 mb-4">
+                    THE SOLUTION
+                  </p>
+                  <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+                    <RichTextEditor
+                      value={template.comparison_solution_title || "Infrastructure for Practical Video at Scale"}
+                      onChange={(value) => updateField("comparison_solution_title", value)}
+                      fieldName="Solution Title"
+                      isHeadline
+                    />
+                  </h3>
+                  <div className="text-muted-foreground mb-6">
+                    <RichTextEditor
+                      value={template.comparison_solution_description || "Viaxo provides infrastructure that makes video practical across entire catalogs and campaigns."}
+                      onChange={(value) => updateField("comparison_solution_description", value)}
+                      fieldName="Solution Description"
+                    />
+                  </div>
+                  <div className="space-y-3">
+                    {(template.comparison_solution_items?.length > 0 
+                      ? template.comparison_solution_items 
+                      : ["Automated generation from existing content", "Template-driven consistency", "Bulk processing capability", "White-label delivery"]
+                    ).map((item, index) => (
+                      <div key={index} className="flex items-center gap-3">
+                        <Check className="w-5 h-5 text-cyan-500 flex-shrink-0" />
+                        <EditableText
+                          value={item}
+                          onChange={(value) => {
+                            const newItems = [...(template.comparison_solution_items || [])];
+                            newItems[index] = value;
+                            updateField("comparison_solution_items", newItems);
+                          }}
+                          fieldName={`Solution Item ${index + 1}`}
+                          className="flex-1"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           </section>

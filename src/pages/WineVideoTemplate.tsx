@@ -14,7 +14,9 @@ import {
   ArrowRight,
   Quote,
   CheckCircle2,
-  Film
+  Film,
+  X,
+  Check
 } from "lucide-react";
 
 const WineVideoTemplate = () => {
@@ -210,6 +212,61 @@ const WineVideoTemplate = () => {
                 <p className="text-foreground leading-relaxed">"{quote}"</p>
               </Card>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Comparison Section - Problem vs Solution */}
+      <section className="py-16 px-6 bg-gray-50">
+        <div className="max-w-6xl mx-auto">
+          <div className="grid md:grid-cols-2 gap-8">
+            {/* Problem Side */}
+            <div>
+              <p className="text-xs font-medium uppercase tracking-wider text-muted-foreground mb-4">
+                THE PROBLEM
+              </p>
+              <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-8">
+                Why Viaxo Exists
+              </h2>
+              <div className="space-y-4">
+                {[
+                  "Traditional video production doesn't scale",
+                  "Static pages underperform in engagement",
+                  "Search and AI discovery prioritize video",
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center gap-4 bg-white rounded-lg p-4 shadow-sm">
+                    <X className="w-5 h-5 text-red-500 flex-shrink-0" />
+                    <span className="text-foreground">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Solution Side */}
+            <Card className="p-8 bg-white border border-gray-200">
+              <p className="text-xs font-medium uppercase tracking-wider text-cyan-500 mb-4">
+                THE SOLUTION
+              </p>
+              <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
+                Infrastructure for Practical Video at Scale
+              </h3>
+              <p className="text-muted-foreground mb-6">
+                Viaxo provides infrastructure that makes video practical across entire catalogs and campaigns.
+              </p>
+              <div className="space-y-3">
+                {[
+                  "Automated generation from existing content",
+                  "Template-driven consistency",
+                  "Bulk processing capability",
+                  "White-label delivery",
+                ].map((item, index) => (
+                  <div key={index} className="flex items-center gap-3">
+                    <Check className="w-5 h-5 text-cyan-500 flex-shrink-0" />
+                    <span className="text-foreground">{item}</span>
+                  </div>
+                ))}
+              </div>
+            </Card>
           </div>
         </div>
       </section>

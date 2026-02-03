@@ -42,6 +42,11 @@ export type Database = {
         Row: {
           about_content: string | null
           client_logos_url: string | null
+          comparison_problem_items: Json | null
+          comparison_problem_title: string | null
+          comparison_solution_description: string | null
+          comparison_solution_items: Json | null
+          comparison_solution_title: string | null
           contact_email: string | null
           contact_phone: string | null
           contact_subtitle: string | null
@@ -75,6 +80,11 @@ export type Database = {
         Insert: {
           about_content?: string | null
           client_logos_url?: string | null
+          comparison_problem_items?: Json | null
+          comparison_problem_title?: string | null
+          comparison_solution_description?: string | null
+          comparison_solution_items?: Json | null
+          comparison_solution_title?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           contact_subtitle?: string | null
@@ -108,6 +118,11 @@ export type Database = {
         Update: {
           about_content?: string | null
           client_logos_url?: string | null
+          comparison_problem_items?: Json | null
+          comparison_problem_title?: string | null
+          comparison_solution_description?: string | null
+          comparison_solution_items?: Json | null
+          comparison_solution_title?: string | null
           contact_email?: string | null
           contact_phone?: string | null
           contact_subtitle?: string | null

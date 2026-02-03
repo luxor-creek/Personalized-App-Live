@@ -32,6 +32,12 @@ export interface TemplateData {
   about_content: string | null;
   client_logos_url: string | null;
   portfolio_strip_url: string | null;
+  // Comparison section
+  comparison_problem_title: string | null;
+  comparison_problem_items: string[];
+  comparison_solution_title: string | null;
+  comparison_solution_description: string | null;
+  comparison_solution_items: string[];
 }
 
 export function useTemplateEditor(slug: string | undefined) {
@@ -93,6 +99,12 @@ export function useTemplateEditor(slug: string | undefined) {
           about_content: (data as any).about_content ?? null,
           client_logos_url: (data as any).client_logos_url ?? null,
           portfolio_strip_url: (data as any).portfolio_strip_url ?? null,
+          // Comparison section
+          comparison_problem_title: (data as any).comparison_problem_title ?? null,
+          comparison_problem_items: Array.isArray((data as any).comparison_problem_items) ? (data as any).comparison_problem_items : [],
+          comparison_solution_title: (data as any).comparison_solution_title ?? null,
+          comparison_solution_description: (data as any).comparison_solution_description ?? null,
+          comparison_solution_items: Array.isArray((data as any).comparison_solution_items) ? (data as any).comparison_solution_items : [],
         };
 
         setTemplate(templateData);
@@ -161,6 +173,11 @@ export function useTemplateEditor(slug: string | undefined) {
           about_content: template.about_content,
           client_logos_url: template.client_logos_url,
           portfolio_strip_url: template.portfolio_strip_url,
+          comparison_problem_title: template.comparison_problem_title,
+          comparison_problem_items: template.comparison_problem_items,
+          comparison_solution_title: template.comparison_solution_title,
+          comparison_solution_description: template.comparison_solution_description,
+          comparison_solution_items: template.comparison_solution_items,
         } as any)
         .eq("id", template.id);
 
