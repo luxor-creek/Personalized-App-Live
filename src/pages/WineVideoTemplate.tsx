@@ -25,6 +25,10 @@ const WineVideoTemplate = () => {
   const firstName = "Sarah";
   const companyName = "Swift Compass";
 
+  const scrollToForm = () => {
+    document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' });
+  };
+
   return (
     <div className="min-h-screen bg-[#f0f4f8]">
       {/* Header */}
@@ -37,7 +41,7 @@ const WineVideoTemplate = () => {
             <span className="font-semibold text-foreground">{companyName}</span>
           </div>
         </div>
-        <Button variant="outline" className="gap-2">
+        <Button variant="outline" className="gap-2" onClick={scrollToForm}>
           <Phone className="w-4 h-4" />
           Contact Us
         </Button>
@@ -65,7 +69,7 @@ const WineVideoTemplate = () => {
                 </p>
 
                 <div className="flex flex-wrap gap-3">
-                  <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground" onClick={scrollToForm}>
                     <Calendar className="w-4 h-4" />
                     Contact Us
                   </Button>
@@ -344,7 +348,7 @@ const WineVideoTemplate = () => {
           </p>
 
           <div className="flex flex-wrap gap-4 justify-center">
-            <Button size="lg" className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
+            <Button size="lg" className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground" onClick={scrollToForm}>
               <Phone className="w-4 h-4" />
               Contact Us
             </Button>
