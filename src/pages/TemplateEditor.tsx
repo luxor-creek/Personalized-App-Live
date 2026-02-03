@@ -12,6 +12,7 @@ import kickerLogo from "@/assets/kicker-logo.png";
 import clientLogos from "@/assets/client-logos.png";
 import portfolioStrip from "@/assets/portfolio-strip.png";
 import { ArrowDown, Play, DollarSign, Mail, ExternalLink, X, Check } from "lucide-react";
+import SampleRequestForm from "@/components/SampleRequestForm";
 
 const DEFAULT_ABOUT_CONTENT = `Most police recruitment videos aren't broken.
 They're just outdated.
@@ -549,6 +550,9 @@ const TemplateEditor = () => {
               </p>
             </div>
           </section>
+
+          {/* Sample Request Form Section */}
+          <SampleRequestForm />
 
           {/* Final CTA Section */}
           <section className="py-16 px-6 bg-white">
