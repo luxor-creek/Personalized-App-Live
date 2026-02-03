@@ -99,17 +99,14 @@ const WineVideoTemplate = () => {
               </div>
 
               <div className="relative">
-                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-gradient-to-br from-amber-400 to-primary">
-                  <img 
-                    src="https://images.unsplash.com/photo-1510812431401-41d2bd2722f3?w=600&h=450&fit=crop"
-                    alt="Wine video production"
-                    className="w-full h-full object-cover"
+                <div className="relative aspect-[4/3] rounded-2xl overflow-hidden bg-black">
+                  <iframe
+                    src={`https://player.vimeo.com/video/${template?.hero_video_id || "76979871"}?badge=0&autopause=0&player_id=0&app_id=58479`}
+                    frameBorder="0"
+                    allow="autoplay; fullscreen; picture-in-picture; clipboard-write; encrypted-media"
+                    className="absolute inset-0 w-full h-full"
+                    title="Hero Video"
                   />
-                  <div className="absolute inset-0 flex items-center justify-center">
-                    <div className="w-16 h-16 rounded-full bg-primary/90 flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
-                      <Play className="w-6 h-6 text-white ml-1" />
-                    </div>
-                  </div>
                 </div>
                 <p className="mt-3 text-muted-foreground">
                   <span className="text-amber-500 font-medium">{firstName}</span>, take a look at this video demo.
