@@ -619,7 +619,7 @@ const TemplateEditor = () => {
           {/* Sample Request Form Section */}
           <EditableSampleRequestForm
             formTitle={template.form_section_title ?? "Request a Sample Video"}
-            formSubtitle={template.form_section_subtitle ?? "See what Viaxo can do with your content. We'll generate a sample video from your existing page—no creative brief required."}
+            formSubtitle={template.form_section_subtitle ?? "See what Kicker can do with your content. We'll generate a sample video from your existing page—no creative brief required."}
             onTitleChange={(value) => updateField("form_section_title", value)}
             onSubtitleChange={(value) => updateField("form_section_subtitle", value)}
           />
@@ -1095,7 +1095,7 @@ const TemplateEditor = () => {
           {/* Contact Section with Sample Request Form */}
           <EditableSampleRequestForm
             formTitle={template.form_section_title || "Request a Sample Video"}
-            formSubtitle={template.form_section_subtitle || "See what Viaxo can do with your content. We'll generate a sample video from your existing page—no creative brief required."}
+            formSubtitle={template.form_section_subtitle || "See what Kicker can do with your content. We'll generate a sample video from your existing page—no creative brief required."}
             onTitleChange={(value) => updateField("form_section_title", value)}
             onSubtitleChange={(value) => updateField("form_section_subtitle", value)}
           />

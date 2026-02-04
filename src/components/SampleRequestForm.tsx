@@ -12,12 +12,25 @@ import {
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 
+type FormStep = {
+  number: number;
+  title: string;
+  description: string;
+};
+
 type SampleRequestFormProps = {
   title?: string;
   subtitle?: string;
+  steps?: FormStep[];
 };
 
-const SampleRequestForm = ({ title, subtitle }: SampleRequestFormProps) => {
+const DEFAULT_STEPS: FormStep[] = [
+  { number: 1, title: "Submit your request", description: "Tell us about your project and timeline." },
+  { number: 2, title: "We reach out", description: "Our team will contact you to discuss details." },
+  { number: 3, title: "Get your video", description: "Receive a professional video tailored to your needs." },
+];
+
+const SampleRequestForm = ({ title, subtitle, steps }: SampleRequestFormProps) => {
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
@@ -102,30 +115,14 @@ const SampleRequestForm = ({ title, subtitle }: SampleRequestFormProps) => {
             </h2>
             <p className="text-muted-foreground text-lg mb-10">
               {subtitle ||
-                "See what Viaxo can do with your content. We'll generate a sample video from your existing page—no creative brief required."}
+                "See what Kicker can do with your content. We'll generate a sample video from your existing page—no creative brief required."}
             </p>
 
             <div className="space-y-8">
-              {[
-                { 
-                  number: 1, 
-                  title: "Submit your request", 
-                  description: "Tell us about your project and timeline." 
-                },
-                { 
-                  number: 2, 
-                  title: "We reach out", 
-                  description: "Our team will contact you to discuss details." 
-                },
-                { 
-                  number: 3, 
-                  title: "Get your video", 
-                  description: "Receive a professional video tailored to your needs." 
-                },
-              ].map((step) => (
-                <div key={step.number} className="flex items-start gap-4">
+              {(steps || DEFAULT_STEPS).map((step, index) => (
+                <div key={step.number || index + 1} className="flex items-start gap-4">
                   <div className="w-10 h-10 rounded-full bg-primary text-primary-foreground font-bold flex items-center justify-center flex-shrink-0">
-                    {step.number}
+                    {step.number || index + 1}
                   </div>
                   <div>
                     <h3 className="font-semibold text-foreground mb-1">{step.title}</h3>
