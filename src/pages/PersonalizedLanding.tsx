@@ -445,7 +445,10 @@ const PersonalizedLanding = () => {
           </div>
         </section>
 
-        <SampleRequestForm />
+        <SampleRequestForm 
+          title={template?.form_section_title || undefined}
+          subtitle={template?.form_section_subtitle || undefined}
+        />
 
         {/* Final CTA Section */}
         <section className="py-16 px-6 bg-white">
