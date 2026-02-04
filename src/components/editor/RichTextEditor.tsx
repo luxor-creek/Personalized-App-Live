@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, forwardRef } from "react";
 import { Check, X, Bold, Italic, Type, Palette, AlignLeft, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -172,7 +172,6 @@ const RichTextEditor = ({
   // Render text with all formatting applied
   const renderFormattedText = (text: string): React.ReactNode => {
     // Process markers in order: size, color, bold, italic, tokens
-    let processed = text;
     const elements: React.ReactNode[] = [];
     let key = 0;
 
@@ -296,12 +295,10 @@ const RichTextEditor = ({
 
             {/* Font Size Dropdown */}
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8">
-                  <Type className="w-4 h-4 mr-1" />
-                  Size
-                  <ChevronDown className="w-3 h-3 ml-1" />
-                </Button>
+              <DropdownMenuTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3">
+                <Type className="w-4 h-4 mr-1" />
+                Size
+                <ChevronDown className="w-3 h-3 ml-1" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
                 {FONT_SIZES.map((size) => (
@@ -318,12 +315,10 @@ const RichTextEditor = ({
 
             {/* Color Dropdown */}
             <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-8">
-                  <Palette className="w-4 h-4 mr-1" />
-                  Color
-                  <ChevronDown className="w-3 h-3 ml-1" />
-                </Button>
+              <DropdownMenuTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3">
+                <Palette className="w-4 h-4 mr-1" />
+                Color
+                <ChevronDown className="w-3 h-3 ml-1" />
               </DropdownMenuTrigger>
               <DropdownMenuContent align="start">
                 {TEXT_COLORS.map((color) => (
@@ -346,11 +341,9 @@ const RichTextEditor = ({
             
             {supportsPersonalization && (
               <Popover>
-                <PopoverTrigger asChild>
-                  <Button variant="outline" size="sm" className="h-8">
-                    <Type className="w-4 h-4 mr-1" />
-                    Variable
-                  </Button>
+                <PopoverTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3">
+                  <Type className="w-4 h-4 mr-1" />
+                  Variable
                 </PopoverTrigger>
                 <PopoverContent className="w-48 p-2" align="start">
                   <div className="space-y-1">
@@ -389,6 +382,7 @@ const RichTextEditor = ({
             
             <div className="flex items-center gap-2">
               <Button
+                type="button"
                 size="sm"
                 variant="outline"
                 onClick={handleCancel}
@@ -397,6 +391,7 @@ const RichTextEditor = ({
                 Cancel
               </Button>
               <Button
+                type="button"
                 size="sm"
                 onClick={handleSave}
               >

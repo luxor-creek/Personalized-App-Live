@@ -28,32 +28,77 @@ const AboutSection = ({
   title = DEFAULT_TITLE,
   content = DEFAULT_CONTENT 
 }: AboutSectionProps) => {
-  // Parse markdown-like content into structured paragraphs
+  // Render text with formatting (bold, italic, personalization tokens)
+  const renderFormattedText = (text: string): React.ReactNode => {
+    const elements: React.ReactNode[] = [];
+    let key = 0;
+
+    // Regex to match bold, italic, and personalization tokens
+    const formatRegex = /(\*\*(.+?)\*\*|\*(.+?)\*|{{[^}]+}})/g;
+    
+    let lastIndex = 0;
+    let match;
+    
+    while ((match = formatRegex.exec(text)) !== null) {
+      // Add text before match
+      if (match.index > lastIndex) {
+        elements.push(<span key={key++}>{text.substring(lastIndex, match.index)}</span>);
+      }
+      
+      const fullMatch = match[0];
+      
+      // Bold
+      if (fullMatch.startsWith('**') && fullMatch.endsWith('**')) {
+        const innerText = fullMatch.slice(2, -2);
+        elements.push(
+          <strong key={key++} className="font-semibold text-foreground">
+            {innerText}
+          </strong>
+        );
+      }
+      // Italic
+      else if (fullMatch.startsWith('*') && fullMatch.endsWith('*') && !fullMatch.startsWith('**')) {
+        const innerText = fullMatch.slice(1, -1);
+        elements.push(
+          <em key={key++} className="italic text-primary">
+            {innerText}
+          </em>
+        );
+      }
+      // Personalization tokens - show highlighted on the landing page
+      else if (fullMatch.match(/{{[^}]+}}/)) {
+        elements.push(
+          <span 
+            key={key++} 
+            className="text-primary font-medium"
+          >
+            {fullMatch}
+          </span>
+        );
+      }
+      
+      lastIndex = match.index + fullMatch.length;
+    }
+    
+    // Add remaining text
+    if (lastIndex < text.length) {
+      elements.push(<span key={key++}>{text.substring(lastIndex)}</span>);
+    }
+    
+    return elements.length > 0 ? elements : text;
+  };
+
+  // Parse content into paragraphs
   const parsedContent = useMemo(() => {
     const paragraphs = content.split('\n\n').filter(p => p.trim());
     
     return paragraphs.map((paragraph, index) => {
-      // Check for bold markers
-      const isBold = paragraph.startsWith('**') && paragraph.includes('**');
-      // Check for italic markers
-      const isItalic = paragraph.startsWith('*') && !paragraph.startsWith('**');
-      
-      // Clean the text
-      let text = paragraph
-        .replace(/\*\*/g, '')
-        .replace(/^\*/, '')
-        .replace(/\*$/, '')
-        .trim();
-      
       // Handle line breaks within paragraph
-      const lines = text.split('\n');
+      const lines = paragraph.split('\n');
       
       return {
         key: index,
-        text,
         lines,
-        isBold,
-        isItalic,
       };
     });
   }, [content]);
@@ -88,48 +133,16 @@ const AboutSection = ({
 
         <div className="max-w-3xl mx-auto">
           <div className="space-y-6 text-lg text-muted-foreground leading-relaxed">
-            {parsedContent.map((para) => {
-              if (para.isBold) {
-                return (
-                  <p key={para.key} className="text-foreground font-semibold">
-                    {para.lines.map((line, i) => (
-                      <span key={i}>
-                        {line}
-                        {i < para.lines.length - 1 && <br />}
-                      </span>
-                    ))}
-                  </p>
-                );
-              }
-              
-              if (para.isItalic) {
-                return (
-                  <p key={para.key} className="text-foreground font-medium">
-                    {para.lines.map((line, i) => (
-                      <span key={i}>
-                        {i === para.lines.length - 1 ? (
-                          <span className="text-primary">{line}</span>
-                        ) : (
-                          line
-                        )}
-                        {i < para.lines.length - 1 && <br />}
-                      </span>
-                    ))}
-                  </p>
-                );
-              }
-              
-              return (
-                <p key={para.key}>
-                  {para.lines.map((line, i) => (
-                    <span key={i}>
-                      {line}
-                      {i < para.lines.length - 1 && <br />}
-                    </span>
-                  ))}
-                </p>
-              );
-            })}
+            {parsedContent.map((para) => (
+              <p key={para.key}>
+                {para.lines.map((line, i) => (
+                  <span key={i}>
+                    {renderFormattedText(line)}
+                    {i < para.lines.length - 1 && <br />}
+                  </span>
+                ))}
+              </p>
+            ))}
           </div>
         </div>
       </div>
