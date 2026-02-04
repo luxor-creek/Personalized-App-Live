@@ -14,6 +14,46 @@ interface HeroSectionProps {
   videoId?: string;
 }
 
+// Render text with personalization tokens highlighted
+const renderFormattedText = (text: string): React.ReactNode => {
+  const elements: React.ReactNode[] = [];
+  let key = 0;
+
+  // Regex to match personalization tokens
+  const formatRegex = /{{[^}]+}}/g;
+  
+  let lastIndex = 0;
+  let match;
+  
+  while ((match = formatRegex.exec(text)) !== null) {
+    // Add text before match
+    if (match.index > lastIndex) {
+      elements.push(<span key={key++}>{text.substring(lastIndex, match.index)}</span>);
+    }
+    
+    const fullMatch = match[0];
+    
+    // Personalization tokens - show highlighted
+    elements.push(
+      <span 
+        key={key++} 
+        className="text-primary font-medium"
+      >
+        {fullMatch}
+      </span>
+    );
+    
+    lastIndex = match.index + fullMatch.length;
+  }
+  
+  // Add remaining text
+  if (lastIndex < text.length) {
+    elements.push(<span key={key++}>{text.substring(lastIndex)}</span>);
+  }
+  
+  return elements.length > 0 ? elements : text;
+};
+
 const HeroSection = ({ 
   thumbnailUrl,
   badge = "Police Recruitment Video Demo",
@@ -34,13 +74,13 @@ const HeroSection = ({
       const parts = headline.split("hiring pipeline");
       return (
         <>
-          {parts[0]}
+          {renderFormattedText(parts[0])}
           <span className="text-gradient">hiring pipeline.</span>
-          {parts[1]?.replace(".", "")}
+          {parts[1]?.replace(".", "") && renderFormattedText(parts[1].replace(".", ""))}
         </>
       );
     }
-    return headline;
+    return renderFormattedText(headline);
   };
 
   return (
@@ -68,13 +108,13 @@ const HeroSection = ({
         {/* Main Content */}
         <div className="max-w-5xl mx-auto text-center mb-12 lg:mb-16">
           <p className="text-primary font-medium tracking-wider uppercase mb-4 animate-fade-up">
-            {badge}
+            {renderFormattedText(badge)}
           </p>
           <h1 className="font-display text-4xl md:text-5xl lg:text-6xl font-bold text-foreground mb-6 animate-fade-up-delay leading-tight">
             {renderHeadline()}
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto animate-fade-up-delay-2">
-            {subheadline}
+            {renderFormattedText(subheadline)}
           </p>
         </div>
 
