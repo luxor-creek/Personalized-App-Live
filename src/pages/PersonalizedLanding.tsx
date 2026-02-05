@@ -320,14 +320,13 @@ const PersonalizedLanding = () => {
             </h2>
 
             <div className="grid md:grid-cols-3 gap-6">
-              {[
-                "Kicker made complex messaging simple and engaging. Fast, on-budget, and on-brand.",
-                "Smooth process from brief to delivery. Their team felt like an extension of ours.",
-                "The videos moved the needle on demos and deal velocity. Highly recommend.",
-              ].map((quote, index) => (
+              {(template?.testimonials && template.testimonials.length > 0 
+                ? template.testimonials.slice(0, 3) 
+                : []
+              ).map((testimonial, index) => (
                 <Card key={index} className="p-6 bg-gray-50 border-0">
                   <Quote className="w-6 h-6 text-amber-500 mb-4" />
-                  <p className="text-foreground leading-relaxed">"{quote}"</p>
+                  <p className="text-foreground leading-relaxed">"{typeof testimonial === 'string' ? testimonial : testimonial?.quote || ''}"</p>
                 </Card>
               ))}
             </div>
