@@ -148,7 +148,7 @@ const TemplateEditor = () => {
             </div>
             <Button variant="outline" className="gap-2">
               <EditableText
-                value={template.hero_cta_primary_text || "Book a call"}
+                value={template.hero_cta_primary_text || "Get a Free Video"}
                 onChange={(value) => updateField("hero_cta_primary_text", value)}
                 fieldName="Header CTA"
               />
@@ -185,14 +185,11 @@ const TemplateEditor = () => {
                       />
                     </div>
                     <div className="flex flex-wrap gap-3">
-                      <Button className="gap-2 bg-gray-900 hover:bg-gray-800">
-                        Book a call
-                      </Button>
-                      <Button variant="outline" className="gap-2">
+                      <Button className="gap-2 bg-primary hover:bg-primary/90">
                         <EditableText
-                          value={template.hero_cta_secondary_text || "See portfolio"}
-                          onChange={(value) => updateField("hero_cta_secondary_text", value)}
-                          fieldName="Secondary CTA"
+                          value={template.hero_cta_primary_text || "Get a Free Video"}
+                          onChange={(value) => updateField("hero_cta_primary_text", value)}
+                          fieldName="Hero CTA"
                         />
                       </Button>
                     </div>
@@ -332,10 +329,6 @@ const TemplateEditor = () => {
                     isHeadline
                   />
                 </h2>
-                <Button variant="link" className="gap-2 text-indigo-600 p-0">
-                  Request a tailored reel
-                  <ArrowDown className="w-4 h-4 rotate-[-90deg]" />
-                </Button>
               </div>
               <div className="text-lg text-muted-foreground mb-10 max-w-3xl">
                 <RichTextEditor
@@ -568,11 +561,8 @@ const TemplateEditor = () => {
                   </ul>
 
                   <div className="flex flex-wrap gap-3">
-                    <Button className="gap-2 bg-gray-900 hover:bg-gray-800">
-                      Get a tailored quote
-                    </Button>
-                    <Button variant="outline" className="gap-2">
-                      See more work
+                    <Button className="gap-2 bg-primary hover:bg-primary/90">
+                      Get a Free Video
                     </Button>
                   </div>
                 </div>
@@ -646,11 +636,8 @@ const TemplateEditor = () => {
               </div>
 
               <div className="flex flex-wrap gap-4 justify-center">
-                <Button size="lg" className="gap-2 bg-gray-900 hover:bg-gray-800">
-                  Book a call
-                </Button>
-                <Button size="lg" variant="outline" className="gap-2">
-                  Request reel
+                <Button size="lg" className="gap-2 bg-primary hover:bg-primary/90">
+                  Get a Free Video
                 </Button>
               </div>
             </div>

@@ -135,7 +135,7 @@ export default function WineVideoPage({ template }: { template: TemplateContent 
         </div>
         <Button variant="outline" className="gap-2" onClick={scrollToForm}>
           <Phone className="w-4 h-4" />
-          {template?.hero_cta_primary_text || "Contact Us"}
+          {template?.hero_cta_primary_text || "Get a Free Video"}
         </Button>
       </header>
 
@@ -169,7 +169,7 @@ export default function WineVideoPage({ template }: { template: TemplateContent 
                     onClick={scrollToForm}
                   >
                     <Calendar className="w-4 h-4" />
-                    {template?.hero_cta_primary_text || "Contact Us"}
+                    {template?.hero_cta_primary_text || "Get a Free Video"}
                   </Button>
                 </div>
               </div>
