@@ -51,14 +51,19 @@ const DEFAULT_FEATURE_CARDS = [
   { title: "No Delay", subtitle: "Fast Turnaround" },
 ];
 
-const DEFAULT_TESTIMONIALS = [
-  { quote: "Kicker made complex messaging simple and engaging. Fast, on-budget, and on-brand." },
-  { quote: "Smooth process from brief to delivery. Their team felt like an extension of ours." },
-  { quote: "The videos moved the needle on demos and deal velocity. Highly recommend." },
-];
+type TestimonialLike = string | { quote?: string | null };
 
-const getTestimonialQuote = (testimonial: any): string => {
-  if (typeof testimonial === 'string') return testimonial;
+const normalizeTestimonials = (value: unknown): TestimonialLike[] => {
+  // We only render what’s stored in the template (editable via the editor).
+  // If nothing is stored yet, we render zero testimonials rather than hardcoded copy.
+  if (!value) return [];
+  if (Array.isArray(value)) return value as TestimonialLike[];
+  if (typeof value === "object") return Object.values(value as Record<string, unknown>) as TestimonialLike[];
+  return [];
+};
+
+const getTestimonialQuote = (testimonial: TestimonialLike): string => {
+  if (typeof testimonial === "string") return testimonial;
   return testimonial?.quote || "";
 };
 
@@ -98,7 +103,7 @@ export default function WineVideoPage({ template }: { template: TemplateContent 
     : DEFAULT_PORTFOLIO_VIDEOS;
 
   const featureCards = template?.feature_cards?.length ? template.feature_cards : DEFAULT_FEATURE_CARDS;
-  const testimonials = (template?.testimonials?.length ? template.testimonials : DEFAULT_TESTIMONIALS) as Array<{ quote: string } | string>;
+  const testimonials = normalizeTestimonials(template?.testimonials);
 
   const comparisonProblemTitle = template?.comparison_problem_title || "Why this works:";
   const comparisonProblemItems = template?.comparison_problem_items?.length
