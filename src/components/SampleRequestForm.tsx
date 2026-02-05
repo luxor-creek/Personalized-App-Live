@@ -205,6 +205,7 @@ const SampleRequestForm = ({ title, subtitle, steps }: SampleRequestFormProps) =
                     <SelectValue placeholder="Select your primary goal" />
                   </SelectTrigger>
                   <SelectContent>
+                    <SelectItem value="free-demo">Free Demo</SelectItem>
                     <SelectItem value="training-video">Training Video</SelectItem>
                     <SelectItem value="executive-message">Executive Message</SelectItem>
                     <SelectItem value="social-media-video">Social Media Video</SelectItem>
