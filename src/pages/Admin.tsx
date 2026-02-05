@@ -6,7 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
 import kickerLogo from "@/assets/kicker-logo.png";
-import { Plus, Upload, ExternalLink, Trash2, BarChart3, LogOut, Eye, Layout, Pencil, Shield, Send, Mail } from "lucide-react";
+import { Plus, Upload, ExternalLink, Trash2, BarChart3, LogOut, Eye, Layout, Pencil, Shield, Send, Mail, Download } from "lucide-react";
 import { Link } from "react-router-dom";
 import heroThumbnail from "@/assets/hero-thumbnail.jpg";
 import { Textarea } from "@/components/ui/textarea";
@@ -539,6 +539,48 @@ const Admin = () => {
     toast({ title: "Copied to clipboard!" });
   };
 
+  const handleDownloadCsv = () => {
+    if (!selectedCampaign || pages.length === 0) return;
+    
+    // CSV header
+    const headers = ["First Name", "Last Name", "Company", "Link"];
+    
+    // Build CSV rows
+    const rows = pages.map((page) => {
+      const escapeCsvValue = (value: string | null | undefined): string => {
+        if (!value) return "";
+        // Escape double quotes by doubling them, wrap in quotes if contains comma, newline, or quote
+        const escaped = value.replace(/"/g, '""');
+        if (escaped.includes(",") || escaped.includes("\n") || escaped.includes('"')) {
+          return `"${escaped}"`;
+        }
+        return escaped;
+      };
+      
+      return [
+        escapeCsvValue(page.first_name),
+        escapeCsvValue(page.last_name),
+        escapeCsvValue(page.company),
+        getPageUrl(page.token),
+      ].join(",");
+    });
+    
+    const csvContent = [headers.join(","), ...rows].join("\n");
+    
+    // Create and download the file
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.setAttribute("href", url);
+    link.setAttribute("download", `${selectedCampaign.name.replace(/[^a-z0-9]/gi, "_")}_contacts.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    
+    toast({ title: "CSV downloaded!" });
+  };
+
   // Snov.io functions
   const fetchSnovLists = async () => {
     setLoadingSnovLists(true);
@@ -964,6 +1006,15 @@ const Admin = () => {
                         </h3>
                         <div className="flex gap-2">
                           <Dialog open={addPersonDialogOpen} onOpenChange={setAddPersonDialogOpen}>
+                          <Button 
+                            variant="outline" 
+                            size="sm" 
+                            onClick={handleDownloadCsv}
+                            disabled={pages.length === 0}
+                          >
+                            <Download className="w-4 h-4 mr-2" />
+                            Download CSV
+                          </Button>
                             <DialogTrigger asChild>
                               <Button variant="outline" size="sm">
                                 <Plus className="w-4 h-4 mr-2" />
