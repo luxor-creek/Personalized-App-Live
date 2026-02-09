@@ -1349,7 +1349,7 @@ const Admin = () => {
                               <TableHead>Last Name</TableHead>
                               <TableHead>Company</TableHead>
                               <TableHead>Email</TableHead>
-                              <TableHead>Page Link</TableHead>
+                              <TableHead>Landing Page</TableHead>
                               <TableHead>Views</TableHead>
                               <TableHead>Actions</TableHead>
                             </TableRow>
@@ -1484,7 +1484,7 @@ const Admin = () => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Edit Contact</DialogTitle>
-            <DialogDescription>Update the contact details. Page link cannot be changed.</DialogDescription>
+            <DialogDescription>Update the contact details. Landing page link cannot be changed.</DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-4">
             <div className="grid grid-cols-2 gap-4">
@@ -1525,7 +1525,7 @@ const Admin = () => {
                 <p><span className="font-medium text-foreground">To:</span> <span className="text-muted-foreground">{user.email}</span></p>
                 <p><span className="font-medium text-foreground">Contact Name:</span> <span className="text-muted-foreground">{pages[0].first_name}{pages[0].last_name ? ` ${pages[0].last_name}` : ""}</span></p>
                 <p><span className="font-medium text-foreground">Company:</span> <span className="text-muted-foreground">{pages[0].company || "-"}</span></p>
-                <p><span className="font-medium text-foreground">Page Link:</span> <span className="text-muted-foreground break-all">{getPageUrl(pages[0].token)}</span></p>
+                <p><span className="font-medium text-foreground">Landing Page:</span> <span className="text-muted-foreground break-all">{getPageUrl(pages[0].token)}</span></p>
               </div>
               <Button onClick={handleSendTestEmail} className="w-full">
                 Next — Open in Email Client
