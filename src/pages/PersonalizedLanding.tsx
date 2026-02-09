@@ -523,10 +523,21 @@ const PersonalizedLanding = () => {
         ctaSecondaryText={template?.hero_cta_secondary_text || undefined}
         videoId={template?.hero_video_id || undefined}
       />
-      <LogoCarousel />
-      <AboutSection />
-      <PortfolioStrip />
-      <CTASection />
+      <LogoCarousel 
+        imageUrl={template?.client_logos_url || undefined}
+      />
+      <AboutSection 
+        title={template?.features_title ? applyPersonalization(template.features_title, personalizationData) : undefined}
+        content={template?.about_content ? applyPersonalization(template.about_content, personalizationData) : undefined}
+      />
+      <PortfolioStrip 
+        imageUrl={template?.portfolio_strip_url || undefined}
+      />
+      <CTASection 
+        title={template?.contact_title ? applyPersonalization(template.contact_title, personalizationData) : undefined}
+        subtitle={template?.contact_subtitle ? applyPersonalization(template.contact_subtitle, personalizationData) : undefined}
+        contactEmail={template?.contact_email || undefined}
+      />
       <Footer logoUrl={template?.logo_url} />
     </div>
   );
