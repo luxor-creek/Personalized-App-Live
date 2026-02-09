@@ -12,7 +12,7 @@ import { useTemplateContentById, applyPersonalization } from "@/hooks/useTemplat
 import { renderFormattedText } from "@/lib/formatText";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import kickerLogo from "@/assets/kicker-logo.png";
+import BrandLogo from "@/components/BrandLogo";
 import SampleRequestForm from "@/components/SampleRequestForm";
 import { 
   Sparkles, 
@@ -152,10 +152,10 @@ const PersonalizedLanding = () => {
         {/* Header */}
         <header className="py-4 px-6 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <img src={kickerLogo} alt="Kicker Video" className="h-8" />
+            <BrandLogo />
             <span className="text-muted-foreground">×</span>
             <div className="flex items-center gap-1">
-              <Sparkles className="w-5 h-5 text-amber-500" />
+              <Sparkles className="w-5 h-5 text-primary" />
               <span className="font-semibold text-foreground">{companyName}</span>
             </div>
           </div>
@@ -169,7 +169,7 @@ const PersonalizedLanding = () => {
         <section className="py-12 px-6">
           <div className="max-w-6xl mx-auto">
             <Card className="p-8 md:p-12 bg-white rounded-3xl shadow-sm">
-              <div className="flex items-center gap-2 text-amber-600 mb-6">
+              <div className="flex items-center gap-2 text-primary mb-6">
                 <Sparkles className="w-4 h-4" />
                 <span className="text-sm font-medium uppercase tracking-wide">
                   {renderFormattedText(applyPersonalization(template?.hero_badge || "Personalized for {{company}}", personalizationData))}
@@ -211,7 +211,7 @@ const PersonalizedLanding = () => {
                     </div>
                   </div>
                   <p className="mt-3 text-muted-foreground">
-                    <span className="text-amber-500 font-medium">{firstName}</span>, take a look at this video demo.
+                    <span className="text-primary font-medium">{firstName}</span>, take a look at this video demo.
                   </p>
                 </div>
               </div>
@@ -263,7 +263,7 @@ const PersonalizedLanding = () => {
               ].map((step, index) => (
                 <div key={index} className="text-center">
                   <div className="relative mb-4">
-                    <div className="w-12 h-12 rounded-full bg-amber-500 text-white text-xl font-bold flex items-center justify-center mx-auto">
+                    <div className="w-12 h-12 rounded-full bg-primary text-white text-xl font-bold flex items-center justify-center mx-auto">
                       {step.number}
                     </div>
                   </div>
@@ -325,7 +325,7 @@ const PersonalizedLanding = () => {
                 : []
               ).map((testimonial, index) => (
                 <Card key={index} className="p-6 bg-gray-50 border-0">
-                  <Quote className="w-6 h-6 text-amber-500 mb-4" />
+                  <Quote className="w-6 h-6 text-primary mb-4" />
                   <p className="text-foreground leading-relaxed">"{typeof testimonial === 'string' ? testimonial : testimonial?.quote || ''}"</p>
                 </Card>
               ))}
@@ -436,7 +436,7 @@ const PersonalizedLanding = () => {
         <section className="py-16 px-6 bg-gradient-to-br from-primary to-primary/80">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
-              Let's work together, <span className="text-amber-200">{firstName}</span>
+              Let's work together, <span className="text-primary/50">{firstName}</span>
             </h2>
             <p className="text-lg text-primary-foreground/90 mb-8">
               We're excited to show {companyName} what's possible. Get started in minutes.
@@ -475,7 +475,7 @@ const PersonalizedLanding = () => {
         {/* Footer */}
         <footer className="py-8 px-6 bg-gray-50 border-t">
           <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-            <img src={kickerLogo} alt="Kicker Video" className="h-6" />
+            <BrandLogo className="h-6" />
             <div className="text-center">
               <p className="text-sm text-muted-foreground">
                 © {new Date().getFullYear()} Kicker Video. Professional video production.

@@ -2,7 +2,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import VideoPlayer from "@/components/VideoPlayer";
 import SampleRequestForm from "@/components/SampleRequestForm";
-import kickerLogo from "@/assets/kicker-logo.png";
+import BrandLogo from "@/components/BrandLogo";
 import clientLogos from "@/assets/client-logos.png";
 import { 
   Play, 
@@ -137,23 +137,21 @@ const B2BDemo = () => {
             variant="outline" 
             size="sm" 
             onClick={scrollToContact}
-            className="border-amber-600 text-amber-700 hover:bg-amber-50"
+            className="border-primary text-primary hover:bg-primary/10"
           >
             <Calendar className="w-4 h-4 mr-2" />
             Book a call
           </Button>
-          <div className="flex items-center gap-2">
-            <img src={kickerLogo} alt="Kicker Video" className="h-8" />
-          </div>
+          <BrandLogo />
         </div>
       </header>
 
       {/* Hero Section */}
-      <section className="pt-24 pb-16 bg-gradient-to-b from-amber-50/50 to-white">
+      <section className="pt-24 pb-16 bg-gradient-to-b from-primary/5 to-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
             {/* Badge */}
-            <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100/80 rounded-full text-amber-800 text-sm font-medium mb-8">
+            <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium mb-8">
               <Film className="w-4 h-4" />
               {badge}
             </div>
@@ -173,7 +171,7 @@ const B2BDemo = () => {
               <Button 
                 size="lg" 
                 onClick={scrollToContact}
-                className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-6"
+                className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6"
               >
                 <Play className="w-4 h-4 mr-2" />
                 {ctaPrimary}
@@ -263,7 +261,7 @@ const B2BDemo = () => {
                 return (
                   <Card key={idx} className="border-gray-200 bg-gray-50/50">
                     <CardHeader>
-                      <Icon className="w-8 h-8 text-amber-500 mb-2" />
+                      <Icon className="w-8 h-8 text-primary mb-2" />
                       <CardTitle className="text-xl">{card.title}</CardTitle>
                     </CardHeader>
                     <CardContent>
@@ -324,7 +322,7 @@ const B2BDemo = () => {
                     key={idx}
                     className={
                       isFeatured
-                        ? "border-amber-300 bg-amber-50/50 ring-2 ring-amber-200"
+                        ? "border-primary/50 bg-primary/5 ring-2 ring-primary/30"
                         : "border-gray-200 bg-white"
                     }
                   >
@@ -346,7 +344,7 @@ const B2BDemo = () => {
                         variant={isFeatured ? "default" : "outline"}
                         className={
                           isFeatured
-                            ? "w-full bg-amber-500 hover:bg-amber-600 text-gray-900"
+                            ? "w-full bg-primary hover:bg-primary/90 text-primary-foreground"
                             : "w-full border-gray-300"
                         }
                         onClick={scrollToContact}
@@ -385,7 +383,7 @@ const B2BDemo = () => {
               <Button 
                 variant="outline" 
                 size="lg"
-                className="border-amber-600 text-amber-700 hover:bg-amber-50"
+                className="border-primary text-primary hover:bg-primary/10"
                 onClick={scrollToContact}
               >
                 <Download className="w-4 h-4 mr-2" />
