@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect, forwardRef } from "react";
 import { Check, X, Bold, Italic, Type, Palette, AlignLeft, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   Popover,
   PopoverContent,
@@ -40,11 +41,80 @@ const FONT_SIZES = [
 ];
 
 const TEXT_COLORS = [
-  { value: "default", label: "Default", color: "hsl(var(--foreground))", marker: "" },
-  { value: "primary", label: "Primary (Gold)", color: "hsl(var(--primary))", marker: "[[color:primary]]" },
-  { value: "muted", label: "Muted", color: "hsl(var(--muted-foreground))", marker: "[[color:muted]]" },
-  { value: "destructive", label: "Red", color: "hsl(var(--destructive))", marker: "[[color:destructive]]" },
+  { value: "default", label: "Default", color: "#1a1a2e", marker: "" },
+  { value: "primary", label: "Orange", color: "#f97316", marker: "[[color:primary]]" },
+  { value: "blue", label: "Blue", color: "#3b82f6", marker: "[[color:blue]]" },
+  { value: "green", label: "Green", color: "#22c55e", marker: "[[color:green]]" },
+  { value: "red", label: "Red", color: "#ef4444", marker: "[[color:red]]" },
+  { value: "purple", label: "Purple", color: "#8b5cf6", marker: "[[color:purple]]" },
+  { value: "yellow", label: "Yellow", color: "#eab308", marker: "[[color:yellow]]" },
+  { value: "pink", label: "Pink", color: "#ec4899", marker: "[[color:pink]]" },
+  { value: "teal", label: "Teal", color: "#14b8a6", marker: "[[color:teal]]" },
+  { value: "indigo", label: "Indigo", color: "#6366f1", marker: "[[color:indigo]]" },
+  { value: "amber", label: "Amber", color: "#f59e0b", marker: "[[color:amber]]" },
+  { value: "muted", label: "Muted", color: "#6b7280", marker: "[[color:muted]]" },
+  { value: "white", label: "White", color: "#ffffff", marker: "[[color:white]]" },
 ];
+
+const ColorPickerPopover = ({ onSelectColor, onSelectCustomColor }: { onSelectColor: (marker: string) => void; onSelectCustomColor: (hex: string) => void }) => {
+  const [customHex, setCustomHex] = useState("#");
+  
+  const handleCustomApply = () => {
+    const hex = customHex.trim();
+    if (/^#[0-9a-fA-F]{3,8}$/.test(hex)) {
+      onSelectCustomColor(hex);
+      setCustomHex("#");
+    }
+  };
+
+  return (
+    <Popover>
+      <PopoverTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3">
+        <Palette className="w-4 h-4 mr-1" />
+        Color
+        <ChevronDown className="w-3 h-3 ml-1" />
+      </PopoverTrigger>
+      <PopoverContent className="w-56 p-3" align="start">
+        <div className="grid grid-cols-7 gap-1.5 mb-3">
+          {TEXT_COLORS.filter(c => c.marker).map((color) => (
+            <button
+              key={color.value}
+              onClick={() => onSelectColor(color.marker)}
+              className="w-7 h-7 rounded-full border border-border hover:scale-110 transition-transform relative group"
+              style={{ backgroundColor: color.color }}
+              title={color.label}
+            >
+              <span className="absolute -bottom-5 left-1/2 -translate-x-1/2 text-[10px] text-muted-foreground opacity-0 group-hover:opacity-100 whitespace-nowrap pointer-events-none">
+                {color.label}
+              </span>
+            </button>
+          ))}
+        </div>
+        <div className="border-t pt-2 mt-1">
+          <label className="text-xs text-muted-foreground mb-1 block">Custom hex color</label>
+          <div className="flex gap-1.5">
+            <div className="flex items-center gap-1.5 flex-1">
+              <div 
+                className="w-7 h-7 rounded border border-border flex-shrink-0" 
+                style={{ backgroundColor: /^#[0-9a-fA-F]{3,8}$/.test(customHex) ? customHex : '#ccc' }} 
+              />
+              <Input
+                value={customHex}
+                onChange={(e) => setCustomHex(e.target.value)}
+                placeholder="#ff6600"
+                className="h-7 text-xs font-mono"
+                onKeyDown={(e) => e.key === 'Enter' && handleCustomApply()}
+              />
+            </div>
+            <Button size="sm" className="h-7 px-2 text-xs" onClick={handleCustomApply}>
+              Apply
+            </Button>
+          </div>
+        </div>
+      </PopoverContent>
+    </Popover>
+  );
+};
 
 const RichTextEditor = ({
   value,
@@ -132,8 +202,24 @@ const RichTextEditor = ({
       const end = textarea.selectionEnd;
       const selectedText = editValue.substring(start, end);
       if (selectedText) {
-        // Wrap selection with marker
-        const newValue = editValue.substring(0, start) + marker + selectedText + marker.replace("[[", "[[/") + editValue.substring(end);
+        const closeMarker = marker.replace("[[", "[[/");
+        const newValue = editValue.substring(0, start) + marker + selectedText + closeMarker + editValue.substring(end);
+        setEditValue(newValue);
+      }
+      setTimeout(() => {
+        textarea.focus();
+      }, 0);
+    }
+  };
+
+  const applyCustomColor = (hex: string) => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      const start = textarea.selectionStart;
+      const end = textarea.selectionEnd;
+      const selectedText = editValue.substring(start, end);
+      if (selectedText) {
+        const newValue = editValue.substring(0, start) + `[[color:${hex}]]` + selectedText + `[[/color:${hex}]]` + editValue.substring(end);
         setEditValue(newValue);
       }
       setTimeout(() => {
@@ -179,7 +265,7 @@ const RichTextEditor = ({
     let key = 0;
 
     // Regex to match all format markers and tokens
-    const formatRegex = /(\[\[size:(small|large|xlarge|2xlarge)\]\](.+?)\[\[\/size:\2\]\]|\[\[color:(primary|muted|destructive)\]\](.+?)\[\[\/color:\4\]\]|\*\*(.+?)\*\*|\*(.+?)\*|{{[^}]+}})/g;
+    const formatRegex = /(\[\[size:(small|large|xlarge|2xlarge)\]\](.+?)\[\[\/size:\2\]\]|\[\[color:([^\]]+)\]\](.+?)\[\[\/color:\4\]\]|\*\*(.+?)\*\*|\*(.+?)\*|{{[^}]+}})/g;
     
     let lastIndex = 0;
     let match;
@@ -209,17 +295,19 @@ const RichTextEditor = ({
           );
         }
       }
-      // Color markers
+      // Color markers (named or hex)
       else if (fullMatch.startsWith('[[color:')) {
-        const colorMatch = fullMatch.match(/\[\[color:(primary|muted|destructive)\]\](.+?)\[\[\/color:\1\]\]/);
+        const colorMatch = fullMatch.match(/\[\[color:([^\]]+)\]\](.+?)\[\[\/color:\1\]\]/);
         if (colorMatch) {
-          const colorClasses: Record<string, string> = {
-            primary: 'text-primary',
-            muted: 'text-muted-foreground',
-            destructive: 'text-destructive'
+          const namedColors: Record<string, string> = {
+            primary: '#f97316', muted: '#6b7280', destructive: '#ef4444',
+            blue: '#3b82f6', green: '#22c55e', red: '#ef4444', purple: '#8b5cf6',
+            yellow: '#eab308', pink: '#ec4899', teal: '#14b8a6', indigo: '#6366f1',
+            amber: '#f59e0b', white: '#ffffff',
           };
+          const colorValue = namedColors[colorMatch[1]] || colorMatch[1];
           elements.push(
-            <span key={key++} className={colorClasses[colorMatch[1]]}>
+            <span key={key++} style={{ color: colorValue }}>
               {renderFormattedText(colorMatch[2])}
             </span>
           );
@@ -316,29 +404,11 @@ const RichTextEditor = ({
               </DropdownMenuContent>
             </DropdownMenu>
 
-            {/* Color Dropdown */}
-            <DropdownMenu>
-              <DropdownMenuTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 border border-input bg-background hover:bg-accent hover:text-accent-foreground h-8 px-3">
-                <Palette className="w-4 h-4 mr-1" />
-                Color
-                <ChevronDown className="w-3 h-3 ml-1" />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start">
-                {TEXT_COLORS.map((color) => (
-                  <DropdownMenuItem
-                    key={color.value}
-                    onClick={() => color.marker && applyFormatMarker(color.marker)}
-                    className="text-sm flex items-center gap-2"
-                  >
-                    <div 
-                      className="w-4 h-4 rounded-full border border-border" 
-                      style={{ backgroundColor: color.color }}
-                    />
-                    {color.label}
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Color Picker */}
+            <ColorPickerPopover 
+              onSelectColor={(marker) => applyFormatMarker(marker)}
+              onSelectCustomColor={(hex) => applyCustomColor(hex)}
+            />
             
             <div className="w-px h-6 bg-border mx-1" />
             
