@@ -17,10 +17,20 @@ const SIZE_CLASSES: Record<string, string> = {
   "2xlarge": "text-2xl",
 };
 
-const COLOR_CLASSES: Record<string, string> = {
-  primary: "text-primary",
-  muted: "text-muted-foreground",
-  destructive: "text-destructive",
+const COLOR_MAP: Record<string, string> = {
+  primary: "#f97316",
+  muted: "#6b7280",
+  destructive: "#ef4444",
+  blue: "#3b82f6",
+  green: "#22c55e",
+  red: "#ef4444",
+  purple: "#8b5cf6",
+  yellow: "#eab308",
+  pink: "#ec4899",
+  teal: "#14b8a6",
+  indigo: "#6366f1",
+  amber: "#f59e0b",
+  white: "#ffffff",
 };
 
 /**
@@ -34,7 +44,7 @@ export function renderFormattedText(text: string, keyPrefix = ""): React.ReactNo
 
   // Regex to match all format markers and tokens
   // Order matters: size, color, bold, italic, tokens
-  const formatRegex = /(\[\[size:(small|large|xlarge|2xlarge)\]\](.+?)\[\[\/size:\2\]\]|\[\[color:(primary|muted|destructive)\]\](.+?)\[\[\/color:\4\]\]|\*\*(.+?)\*\*|\*(.+?)\*|{{[^}]+}})/g;
+  const formatRegex = /(\[\[size:(small|large|xlarge|2xlarge)\]\](.+?)\[\[\/size:\2\]\]|\[\[color:([^\]]+)\]\](.+?)\[\[\/color:\4\]\]|\*\*(.+?)\*\*|\*(.+?)\*|{{[^}]+}})/g;
 
   let lastIndex = 0;
   let match;
@@ -67,11 +77,12 @@ export function renderFormattedText(text: string, keyPrefix = ""): React.ReactNo
     // Color markers [[color:X]]...[[/color:X]]
     else if (fullMatch.startsWith("[[color:")) {
       const colorMatch = fullMatch.match(
-        /\[\[color:(primary|muted|destructive)\]\](.+?)\[\[\/color:\1\]\]/
+        /\[\[color:([^\]]+)\]\](.+?)\[\[\/color:\1\]\]/
       );
       if (colorMatch) {
+        const colorValue = COLOR_MAP[colorMatch[1]] || colorMatch[1];
         elements.push(
-          <span key={`${keyPrefix}${key++}`} className={COLOR_CLASSES[colorMatch[1]]}>
+          <span key={`${keyPrefix}${key++}`} style={{ color: colorValue }}>
             {renderFormattedText(colorMatch[2], `${keyPrefix}${key}-`)}
           </span>
         );
