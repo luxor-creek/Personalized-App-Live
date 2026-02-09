@@ -8,7 +8,7 @@ import EditableImage from "@/components/editor/EditableImage";
 import RichTextEditor from "@/components/editor/RichTextEditor";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
-import kickerLogo from "@/assets/kicker-logo.png";
+import BrandLogo from "@/components/BrandLogo";
 import clientLogos from "@/assets/client-logos.png";
 import portfolioStrip from "@/assets/portfolio-strip.png";
 import { ArrowDown, Play, DollarSign, Mail, ExternalLink, X, Check } from "lucide-react";
@@ -132,7 +132,7 @@ const TemplateEditor = () => {
           {/* Header */}
           <header className="py-4 px-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <img src={kickerLogo} alt="Kicker Video" className="h-8" />
+              <BrandLogo />
               <span className="text-muted-foreground">×</span>
               <div className="flex items-center gap-1">
                 <span className="font-semibold text-foreground">
@@ -159,9 +159,9 @@ const TemplateEditor = () => {
           <section className="py-12 px-6">
             <div className="max-w-6xl mx-auto">
               <div className="p-8 md:p-12 bg-white rounded-3xl shadow-sm">
-                <div className="flex items-center gap-2 text-amber-600 mb-6">
+                <div className="flex items-center gap-2 text-primary mb-6">
                   <span className="text-sm font-medium uppercase tracking-wide">
-                    Personalized for <span className="text-amber-500">{"{{company}}"}</span>
+                    Personalized for <span className="text-primary">{"{{company}}"}</span>
                   </span>
                 </div>
 
@@ -204,7 +204,7 @@ const TemplateEditor = () => {
                       onThumbnailChange={(url) => updateField("hero_video_thumbnail_url", url)}
                     />
                     <p className="mt-3 text-muted-foreground">
-                      <span className="text-amber-500 font-medium">{"{{first_name}}"}</span>, take a look at this video demo.
+                      <span className="text-primary font-medium">{"{{first_name}}"}</span>, take a look at this video demo.
                     </p>
                   </div>
                 </div>
@@ -305,7 +305,7 @@ const TemplateEditor = () => {
                 ].map((step, index) => (
                   <div key={index} className="text-center">
                     <div className="relative mb-4">
-                      <div className="w-12 h-12 rounded-full bg-amber-500 text-white text-xl font-bold flex items-center justify-center mx-auto">
+                      <div className="w-12 h-12 rounded-full bg-primary text-white text-xl font-bold flex items-center justify-center mx-auto">
                         {step.number}
                       </div>
                     </div>
@@ -646,7 +646,7 @@ const TemplateEditor = () => {
           {/* Footer */}
           <footer className="py-8 px-6 bg-gray-50 border-t">
             <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
-              <img src={kickerLogo} alt="Kicker Video" className="h-6" />
+              <BrandLogo className="h-6" />
               <p className="text-sm text-muted-foreground">
                 © {new Date().getFullYear()} Kicker Video. Professional video production.
               </p>
@@ -1123,7 +1123,7 @@ const TemplateEditor = () => {
             <div 
               className="absolute inset-0" 
               style={{
-                backgroundImage: `radial-gradient(circle at 1px 1px, hsl(43 74% 49%) 1px, transparent 0)`,
+                backgroundImage: `radial-gradient(circle at 1px 1px, hsl(252 64% 60%) 1px, transparent 0)`,
                 backgroundSize: '40px 40px'
               }}
             />
@@ -1132,7 +1132,7 @@ const TemplateEditor = () => {
           <div className="container mx-auto px-4 py-12 lg:py-20 relative z-10">
             {/* Header */}
             <header className="flex items-center justify-between mb-12 lg:mb-16">
-              <img src={kickerLogo} alt="Kicker Video" className="h-8 md:h-10" />
+              <BrandLogo className="h-8 md:h-10" />
               <Button variant="outline" size="lg">
                 <EditableText
                   value={template.hero_cta_primary_text || "Get in Touch"}
@@ -1332,7 +1332,7 @@ const TemplateEditor = () => {
         <footer className="py-8 bg-background border-t border-border">
           <div className="container mx-auto px-4">
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <img src={kickerLogo} alt="Kicker Video" className="h-6" />
+              <BrandLogo className="h-6" />
 
               <p className="text-sm text-muted-foreground">
                 © {new Date().getFullYear()} Kicker Video. Professional video production.

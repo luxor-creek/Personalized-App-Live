@@ -1,7 +1,7 @@
 import VideoPlayer from "./VideoPlayer";
 import { Button } from "./ui/button";
 import { ArrowDown } from "lucide-react";
-import kickerLogo from "@/assets/kicker-logo.png";
+import BrandLogo from "@/components/BrandLogo";
 import { renderFormattedText } from "@/lib/formatText";
 
 interface HeroSectionProps {
@@ -51,7 +51,7 @@ const HeroSection = ({
         <div 
           className="absolute inset-0" 
           style={{
-            backgroundImage: `radial-gradient(circle at 1px 1px, hsl(43 74% 49%) 1px, transparent 0)`,
+            backgroundImage: `radial-gradient(circle at 1px 1px, hsl(252 64% 60%) 1px, transparent 0)`,
             backgroundSize: '40px 40px'
           }}
         />
@@ -60,7 +60,7 @@ const HeroSection = ({
       <div className="container mx-auto px-4 py-12 lg:py-20 relative z-10">
         {/* Header */}
         <header className="flex items-center justify-between mb-12 lg:mb-16 animate-fade-up">
-          <img src={kickerLogo} alt="Kicker Video" className="h-8 md:h-10" />
+          <BrandLogo className="h-8 md:h-10" />
           <Button variant="heroOutline" size="lg" onClick={scrollToContact}>
             {ctaPrimaryText}
           </Button>

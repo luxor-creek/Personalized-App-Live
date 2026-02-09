@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useToast } from "@/hooks/use-toast";
-import kickerLogo from "@/assets/kicker-logo.png";
+import BrandLogo from "@/components/BrandLogo";
 import { Lock, Mail, Eye, EyeOff, UserPlus, LogIn } from "lucide-react";
 import { z } from "zod";
 import type { User, Session } from "@supabase/supabase-js";
@@ -172,7 +172,7 @@ const Auth = () => {
     <div className="min-h-screen bg-background flex items-center justify-center px-4">
       <div className="w-full max-w-md">
         <div className="text-center mb-8">
-          <img src={kickerLogo} alt="Kicker Video" className="h-10 mx-auto mb-6" />
+          <BrandLogo className="h-10 mx-auto mb-6 justify-center" />
           <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4">
             <Lock className="w-8 h-8 text-primary" />
           </div>
