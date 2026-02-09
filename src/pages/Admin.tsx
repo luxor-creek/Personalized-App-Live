@@ -1418,7 +1418,7 @@ const Admin = () => {
                             <TrendingUp className="w-4 h-4 mr-2" />
                             View Stats
                           </Button>
-                          <a href="https://snov.io/app/drip-campaigns" target="_blank" rel="noopener noreferrer">
+                          <a href="https://app.snov.io/campaigns" target="_blank" rel="noopener noreferrer">
                             <Button size="sm">
                               Open Snov.io
                               <ArrowRight className="w-4 h-4 ml-2" />
