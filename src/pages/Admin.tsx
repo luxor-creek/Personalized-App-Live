@@ -133,6 +133,7 @@ const Admin = () => {
   // Snov.io integration state
   const [duplicating, setDuplicating] = useState<string | null>(null);
   const [workflowCardsExpanded, setWorkflowCardsExpanded] = useState(true);
+  const [snovGuideOpen, setSnovGuideOpen] = useState(false);
 
   const [snovDialogOpen, setSnovDialogOpen] = useState(false);
   const [snovLists, setSnovLists] = useState<Array<{ id: number; name: string; contacts: number }>>([]);
@@ -1418,12 +1419,10 @@ const Admin = () => {
                             <TrendingUp className="w-4 h-4 mr-2" />
                             View Stats
                           </Button>
-                          <a href="https://app.snov.io/campaigns" target="_blank" rel="noopener noreferrer">
-                            <Button size="sm">
-                              Open Snov.io
-                              <ArrowRight className="w-4 h-4 ml-2" />
-                            </Button>
-                          </a>
+                          <Button size="sm" onClick={() => setSnovGuideOpen(true)}>
+                            Open Snov.io
+                            <ArrowRight className="w-4 h-4 ml-2" />
+                          </Button>
                         </div>
                       </div>
                     )}
@@ -1960,6 +1959,127 @@ const Admin = () => {
               </Table>
             </div>
           )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Snov.io Setup Guide Dialog */}
+      <Dialog open={snovGuideOpen} onOpenChange={setSnovGuideOpen}>
+        <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="text-xl">How to Launch Your Campaign in Snov.io</DialogTitle>
+            <DialogDescription>
+              Your personalized landing pages are ready and synced. Follow these steps to create and launch your drip campaign in Snov.io.
+            </DialogDescription>
+          </DialogHeader>
+
+          <div className="space-y-6 pt-2">
+            {/* What we've done */}
+            <div className="bg-primary/5 border border-primary/20 rounded-lg p-4">
+              <div className="flex items-start gap-3">
+                <CheckCircle2 className="w-5 h-5 text-primary mt-0.5 flex-shrink-0" />
+                <div>
+                  <p className="font-medium text-foreground">What's already done</p>
+                  <p className="text-sm text-muted-foreground mt-1">
+                    We've generated a unique personalized landing page for each contact and added them to your Snov.io list with the URL stored in a custom field called <code className="bg-muted px-1.5 py-0.5 rounded text-xs font-mono">landing_page</code>.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Step 1 */}
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">1</div>
+              <div className="space-y-2">
+                <h4 className="font-semibold text-foreground">Create a new campaign in Snov.io</h4>
+                <p className="text-sm text-muted-foreground">
+                  In Snov.io, go to <strong>Campaigns</strong> in the left sidebar and click <strong>"New Campaign"</strong>. Give it a name that matches your campaign here.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 2 */}
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">2</div>
+              <div className="space-y-2">
+                <h4 className="font-semibold text-foreground">Select the synced list as your recipient source</h4>
+                <p className="text-sm text-muted-foreground">
+                  When prompted to choose recipients, select the <strong>target list</strong> you chose in the previous step — this is the list we synced your contacts to. It should already contain all your contacts with their personalized URLs.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 3 */}
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">3</div>
+              <div className="space-y-2">
+                <h4 className="font-semibold text-foreground">Write your email and insert the personalized link</h4>
+                <p className="text-sm text-muted-foreground">
+                  In the email editor, write your message. When you want to include the personalized landing page link, use the variable:
+                </p>
+                <div className="bg-muted rounded-lg p-3 font-mono text-sm text-foreground flex items-center justify-between">
+                  <span>{"{{landing_page}}"}</span>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="h-7 px-2"
+                    onClick={() => {
+                      navigator.clipboard.writeText("{{landing_page}}");
+                      toast({ title: "Copied to clipboard!" });
+                    }}
+                  >
+                    <Copy className="w-3.5 h-3.5" />
+                  </Button>
+                </div>
+                <p className="text-sm text-muted-foreground">
+                  For example, your email might look like:
+                </p>
+                <div className="bg-muted rounded-lg p-4 text-sm text-muted-foreground space-y-2 italic">
+                  <p>Hi {"{{first_name}}"},</p>
+                  <p>I put together a personalized video just for you. Check it out here:</p>
+                  <p className="text-primary font-medium not-italic">{"{{landing_page}}"}</p>
+                  <p>Let me know what you think!</p>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  <strong>Tip:</strong> You can also use other Snov.io variables like <code className="bg-muted px-1 py-0.5 rounded">{"{{first_name}}"}</code> and <code className="bg-muted px-1 py-0.5 rounded">{"{{company}}"}</code> to personalize further.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 4 */}
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">4</div>
+              <div className="space-y-2">
+                <h4 className="font-semibold text-foreground">Configure settings & launch</h4>
+                <p className="text-sm text-muted-foreground">
+                  Set your sending schedule, daily sending limits, and sender email address. When you're ready, click <strong>"Start"</strong> to launch the campaign. Snov.io will automatically send each contact their unique personalized link.
+                </p>
+              </div>
+            </div>
+
+            {/* Step 5 */}
+            <div className="flex gap-4">
+              <div className="flex-shrink-0 w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-sm font-bold">5</div>
+              <div className="space-y-2">
+                <h4 className="font-semibold text-foreground">Track results here</h4>
+                <p className="text-sm text-muted-foreground">
+                  Once your campaign is running, come back here and click <strong>"View Stats"</strong> to see opens, replies, and clicks pulled from Snov.io. You can also see how many times each contact viewed their personalized landing page in the contacts table.
+                </p>
+              </div>
+            </div>
+
+            {/* CTA */}
+            <div className="border-t border-border pt-4 flex flex-col sm:flex-row gap-3">
+              <a href="https://app.snov.io/campaigns" target="_blank" rel="noopener noreferrer" className="flex-1">
+                <Button className="w-full">
+                  Continue to Snov.io
+                  <ExternalLink className="w-4 h-4 ml-2" />
+                </Button>
+              </a>
+              <Button variant="outline" onClick={() => setSnovGuideOpen(false)}>
+                Close
+              </Button>
+            </div>
+          </div>
         </DialogContent>
       </Dialog>
     </div>
