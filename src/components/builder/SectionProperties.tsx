@@ -9,7 +9,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { X, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Plus, Trash2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useRef } from "react";
+import VariableInsert from "./VariableInsert";
 
 interface SectionPropertiesProps {
   section: BuilderSection;
@@ -82,6 +83,13 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
     </div>
   );
 
+  // Helper: Label with variable insert button
+  const VarLabel = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
+    <div className="flex items-center justify-between">
+      <Label className="text-xs">{label}</Label>
+      <VariableInsert onInsert={(token) => onChange(value + token)} />
+    </div>
+  );
 
   const renderArrayEditor = <T extends Record<string, any>>(
     items: T[],
@@ -130,7 +138,7 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'body':
         return (
           <div className="space-y-2">
-            <Label>Text</Label>
+            <VarLabel label="Text" value={section.content.text || ''} onChange={(v) => updateContent({ text: v })} />
             <Textarea value={section.content.text || ''} onChange={(e) => updateContent({ text: e.target.value })} rows={section.type === 'body' ? 6 : 2} className="resize-none" />
           </div>
         );
@@ -181,8 +189,8 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'banner':
         return (
           <>
-            <div className="space-y-2"><Label>Headline</Label><Input value={section.content.bannerText || ''} onChange={(e) => updateContent({ bannerText: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Subtext</Label><Input value={section.content.bannerSubtext || ''} onChange={(e) => updateContent({ bannerSubtext: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Headline" value={section.content.bannerText || ''} onChange={(v) => updateContent({ bannerText: v })} /><Input value={section.content.bannerText || ''} onChange={(e) => updateContent({ bannerText: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Subtext" value={section.content.bannerSubtext || ''} onChange={(v) => updateContent({ bannerSubtext: v })} /><Input value={section.content.bannerSubtext || ''} onChange={(e) => updateContent({ bannerSubtext: e.target.value })} /></div>
             <div className="space-y-2"><Label>Background Image</Label><Input value={section.content.imageUrl || ''} onChange={(e) => updateContent({ imageUrl: e.target.value })} placeholder="Paste image URL" /><UploadButton label="Upload Background" field="imageUrl" /></div>
             <div className="space-y-2">
               <Label>Overlay Opacity</Label>
@@ -195,7 +203,7 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'cta':
         return (
           <>
-            <div className="space-y-2"><Label>Heading</Label><Input value={section.content.text || ''} onChange={(e) => updateContent({ text: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Heading" value={section.content.text || ''} onChange={(v) => updateContent({ text: v })} /><Input value={section.content.text || ''} onChange={(e) => updateContent({ text: e.target.value })} /></div>
             <Separator />
             <div className="space-y-2"><Label>Primary Button Text</Label><Input value={section.content.buttonText || ''} onChange={(e) => updateContent({ buttonText: e.target.value })} /></div>
             <div className="space-y-2"><Label>Primary Button Link</Label><Input value={section.content.buttonLink || ''} onChange={(e) => updateContent({ buttonLink: e.target.value })} placeholder="#section or https://..." /></div>
@@ -212,8 +220,8 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'form':
         return (
           <>
-            <div className="space-y-2"><Label>Title</Label><Input value={section.content.formTitle || ''} onChange={(e) => updateContent({ formTitle: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Subtitle</Label><Input value={section.content.formSubtitle || ''} onChange={(e) => updateContent({ formSubtitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Title" value={section.content.formTitle || ''} onChange={(v) => updateContent({ formTitle: v })} /><Input value={section.content.formTitle || ''} onChange={(e) => updateContent({ formTitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Subtitle" value={section.content.formSubtitle || ''} onChange={(v) => updateContent({ formSubtitle: v })} /><Input value={section.content.formSubtitle || ''} onChange={(e) => updateContent({ formSubtitle: e.target.value })} /></div>
             <div className="space-y-2"><Label>Button Text</Label><Input value={section.content.formButtonText || ''} onChange={(e) => updateContent({ formButtonText: e.target.value })} /></div>
             <Separator />
             <div className="space-y-2">
@@ -248,8 +256,8 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'document':
         return (
           <div className="space-y-3">
-            <div className="space-y-2"><Label>Title</Label><Input value={section.content.documentTitle || ''} onChange={(e) => updateContent({ documentTitle: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Description</Label><Textarea value={section.content.documentDescription || ''} onChange={(e) => updateContent({ documentDescription: e.target.value })} rows={3} className="resize-none" /></div>
+            <div className="space-y-2"><VarLabel label="Title" value={section.content.documentTitle || ''} onChange={(v) => updateContent({ documentTitle: v })} /><Input value={section.content.documentTitle || ''} onChange={(e) => updateContent({ documentTitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Description" value={section.content.documentDescription || ''} onChange={(v) => updateContent({ documentDescription: v })} /><Textarea value={section.content.documentDescription || ''} onChange={(e) => updateContent({ documentDescription: e.target.value })} rows={3} className="resize-none" /></div>
             <div className="space-y-2">
               <Label>Shared Link</Label>
               <Input value={section.content.documentUrl || ''} onChange={(e) => updateContent({ documentUrl: e.target.value })} placeholder="Dropbox, Google Drive, Box, or OneDrive link" />
@@ -279,9 +287,9 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'hero':
         return (
           <>
-            <div className="space-y-2"><Label>Badge</Label><Input value={section.content.heroBadge || ''} onChange={(e) => updateContent({ heroBadge: e.target.value })} placeholder="e.g. New, Beta" /></div>
-            <div className="space-y-2"><Label>Headline</Label><Textarea value={section.content.text || ''} onChange={(e) => updateContent({ text: e.target.value })} rows={2} className="resize-none" /></div>
-            <div className="space-y-2"><Label>Subheadline</Label><Textarea value={section.content.heroSubheadline || ''} onChange={(e) => updateContent({ heroSubheadline: e.target.value })} rows={2} className="resize-none" /></div>
+            <div className="space-y-2"><VarLabel label="Badge" value={section.content.heroBadge || ''} onChange={(v) => updateContent({ heroBadge: v })} /><Input value={section.content.heroBadge || ''} onChange={(e) => updateContent({ heroBadge: e.target.value })} placeholder="e.g. New, Beta" /></div>
+            <div className="space-y-2"><VarLabel label="Headline" value={section.content.text || ''} onChange={(v) => updateContent({ text: v })} /><Textarea value={section.content.text || ''} onChange={(e) => updateContent({ text: e.target.value })} rows={2} className="resize-none" /></div>
+            <div className="space-y-2"><VarLabel label="Subheadline" value={section.content.heroSubheadline || ''} onChange={(v) => updateContent({ heroSubheadline: v })} /><Textarea value={section.content.heroSubheadline || ''} onChange={(e) => updateContent({ heroSubheadline: e.target.value })} rows={2} className="resize-none" /></div>
             <Separator />
             <div className="space-y-2"><Label>Primary Button</Label><Input value={section.content.buttonText || ''} onChange={(e) => updateContent({ buttonText: e.target.value })} /></div>
             <div className="space-y-2"><Label>Primary Link</Label><Input value={section.content.buttonLink || ''} onChange={(e) => updateContent({ buttonLink: e.target.value })} /></div>
@@ -331,8 +339,8 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'pricing':
         return (
           <>
-            <div className="space-y-2"><Label>Title</Label><Input value={section.content.pricingTitle || ''} onChange={(e) => updateContent({ pricingTitle: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Subtitle</Label><Input value={section.content.pricingSubtitle || ''} onChange={(e) => updateContent({ pricingSubtitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Title" value={section.content.pricingTitle || ''} onChange={(v) => updateContent({ pricingTitle: v })} /><Input value={section.content.pricingTitle || ''} onChange={(e) => updateContent({ pricingTitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Subtitle" value={section.content.pricingSubtitle || ''} onChange={(v) => updateContent({ pricingSubtitle: v })} /><Input value={section.content.pricingSubtitle || ''} onChange={(e) => updateContent({ pricingSubtitle: e.target.value })} /></div>
             <Separator />
             <Label>Tiers ({(section.content.pricingItems || []).length})</Label>
             {(section.content.pricingItems || []).map((tier, i) => (
@@ -386,8 +394,8 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'team':
         return (
           <>
-            <div className="space-y-2"><Label>Title</Label><Input value={section.content.teamTitle || ''} onChange={(e) => updateContent({ teamTitle: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Subtitle</Label><Input value={section.content.teamSubtitle || ''} onChange={(e) => updateContent({ teamSubtitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Title" value={section.content.teamTitle || ''} onChange={(v) => updateContent({ teamTitle: v })} /><Input value={section.content.teamTitle || ''} onChange={(e) => updateContent({ teamTitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Subtitle" value={section.content.teamSubtitle || ''} onChange={(v) => updateContent({ teamSubtitle: v })} /><Input value={section.content.teamSubtitle || ''} onChange={(e) => updateContent({ teamSubtitle: e.target.value })} /></div>
             <Separator />
             <Label>Members ({(section.content.teamMembers || []).length})</Label>
             {renderArrayEditor<TeamMember>(
@@ -402,7 +410,7 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'logoCloud':
         return (
           <>
-            <div className="space-y-2"><Label>Title</Label><Input value={section.content.logoCloudTitle || ''} onChange={(e) => updateContent({ logoCloudTitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Title" value={section.content.logoCloudTitle || ''} onChange={(v) => updateContent({ logoCloudTitle: v })} /><Input value={section.content.logoCloudTitle || ''} onChange={(e) => updateContent({ logoCloudTitle: e.target.value })} /></div>
             <Separator />
             <Label>Logos ({(section.content.logoUrls || []).length})</Label>
             {(section.content.logoUrls || []).map((url, i) => (
@@ -418,8 +426,8 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'newsletter':
         return (
           <>
-            <div className="space-y-2"><Label>Title</Label><Input value={section.content.newsletterTitle || ''} onChange={(e) => updateContent({ newsletterTitle: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Subtitle</Label><Input value={section.content.newsletterSubtitle || ''} onChange={(e) => updateContent({ newsletterSubtitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Title" value={section.content.newsletterTitle || ''} onChange={(v) => updateContent({ newsletterTitle: v })} /><Input value={section.content.newsletterTitle || ''} onChange={(e) => updateContent({ newsletterTitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Subtitle" value={section.content.newsletterSubtitle || ''} onChange={(v) => updateContent({ newsletterSubtitle: v })} /><Input value={section.content.newsletterSubtitle || ''} onChange={(e) => updateContent({ newsletterSubtitle: e.target.value })} /></div>
             <div className="space-y-2"><Label>Placeholder</Label><Input value={section.content.newsletterPlaceholder || ''} onChange={(e) => updateContent({ newsletterPlaceholder: e.target.value })} /></div>
             <div className="space-y-2"><Label>Button Text</Label><Input value={section.content.newsletterButtonText || ''} onChange={(e) => updateContent({ newsletterButtonText: e.target.value })} /></div>
             <div className="grid grid-cols-2 gap-2">
@@ -450,8 +458,8 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'steps':
         return (
           <>
-            <div className="space-y-2"><Label>Title</Label><Input value={section.content.stepsTitle || ''} onChange={(e) => updateContent({ stepsTitle: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Subtitle</Label><Input value={section.content.stepsSubtitle || ''} onChange={(e) => updateContent({ stepsSubtitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Title" value={section.content.stepsTitle || ''} onChange={(v) => updateContent({ stepsTitle: v })} /><Input value={section.content.stepsTitle || ''} onChange={(e) => updateContent({ stepsTitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Subtitle" value={section.content.stepsSubtitle || ''} onChange={(v) => updateContent({ stepsSubtitle: v })} /><Input value={section.content.stepsSubtitle || ''} onChange={(e) => updateContent({ stepsSubtitle: e.target.value })} /></div>
             <Separator />
             <Label>Steps ({(section.content.stepItems || []).length})</Label>
             {renderArrayEditor<StepItem>(
@@ -528,8 +536,8 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'quote':
         return (
           <>
-            <div className="space-y-2"><Label>Quote</Label><Textarea value={section.content.quoteText || ''} onChange={(e) => updateContent({ quoteText: e.target.value })} rows={3} className="resize-none" /></div>
-            <div className="space-y-2"><Label>Author</Label><Input value={section.content.quoteAuthor || ''} onChange={(e) => updateContent({ quoteAuthor: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Quote" value={section.content.quoteText || ''} onChange={(v) => updateContent({ quoteText: v })} /><Textarea value={section.content.quoteText || ''} onChange={(e) => updateContent({ quoteText: e.target.value })} rows={3} className="resize-none" /></div>
+            <div className="space-y-2"><VarLabel label="Author" value={section.content.quoteAuthor || ''} onChange={(v) => updateContent({ quoteAuthor: v })} /><Input value={section.content.quoteAuthor || ''} onChange={(e) => updateContent({ quoteAuthor: e.target.value })} /></div>
             <div className="space-y-2"><Label>Role</Label><Input value={section.content.quoteRole || ''} onChange={(e) => updateContent({ quoteRole: e.target.value })} /></div>
             <div className="space-y-1"><Label className="text-xs">Accent Color</Label><input type="color" value={section.style.accentColor || '#6d54df'} onChange={(e) => updateStyle({ accentColor: e.target.value })} className="w-8 h-8 rounded border cursor-pointer" /></div>
           </>
@@ -538,8 +546,8 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'countdown':
         return (
           <>
-            <div className="space-y-2"><Label>Title</Label><Input value={section.content.countdownTitle || ''} onChange={(e) => updateContent({ countdownTitle: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Subtitle</Label><Input value={section.content.countdownSubtitle || ''} onChange={(e) => updateContent({ countdownSubtitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Title" value={section.content.countdownTitle || ''} onChange={(v) => updateContent({ countdownTitle: v })} /><Input value={section.content.countdownTitle || ''} onChange={(e) => updateContent({ countdownTitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Subtitle" value={section.content.countdownSubtitle || ''} onChange={(v) => updateContent({ countdownSubtitle: v })} /><Input value={section.content.countdownSubtitle || ''} onChange={(e) => updateContent({ countdownSubtitle: e.target.value })} /></div>
             <div className="space-y-2"><Label>Target Date</Label><Input type="date" value={section.content.countdownDate || ''} onChange={(e) => updateContent({ countdownDate: e.target.value })} /></div>
             <div className="space-y-1"><Label className="text-xs">Accent Color</Label><input type="color" value={section.style.accentColor || '#6d54df'} onChange={(e) => updateStyle({ accentColor: e.target.value })} className="w-8 h-8 rounded border cursor-pointer" /></div>
           </>
@@ -548,7 +556,7 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'socialProof':
         return (
           <>
-            <div className="space-y-2"><Label>Title</Label><Input value={section.content.socialProofTitle || ''} onChange={(e) => updateContent({ socialProofTitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Title" value={section.content.socialProofTitle || ''} onChange={(v) => updateContent({ socialProofTitle: v })} /><Input value={section.content.socialProofTitle || ''} onChange={(e) => updateContent({ socialProofTitle: e.target.value })} /></div>
             <Separator />
             <Label>Items ({(section.content.socialProofItems || []).length})</Label>
             {renderArrayEditor<SocialProofItem>(
@@ -564,8 +572,8 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'benefits':
         return (
           <>
-            <div className="space-y-2"><Label>Title</Label><Input value={section.content.benefitsTitle || ''} onChange={(e) => updateContent({ benefitsTitle: e.target.value })} /></div>
-            <div className="space-y-2"><Label>Subtitle</Label><Input value={section.content.benefitsSubtitle || ''} onChange={(e) => updateContent({ benefitsSubtitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Title" value={section.content.benefitsTitle || ''} onChange={(v) => updateContent({ benefitsTitle: v })} /><Input value={section.content.benefitsTitle || ''} onChange={(e) => updateContent({ benefitsTitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Subtitle" value={section.content.benefitsSubtitle || ''} onChange={(v) => updateContent({ benefitsSubtitle: v })} /><Input value={section.content.benefitsSubtitle || ''} onChange={(e) => updateContent({ benefitsSubtitle: e.target.value })} /></div>
             <Separator />
             <Label>Benefits ({(section.content.benefitItems || []).length})</Label>
             {(section.content.benefitItems || []).map((item, i) => (
@@ -582,7 +590,7 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
       case 'cards':
         return (
           <>
-            <div className="space-y-2"><Label>Section Title</Label><Input value={section.content.cardsTitle || ''} onChange={(e) => updateContent({ cardsTitle: e.target.value })} /></div>
+            <div className="space-y-2"><VarLabel label="Section Title" value={section.content.cardsTitle || ''} onChange={(v) => updateContent({ cardsTitle: v })} /><Input value={section.content.cardsTitle || ''} onChange={(e) => updateContent({ cardsTitle: e.target.value })} /></div>
             <div className="space-y-1"><Label className="text-xs">Columns</Label>
               <Select value={String(section.style.columns || 3)} onValueChange={(v) => updateStyle({ columns: parseInt(v) })}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
