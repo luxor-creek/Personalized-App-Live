@@ -9,8 +9,20 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { X, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Plus, Trash2, Upload } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useRef } from "react";
+import { useState } from "react";
 import VariableInsert from "./VariableInsert";
+
+// Track the last focused input/textarea and cursor position
+let lastFocusedInput: HTMLInputElement | HTMLTextAreaElement | null = null;
+let lastCursorPos: number | null = null;
+
+const insertAtCursor = (value: string, token: string): string => {
+  if (lastFocusedInput && lastCursorPos !== null) {
+    const pos = lastCursorPos;
+    return value.slice(0, pos) + token + value.slice(pos);
+  }
+  return value + token;
+};
 
 interface SectionPropertiesProps {
   section: BuilderSection;
@@ -83,13 +95,14 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
     </div>
   );
 
-  // Helper: Label with variable insert button
+  // Helper: Label with variable insert button — inserts at cursor position
   const VarLabel = ({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) => (
     <div className="flex items-center justify-between">
       <Label className="text-xs">{label}</Label>
-      <VariableInsert onInsert={(token) => onChange(value + token)} />
+      <VariableInsert onInsert={(token) => onChange(insertAtCursor(value, token))} />
     </div>
   );
+
 
   const renderArrayEditor = <T extends Record<string, any>>(
     items: T[],
@@ -618,7 +631,16 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
   const colorSections = section.type !== 'spacer';
   const maxWidthSections = ['headline', 'body', 'video', 'image', 'form', 'features', 'testimonials', 'pricing', 'faq', 'stats', 'team', 'steps', 'gallery', 'comparison', 'cards', 'benefits', 'socialProof', 'newsletter', 'document', 'quote', 'footer'];
 
+  const handleCursorCapture = (e: React.SyntheticEvent) => {
+    const el = e.target as HTMLElement;
+    if (el instanceof HTMLInputElement || el instanceof HTMLTextAreaElement) {
+      lastFocusedInput = el;
+      lastCursorPos = el.selectionStart;
+    }
+  };
+
   return (
+    <div onFocusCapture={handleCursorCapture} onClickCapture={handleCursorCapture} onKeyUpCapture={handleCursorCapture}>
     <div className="w-80 bg-card border-l border-border flex flex-col h-full">
       <div className="p-4 border-b border-border flex items-center justify-between">
         <h3 className="font-semibold text-foreground text-sm">Section Properties</h3>
@@ -708,6 +730,7 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
           )}
         </div>
       </ScrollArea>
+    </div>
     </div>
   );
 };
