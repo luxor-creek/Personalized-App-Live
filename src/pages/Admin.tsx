@@ -1240,224 +1240,30 @@ const Admin = () => {
 
                 {/* Campaign Details - Full Width */}
                 {selectedCampaign ? (
-                  <div className="space-y-4">
-                    {/* Campaign Header Card */}
+                  <div className="space-y-6">
+                    {/* Campaign Header */}
                     <div className="bg-card rounded-lg border border-border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <h3 className="text-xl font-semibold text-foreground">
                         {selectedCampaign.name}
                       </h3>
                       <div className="flex flex-wrap gap-2">
-                        <Button
-                          variant="outline"
-                          size="sm"
-                          onClick={openTestEmail}
-                          disabled={pages.length === 0}
-                        >
-                          <Mail className="w-4 h-4 mr-2" />
-                          Send Test Email
-                        </Button>
-                        <Dialog open={addPersonDialogOpen} onOpenChange={setAddPersonDialogOpen}>
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          onClick={handleDownloadCsv}
-                          disabled={pages.length === 0}
-                        >
-                          <Download className="w-4 h-4 mr-2" />
-                          Download CSV
-                        </Button>
-                          <DialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Plus className="w-4 h-4 mr-2" />
-                              Add Person
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Add Person</DialogTitle>
-                              <DialogDescription>
-                                Create a personalized page for a single person.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4 pt-4">
-                              <div className="grid grid-cols-2 gap-4">
-                                <div className="space-y-2">
-                                  <Label htmlFor="first-name">First Name *</Label>
-                                  <Input
-                                    id="first-name"
-                                    value={newPerson.first_name}
-                                    onChange={(e) => setNewPerson({ ...newPerson, first_name: e.target.value })}
-                                    placeholder="John"
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="last-name">Last Name</Label>
-                                  <Input
-                                    id="last-name"
-                                    value={newPerson.last_name}
-                                    onChange={(e) => setNewPerson({ ...newPerson, last_name: e.target.value })}
-                                    placeholder="Doe"
-                                  />
-                                </div>
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="company">Company</Label>
-                                <Input
-                                  id="company"
-                                  value={newPerson.company}
-                                  onChange={(e) => setNewPerson({ ...newPerson, company: e.target.value })}
-                                  placeholder="Acme Inc."
-                                />
-                              </div>
-                              <div className="space-y-2">
-                                <Label htmlFor="custom-message">Custom Message</Label>
-                                <Textarea
-                                  id="custom-message"
-                                  value={newPerson.custom_message}
-                                  onChange={(e) => setNewPerson({ ...newPerson, custom_message: e.target.value })}
-                                  placeholder="Optional personalized message..."
-                                  rows={3}
-                                />
-                              </div>
-                              <Button onClick={addSinglePerson} className="w-full" disabled={addingPerson}>
-                                {addingPerson ? "Creating..." : "Create Page & Copy Link"}
-                              </Button>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-                        
-                        <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
-                          <DialogTrigger asChild>
-                            <Button size="sm">
-                              <Upload className="w-4 h-4 mr-2" />
-                              Upload CSV
-                            </Button>
-                          </DialogTrigger>
-                          <DialogContent>
-                            <DialogHeader>
-                              <DialogTitle>Upload CSV</DialogTitle>
-                              <DialogDescription>
-                                Upload a CSV file with columns: first_name (required), last_name, company, email, custom_message
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4 pt-4">
-                              <Input
-                                type="file"
-                                accept=".csv"
-                                onChange={(e) => setCsvFile(e.target.files?.[0] || null)}
-                              />
-                              <Button
-                                onClick={handleCsvUpload}
-                                disabled={!csvFile || uploading}
-                                className="w-full"
-                              >
-                                {uploading ? "Uploading..." : "Upload & Create Pages"}
-                              </Button>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-
-                        {/* Snov.io Send Campaign Dialog */}
-                        <Dialog open={snovDialogOpen} onOpenChange={setSnovDialogOpen}>
-                          <DialogTrigger asChild>
-                            <Button size="sm" variant="default" onClick={openSnovDialog}>
+                        {pages.length > 0 && (
+                          <>
+                            <Button variant="outline" size="sm" onClick={openTestEmail}>
                               <Mail className="w-4 h-4 mr-2" />
-                              Send via Snov.io
+                              Send Test Email
                             </Button>
-                          </DialogTrigger>
-                          <DialogContent className="max-w-lg">
-                            <DialogHeader>
-                              <DialogTitle>Send Campaign via Snov.io</DialogTitle>
-                              <DialogDescription>
-                                Import contacts from a Snov.io list and add them to a drip campaign.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4 pt-4">
-                              {loadingSnovLists ? (
-                                <div className="flex items-center justify-center py-4">
-                                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                                </div>
-                              ) : snovLists.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">No lists found. Create a list in Snov.io first.</p>
-                              ) : (
-                                <>
-                                  {/* Source List Selection */}
-                                  <div className="space-y-2">
-                                    <Label>Source List (get contacts from)</Label>
-                                    <div className="grid gap-2 max-h-32 overflow-y-auto">
-                                      {snovLists.map((list) => (
-                                        <div
-                                          key={list.id}
-                                          onClick={() => setSelectedSnovList(list.id)}
-                                          className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                                            selectedSnovList === list.id
-                                              ? "border-primary bg-primary/10"
-                                              : "border-border hover:border-primary/50"
-                                          }`}
-                                        >
-                                          <div className="flex justify-between items-center">
-                                            <span className="font-medium">{list.name}</span>
-                                            <span className="text-sm text-muted-foreground">{list.contacts} contacts</span>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-
-                                  {/* Target Drip Campaign List Selection */}
-                                  <div className="space-y-2">
-                                    <Label>Target List (with drip campaign attached)</Label>
-                                    <p className="text-xs text-muted-foreground">
-                                      This list should have a drip campaign configured in Snov.io. Use {"{{country}}"} in your email template for the landing page URL.
-                                    </p>
-                                    <div className="grid gap-2 max-h-32 overflow-y-auto">
-                                      {snovLists.map((list) => (
-                                        <div
-                                          key={list.id}
-                                          onClick={() => setSelectedSnovCampaignList(list.id)}
-                                          className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                                            selectedSnovCampaignList === list.id
-                                              ? "border-green-500 bg-green-500/10"
-                                              : "border-border hover:border-green-500/50"
-                                          }`}
-                                        >
-                                          <div className="flex justify-between items-center">
-                                            <span className="font-medium">{list.name}</span>
-                                            <span className="text-sm text-muted-foreground">{list.contacts} contacts</span>
-                                          </div>
-                                        </div>
-                                      ))}
-                                    </div>
-                                  </div>
-                                </>
-                              )}
-
-                              <Button 
-                                onClick={sendSnovCampaign} 
-                                className="w-full" 
-                                disabled={!selectedSnovList || !selectedSnovCampaignList || sendingSnov}
-                              >
-                                {sendingSnov ? (
-                                  <>
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                    Sending...
-                                  </>
-                                ) : (
-                                  <>
-                                    <Send className="w-4 h-4 mr-2" />
-                                    Add to Drip Campaign
-                                  </>
-                                )}
-                              </Button>
-                            </div>
-                          </DialogContent>
-                        </Dialog>
-
-                        {/* Snov.io Campaign Stats Dialog */}
+                            <Button variant="outline" size="sm" onClick={handleDownloadCsv}>
+                              <Download className="w-4 h-4 mr-2" />
+                              Download CSV
+                            </Button>
+                          </>
+                        )}
                         <Button size="sm" variant="outline" onClick={openSnovStatsDialog}>
                           <TrendingUp className="w-4 h-4 mr-2" />
                           Snov.io Stats
                         </Button>
+                        {/* Snov.io Campaign Stats Dialog */}
                         <Dialog open={snovStatsDialogOpen} onOpenChange={setSnovStatsDialogOpen}>
                           <DialogContent className="max-w-2xl">
                             <DialogHeader>
@@ -1502,7 +1308,6 @@ const Admin = () => {
 
                                   {snovStats && !loadingSnovStats && (
                                     <div className="space-y-4">
-                                      {/* Analytics Overview */}
                                       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                         {(() => {
                                           const a = snovStats.analytics;
@@ -1530,7 +1335,6 @@ const Admin = () => {
                                         })()}
                                       </div>
 
-                                      {/* Replies List */}
                                       {snovStats.replies && (
                                         <div>
                                           <h4 className="text-sm font-semibold text-foreground mb-2">Recent Replies</h4>
@@ -1553,7 +1357,6 @@ const Admin = () => {
                                         </div>
                                       )}
 
-                                      {/* Opens List */}
                                       {snovStats.opens && (
                                         <div>
                                           <h4 className="text-sm font-semibold text-foreground mb-2">Recent Opens</h4>
@@ -1585,11 +1388,237 @@ const Admin = () => {
                       </div>
                     </div>
 
+                    {/* Workflow Cards */}
+                    <div className="grid md:grid-cols-2 gap-6">
+                      {/* Primary: Snov.io Integration Card */}
+                      <div className="bg-card rounded-xl border-2 border-primary/30 p-6 space-y-4 relative">
+                        <span className="absolute -top-3 left-4 bg-primary text-primary-foreground text-xs font-semibold px-2 py-0.5 rounded">Recommended</span>
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <Send className="w-5 h-5 text-primary" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-foreground">Send via Snov.io</h4>
+                            <p className="text-sm text-muted-foreground">Auto-generate personalized pages</p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Pull contacts from your Snov.io list, generate personalized landing pages for each, and sync them to your drip campaign automatically.
+                        </p>
+                        <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
+                          <li>Select your source contact list</li>
+                          <li>Select your drip campaign list</li>
+                          <li>We generate pages & sync the <code className="text-xs bg-muted px-1 py-0.5 rounded">{"{{landing_page}}"}</code> link</li>
+                        </ol>
+                        <Dialog open={snovDialogOpen} onOpenChange={setSnovDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button className="w-full" onClick={openSnovDialog}>
+                              <Send className="w-4 h-4 mr-2" />
+                              Connect Snov.io List
+                            </Button>
+                          </DialogTrigger>
+                          <DialogContent className="max-w-lg">
+                            <DialogHeader>
+                              <DialogTitle>Send Campaign via Snov.io</DialogTitle>
+                              <DialogDescription>
+                                Import contacts from a Snov.io list and add them to a drip campaign.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <div className="space-y-4 pt-4">
+                              {loadingSnovLists ? (
+                                <div className="flex items-center justify-center py-4">
+                                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                                </div>
+                              ) : snovLists.length === 0 ? (
+                                <p className="text-sm text-muted-foreground">No lists found. Create a list in Snov.io first.</p>
+                              ) : (
+                                <>
+                                  <div className="space-y-2">
+                                    <Label>Source List (get contacts from)</Label>
+                                    <div className="grid gap-2 max-h-32 overflow-y-auto">
+                                      {snovLists.map((list) => (
+                                        <div
+                                          key={list.id}
+                                          onClick={() => setSelectedSnovList(list.id)}
+                                          className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                                            selectedSnovList === list.id
+                                              ? "border-primary bg-primary/10"
+                                              : "border-border hover:border-primary/50"
+                                          }`}
+                                        >
+                                          <div className="flex justify-between items-center">
+                                            <span className="font-medium">{list.name}</span>
+                                            <span className="text-sm text-muted-foreground">{list.contacts} contacts</span>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-2">
+                                    <Label>Target List (with drip campaign attached)</Label>
+                                    <p className="text-xs text-muted-foreground">
+                                      This list should have a drip campaign configured in Snov.io. Use {"{{landing_page}}"} in your email template for the landing page URL.
+                                    </p>
+                                    <div className="grid gap-2 max-h-32 overflow-y-auto">
+                                      {snovLists.map((list) => (
+                                        <div
+                                          key={list.id}
+                                          onClick={() => setSelectedSnovCampaignList(list.id)}
+                                          className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                                            selectedSnovCampaignList === list.id
+                                              ? "border-primary bg-primary/10"
+                                              : "border-border hover:border-primary/50"
+                                          }`}
+                                        >
+                                          <div className="flex justify-between items-center">
+                                            <span className="font-medium">{list.name}</span>
+                                            <span className="text-sm text-muted-foreground">{list.contacts} contacts</span>
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                </>
+                              )}
+
+                              <Button 
+                                onClick={sendSnovCampaign} 
+                                className="w-full" 
+                                disabled={!selectedSnovList || !selectedSnovCampaignList || sendingSnov}
+                              >
+                                {sendingSnov ? (
+                                  <>
+                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
+                                    Sending...
+                                  </>
+                                ) : (
+                                  <>
+                                    <Send className="w-4 h-4 mr-2" />
+                                    Add to Drip Campaign
+                                  </>
+                                )}
+                              </Button>
+                            </div>
+                          </DialogContent>
+                        </Dialog>
+                      </div>
+
+                      {/* Secondary: CSV / Manual Card */}
+                      <div className="bg-card rounded-xl border border-dashed border-border p-6 space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-10 h-10 rounded-lg bg-muted flex items-center justify-center">
+                            <Upload className="w-5 h-5 text-muted-foreground" />
+                          </div>
+                          <div>
+                            <h4 className="font-semibold text-foreground">Or: Upload CSV / Add Manually</h4>
+                            <p className="text-sm text-muted-foreground">For use with any email platform</p>
+                          </div>
+                        </div>
+                        <p className="text-sm text-muted-foreground">
+                          Upload a CSV or add contacts one-by-one. We'll generate personalized landing pages you can download and use with any email tool.
+                        </p>
+                        <div className="flex gap-2">
+                          <Dialog open={uploadDialogOpen} onOpenChange={setUploadDialogOpen}>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" className="flex-1">
+                                <Upload className="w-4 h-4 mr-2" />
+                                Upload CSV
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Upload CSV</DialogTitle>
+                                <DialogDescription>
+                                  Upload a CSV file with columns: first_name (required), last_name, company, email, custom_message
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-4 pt-4">
+                                <Input
+                                  type="file"
+                                  accept=".csv"
+                                  onChange={(e) => setCsvFile(e.target.files?.[0] || null)}
+                                />
+                                <Button
+                                  onClick={handleCsvUpload}
+                                  disabled={!csvFile || uploading}
+                                  className="w-full"
+                                >
+                                  {uploading ? "Uploading..." : "Upload & Create Pages"}
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+
+                          <Dialog open={addPersonDialogOpen} onOpenChange={setAddPersonDialogOpen}>
+                            <DialogTrigger asChild>
+                              <Button variant="outline" className="flex-1">
+                                <Plus className="w-4 h-4 mr-2" />
+                                Add Person
+                              </Button>
+                            </DialogTrigger>
+                            <DialogContent>
+                              <DialogHeader>
+                                <DialogTitle>Add Person</DialogTitle>
+                                <DialogDescription>
+                                  Create a personalized page for a single person.
+                                </DialogDescription>
+                              </DialogHeader>
+                              <div className="space-y-4 pt-4">
+                                <div className="grid grid-cols-2 gap-4">
+                                  <div className="space-y-2">
+                                    <Label htmlFor="first-name">First Name *</Label>
+                                    <Input
+                                      id="first-name"
+                                      value={newPerson.first_name}
+                                      onChange={(e) => setNewPerson({ ...newPerson, first_name: e.target.value })}
+                                      placeholder="John"
+                                    />
+                                  </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="last-name">Last Name</Label>
+                                    <Input
+                                      id="last-name"
+                                      value={newPerson.last_name}
+                                      onChange={(e) => setNewPerson({ ...newPerson, last_name: e.target.value })}
+                                      placeholder="Doe"
+                                    />
+                                  </div>
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="company">Company</Label>
+                                  <Input
+                                    id="company"
+                                    value={newPerson.company}
+                                    onChange={(e) => setNewPerson({ ...newPerson, company: e.target.value })}
+                                    placeholder="Acme Inc."
+                                  />
+                                </div>
+                                <div className="space-y-2">
+                                  <Label htmlFor="custom-message">Custom Message</Label>
+                                  <Textarea
+                                    id="custom-message"
+                                    value={newPerson.custom_message}
+                                    onChange={(e) => setNewPerson({ ...newPerson, custom_message: e.target.value })}
+                                    placeholder="Optional personalized message..."
+                                    rows={3}
+                                  />
+                                </div>
+                                <Button onClick={addSinglePerson} className="w-full" disabled={addingPerson}>
+                                  {addingPerson ? "Creating..." : "Create Page & Copy Link"}
+                                </Button>
+                              </div>
+                            </DialogContent>
+                          </Dialog>
+                        </div>
+                      </div>
+                    </div>
+
                     {/* Contacts Table - Full Width */}
                     {pages.length === 0 ? (
                       <div className="text-center py-8 text-muted-foreground bg-card rounded-lg border border-border">
                         <p>No personalized pages yet.</p>
-                        <p className="text-sm">Add people individually or upload a CSV file.</p>
+                        <p className="text-sm">Connect your Snov.io list above to get started, or upload a CSV.</p>
                       </div>
                     ) : (
                       <div className="bg-card rounded-lg border border-border overflow-x-auto">
