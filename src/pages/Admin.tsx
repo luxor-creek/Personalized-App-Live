@@ -1041,16 +1041,56 @@ const Admin = () => {
                         {t.thumbnail_url ? (
                           <img src={t.thumbnail_url} alt={t.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] p-3 flex flex-col overflow-hidden" style={{ transform: 'scale(1)', transformOrigin: 'top left' }}>
-                            {t.logo_url && <img src={t.logo_url} alt="" className="h-4 object-contain self-start mb-2 opacity-70" />}
-                            {t.hero_badge && <p className="text-[8px] uppercase tracking-wider text-primary font-medium mb-1 truncate">{t.hero_badge}</p>}
-                            <h4 className="text-[11px] font-bold text-foreground leading-tight line-clamp-2 mb-1">{t.hero_headline || t.name}</h4>
-                            {t.hero_subheadline && <p className="text-[8px] text-muted-foreground leading-tight line-clamp-2">{t.hero_subheadline}</p>}
-                            {t.hero_video_thumbnail_url && (
-                              <div className="mt-auto pt-1">
-                                <img src={t.hero_video_thumbnail_url} alt="" className="w-full rounded-sm object-cover max-h-[60px] opacity-80" />
+                          <div className="w-full h-full relative overflow-hidden">
+                            {/* Dark hero-style background */}
+                            <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460]" />
+                            <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '20px 20px' }} />
+                            
+                            <div className="relative z-10 p-3 flex flex-col h-full">
+                              {/* Top bar with logo + button */}
+                              <div className="flex items-center justify-between mb-3">
+                                {t.logo_url ? (
+                                  <img src={t.logo_url} alt="" className="h-3 object-contain opacity-80" />
+                                ) : (
+                                  <div className="h-3 w-12 rounded bg-white/10" />
+                                )}
+                                <div className="h-3 w-14 rounded-full bg-primary/60 flex items-center justify-center">
+                                  <span className="text-[5px] text-white font-medium">Get in Touch</span>
+                                </div>
                               </div>
-                            )}
+                              
+                              {/* Hero content centered */}
+                              <div className="flex-1 flex flex-col items-center justify-center text-center gap-1">
+                                {t.hero_badge && (
+                                  <div className="h-2 px-2 rounded bg-primary/20 flex items-center">
+                                    <span className="text-[5px] text-primary font-medium uppercase tracking-wider truncate max-w-[120px]">
+                                      {t.hero_badge.replace(/\{\{[^}]+\}\}/g, '•••')}
+                                    </span>
+                                  </div>
+                                )}
+                                <h4 className="text-[9px] font-bold text-white leading-tight line-clamp-2 max-w-[85%]">
+                                  {(t.hero_headline || t.name).replace(/\{\{[^}]+\}\}/g, '•••')}
+                                </h4>
+                                {t.hero_subheadline && (
+                                  <p className="text-[6px] text-white/50 leading-tight line-clamp-2 max-w-[80%]">
+                                    {t.hero_subheadline.replace(/\{\{[^}]+\}\}/g, '•••')}
+                                  </p>
+                                )}
+                              </div>
+                              
+                              {/* Video thumbnail placeholder */}
+                              {t.hero_video_thumbnail_url ? (
+                                <div className="mt-auto mx-auto w-[80%] rounded overflow-hidden shadow-lg">
+                                  <img src={t.hero_video_thumbnail_url} alt="" className="w-full h-[45px] object-cover" />
+                                </div>
+                              ) : (
+                                <div className="mt-auto mx-auto w-[80%] h-[40px] rounded bg-white/5 border border-white/10 flex items-center justify-center">
+                                  <div className="w-4 h-4 rounded-full border border-white/20 flex items-center justify-center">
+                                    <div className="w-0 h-0 border-l-[4px] border-l-white/30 border-y-[3px] border-y-transparent ml-0.5" />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
@@ -1127,16 +1167,52 @@ const Admin = () => {
                         {t.thumbnail_url ? (
                           <img src={t.thumbnail_url} alt={t.name} className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" />
                         ) : (
-                          <div className="w-full h-full bg-gradient-to-br from-[hsl(var(--background))] to-[hsl(var(--muted))] p-3 flex flex-col overflow-hidden">
-                            {t.logo_url && <img src={t.logo_url} alt="" className="h-4 object-contain self-start mb-2 opacity-70" />}
-                            {t.hero_badge && <p className="text-[8px] uppercase tracking-wider text-primary font-medium mb-1 truncate">{t.hero_badge}</p>}
-                            <h4 className="text-[11px] font-bold text-foreground leading-tight line-clamp-2 mb-1">{t.hero_headline || t.name}</h4>
-                            {t.hero_subheadline && <p className="text-[8px] text-muted-foreground leading-tight line-clamp-2">{t.hero_subheadline}</p>}
-                            {t.hero_video_thumbnail_url && (
-                              <div className="mt-auto pt-1">
-                                <img src={t.hero_video_thumbnail_url} alt="" className="w-full rounded-sm object-cover max-h-[60px] opacity-80" />
+                          <div className="w-full h-full relative overflow-hidden">
+                            <div className="absolute inset-0 bg-gradient-to-br from-[#1a1a2e] via-[#16213e] to-[#0f3460]" />
+                            <div className="absolute inset-0 opacity-[0.04]" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, white 1px, transparent 0)', backgroundSize: '20px 20px' }} />
+                            
+                            <div className="relative z-10 p-3 flex flex-col h-full">
+                              <div className="flex items-center justify-between mb-3">
+                                {t.logo_url ? (
+                                  <img src={t.logo_url} alt="" className="h-3 object-contain opacity-80" />
+                                ) : (
+                                  <div className="h-3 w-12 rounded bg-white/10" />
+                                )}
+                                <div className="h-3 w-14 rounded-full bg-primary/60 flex items-center justify-center">
+                                  <span className="text-[5px] text-white font-medium">Get in Touch</span>
+                                </div>
                               </div>
-                            )}
+                              
+                              <div className="flex-1 flex flex-col items-center justify-center text-center gap-1">
+                                {t.hero_badge && (
+                                  <div className="h-2 px-2 rounded bg-primary/20 flex items-center">
+                                    <span className="text-[5px] text-primary font-medium uppercase tracking-wider truncate max-w-[120px]">
+                                      {t.hero_badge.replace(/\{\{[^}]+\}\}/g, '•••')}
+                                    </span>
+                                  </div>
+                                )}
+                                <h4 className="text-[9px] font-bold text-white leading-tight line-clamp-2 max-w-[85%]">
+                                  {(t.hero_headline || t.name).replace(/\{\{[^}]+\}\}/g, '•••')}
+                                </h4>
+                                {t.hero_subheadline && (
+                                  <p className="text-[6px] text-white/50 leading-tight line-clamp-2 max-w-[80%]">
+                                    {t.hero_subheadline.replace(/\{\{[^}]+\}\}/g, '•••')}
+                                  </p>
+                                )}
+                              </div>
+                              
+                              {t.hero_video_thumbnail_url ? (
+                                <div className="mt-auto mx-auto w-[80%] rounded overflow-hidden shadow-lg">
+                                  <img src={t.hero_video_thumbnail_url} alt="" className="w-full h-[45px] object-cover" />
+                                </div>
+                              ) : (
+                                <div className="mt-auto mx-auto w-[80%] h-[40px] rounded bg-white/5 border border-white/10 flex items-center justify-center">
+                                  <div className="w-4 h-4 rounded-full border border-white/20 flex items-center justify-center">
+                                    <div className="w-0 h-0 border-l-[4px] border-l-white/30 border-y-[3px] border-y-transparent ml-0.5" />
+                                  </div>
+                                </div>
+                              )}
+                            </div>
                           </div>
                         )}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent" />
