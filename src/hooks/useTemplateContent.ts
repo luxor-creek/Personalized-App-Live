@@ -136,6 +136,7 @@ export function useTemplateContent(slug: string) {
             cta_banner_subtitle,
             form_section_title,
             form_section_subtitle,
+            logo_url,
             is_builder_template,
             sections
           `)
@@ -243,6 +244,7 @@ export function useTemplateContentById(templateId: string | null) {
             cta_banner_subtitle,
             form_section_title,
             form_section_subtitle,
+            logo_url,
             is_builder_template,
             sections
           `)
