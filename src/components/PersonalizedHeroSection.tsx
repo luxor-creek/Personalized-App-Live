@@ -19,6 +19,7 @@ interface PersonalizedHeroSectionProps {
   videoId?: string;
   showHeaderCta?: boolean;
   showCtaSecondary?: boolean;
+  onVideoPlay?: () => void;
 }
 
 const PersonalizedHeroSection = ({ 
@@ -36,6 +37,7 @@ const PersonalizedHeroSection = ({
   videoId = "1153753885",
   showHeaderCta = true,
   showCtaSecondary = true,
+  onVideoPlay,
 }: PersonalizedHeroSectionProps) => {
   const scrollToContact = () => {
     document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
@@ -105,7 +107,7 @@ const PersonalizedHeroSection = ({
         </div>
 
         <div className="max-w-4xl mx-auto animate-fade-up-delay-2">
-          <VideoPlayer videoId={videoId} thumbnailUrl={thumbnailUrl} />
+          <VideoPlayer videoId={videoId} thumbnailUrl={thumbnailUrl} onVideoPlay={onVideoPlay} />
         </div>
 
         {showCtaSecondary && (
