@@ -210,7 +210,11 @@ export default function WineVideoPage({ template, personalization: externalPerso
                     )}
                 </div>
                 <p className="mt-3 text-muted-foreground">
-                  <span className="text-amber-500 font-medium">{firstName}</span>, take a look at this video demo.
+                  {renderPersonalizedFormattedText(
+                    template?.hero_cta_secondary_text || "{{first_name}}, take a look at this video demo.",
+                    personalizationData,
+                    "hero-video-caption-"
+                  )}
                 </p>
               </div>
             </div>
