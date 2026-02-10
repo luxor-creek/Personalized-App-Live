@@ -261,7 +261,12 @@ const TemplateEditor = () => {
               <div className="p-8 md:p-12 bg-white rounded-3xl shadow-sm">
                 <div className="flex items-center gap-2 text-primary mb-6">
                   <span className="text-sm font-medium uppercase tracking-wide">
-                    Personalized for <span className="text-primary">{"{{company}}"}</span>
+                    <EditableText
+                      value={template.hero_badge || "Personalized for {{company}}"}
+                      onChange={(value) => updateField("hero_badge", value)}
+                      fieldName="Hero Personalization Badge"
+                      supportsPersonalization
+                    />
                   </span>
                 </div>
 
@@ -285,7 +290,7 @@ const TemplateEditor = () => {
                       />
                     </div>
                     <div className="flex flex-wrap gap-3">
-                      <Button className="gap-2 bg-primary hover:bg-primary/90">
+                      <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
                         <EditableText
                           value={template.hero_cta_primary_text || "Get a Free Video"}
                           onChange={(value) => updateField("hero_cta_primary_text", value)}
@@ -396,21 +401,58 @@ const TemplateEditor = () => {
 
               {/* Process Steps */}
               <div className="grid md:grid-cols-5 gap-6">
-                {[
-                  { number: 1, title: "Send URLs", description: "Send the URL's of each product. This can be links or a csv spreadsheet." },
-                  { number: 2, title: "Template", description: "We create the branded template for your approval and revisions." },
-                  { number: 3, title: "Production", description: "We produce all videos within 2-3 days." },
-                  { number: 4, title: "Review", description: "You review them." },
-                  { number: 5, title: "Delivery", description: "Delivery to you." },
-                ].map((step, index) => (
+                {(template.pricing_tiers?.length > 0
+                  ? template.pricing_tiers
+                  : [
+                      { number: 1, title: "Send URLs", description: "Send the URL's of each product. This can be links or a csv spreadsheet." },
+                      { number: 2, title: "Template", description: "We create the branded template for your approval and revisions." },
+                      { number: 3, title: "Production", description: "We produce all videos within 2-3 days." },
+                      { number: 4, title: "Review", description: "You review them." },
+                      { number: 5, title: "Delivery", description: "Delivery to you." },
+                    ]
+                ).map((step: any, index: number) => (
                   <div key={index} className="text-center">
                     <div className="relative mb-4">
-                      <div className="w-12 h-12 rounded-full bg-primary text-white text-xl font-bold flex items-center justify-center mx-auto">
-                        {step.number}
+                      <div className="w-12 h-12 rounded-full bg-primary text-primary-foreground text-xl font-bold flex items-center justify-center mx-auto">
+                        {step.number || index + 1}
                       </div>
                     </div>
-                    <h3 className="font-semibold text-foreground mb-1">{step.title}</h3>
-                    <p className="text-sm text-muted-foreground">{step.description}</p>
+                    <h3 className="font-semibold text-foreground mb-1">
+                      <EditableText
+                        value={step.title || ""}
+                        onChange={(value) => {
+                          const defaults = [
+                            { number: 1, title: "Send URLs", description: "Send the URL's of each product. This can be links or a csv spreadsheet." },
+                            { number: 2, title: "Template", description: "We create the branded template for your approval and revisions." },
+                            { number: 3, title: "Production", description: "We produce all videos within 2-3 days." },
+                            { number: 4, title: "Review", description: "You review them." },
+                            { number: 5, title: "Delivery", description: "Delivery to you." },
+                          ];
+                          const current = template.pricing_tiers?.length > 0 ? [...template.pricing_tiers] : [...defaults];
+                          current[index] = { ...current[index], title: value };
+                          updateField("pricing_tiers", current);
+                        }}
+                        fieldName={`Process Step ${index + 1} Title`}
+                      />
+                    </h3>
+                    <p className="text-sm text-muted-foreground">
+                      <EditableText
+                        value={step.description || ""}
+                        onChange={(value) => {
+                          const defaults = [
+                            { number: 1, title: "Send URLs", description: "Send the URL's of each product. This can be links or a csv spreadsheet." },
+                            { number: 2, title: "Template", description: "We create the branded template for your approval and revisions." },
+                            { number: 3, title: "Production", description: "We produce all videos within 2-3 days." },
+                            { number: 4, title: "Review", description: "You review them." },
+                            { number: 5, title: "Delivery", description: "Delivery to you." },
+                          ];
+                          const current = template.pricing_tiers?.length > 0 ? [...template.pricing_tiers] : [...defaults];
+                          current[index] = { ...current[index], description: value };
+                          updateField("pricing_tiers", current);
+                        }}
+                        fieldName={`Process Step ${index + 1} Description`}
+                      />
+                    </p>
                   </div>
                 ))}
               </div>
@@ -516,7 +558,7 @@ const TemplateEditor = () => {
                     ]
                 ).map((testimonial: any, index: number) => (
                   <div key={index} className="p-6 bg-gray-50 rounded-lg border-0">
-                    <div className="w-6 h-6 text-amber-500 mb-4">❝</div>
+                    <div className="w-6 h-6 text-primary mb-4">❝</div>
                     <div className="text-foreground leading-relaxed">
                       <EditableText
                         value={typeof testimonial === 'string' ? testimonial : (testimonial.quote || "")}
@@ -543,7 +585,7 @@ const TemplateEditor = () => {
           </section>
 
           {/* Comparison Section - Problem vs Solution */}
-          <section className="py-16 px-6 bg-gray-50">
+          <section className="py-16 px-6 bg-muted/30">
             <div className="max-w-6xl mx-auto">
               <div className="grid md:grid-cols-2 gap-8">
                 {/* Problem Side */}
@@ -583,7 +625,7 @@ const TemplateEditor = () => {
 
                 {/* Solution Side */}
                 <div className="p-8 bg-white rounded-lg border border-gray-200">
-                  <p className="text-xs font-medium uppercase tracking-wider text-emerald-600 mb-4">
+                  <p className="text-xs font-medium uppercase tracking-wider text-primary mb-4">
                     THE SOLUTION
                   </p>
                   <h3 className="text-2xl md:text-3xl font-bold text-foreground mb-4">
@@ -607,7 +649,7 @@ const TemplateEditor = () => {
                       : ["Automated generation from existing content", "Template-driven consistency", "Bulk processing capability", "White-label delivery"]
                     ).map((item, index) => (
                       <div key={index} className="flex items-center gap-3">
-                        <Check className="w-5 h-5 text-emerald-500 flex-shrink-0" />
+                        <Check className="w-5 h-5 text-primary flex-shrink-0" />
                         <EditableText
                           value={item}
                           onChange={(value) => {
@@ -648,21 +690,38 @@ const TemplateEditor = () => {
                   </div>
 
                   <ul className="space-y-4 mb-8">
-                    {[
-                      "Transparent estimates before kickoff",
-                      "21-city crew network, minimal travel costs",
-                      "Live action, animation, or hybrid",
-                    ].map((item, index) => (
+                    {(template.comparison_solution_items?.length > 0
+                      ? template.comparison_solution_items
+                      : [
+                          "Transparent estimates before kickoff",
+                          "21-city crew network, minimal travel costs",
+                          "Live action, animation, or hybrid",
+                        ]
+                    ).map((item: string, index: number) => (
                       <li key={index} className="flex items-center gap-3">
-                        <div className="w-5 h-5 text-emerald-500 flex-shrink-0">✓</div>
-                        <span className="text-foreground">{item}</span>
+                        <Check className="w-5 h-5 text-primary flex-shrink-0" />
+                        <EditableText
+                          value={item}
+                          onChange={(value) => {
+                            const defaults = ["Transparent estimates before kickoff", "21-city crew network, minimal travel costs", "Live action, animation, or hybrid"];
+                            const current = template.comparison_solution_items?.length > 0 ? [...template.comparison_solution_items] : [...defaults];
+                            current[index] = value;
+                            updateField("comparison_solution_items", current);
+                          }}
+                          fieldName={`Pricing Feature ${index + 1}`}
+                          className="flex-1 text-foreground"
+                        />
                       </li>
                     ))}
                   </ul>
 
                   <div className="flex flex-wrap gap-3">
-                    <Button className="gap-2 bg-primary hover:bg-primary/90">
-                      Get a Free Video
+                    <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
+                      <EditableText
+                        value={template.hero_cta_primary_text || "Get a Free Video"}
+                        onChange={(value) => updateField("hero_cta_primary_text", value)}
+                        fieldName="Pricing CTA"
+                      />
                     </Button>
                   </div>
                 </div>
@@ -679,11 +738,11 @@ const TemplateEditor = () => {
             </div>
           </section>
 
-          {/* Purple CTA Section */}
-          <section className="py-16 px-6 bg-gradient-to-br from-indigo-600 to-indigo-700">
+          {/* CTA Banner Section */}
+          <section className="py-16 px-6" style={{ background: `linear-gradient(135deg, hsl(var(--primary)), hsl(var(--primary) / 0.85))` }}>
             <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl md:text-4xl font-bold mb-4">
-                <span className="text-white [&_.group]:text-white">
+              <h2 className="text-3xl md:text-4xl font-bold mb-4 text-primary-foreground">
+                <span className="[&_.group]:text-primary-foreground">
                   <RichTextEditor
                     value={template.cta_banner_title || "Let's work together, {{first_name}}"}
                     onChange={(value) => updateField("cta_banner_title", value)}
@@ -693,8 +752,8 @@ const TemplateEditor = () => {
                   />
                 </span>
               </h2>
-              <div className="text-lg mb-8">
-                <span className="text-indigo-100 [&_.group]:text-indigo-100">
+              <div className="text-lg mb-8 text-primary-foreground/80">
+                <span className="[&_.group]:text-primary-foreground/80">
                   <RichTextEditor
                     value={template.cta_banner_subtitle || "We're excited to show {{company}} what's possible. Get started in minutes."}
                     onChange={(value) => updateField("cta_banner_subtitle", value)}
@@ -736,8 +795,12 @@ const TemplateEditor = () => {
               </div>
 
               <div className="flex flex-wrap gap-4 justify-center">
-                <Button size="lg" className="gap-2 bg-primary hover:bg-primary/90">
-                  Get a Free Video
+                <Button size="lg" className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
+                  <EditableText
+                    value={template.hero_cta_primary_text || "Get a Free Video"}
+                    onChange={(value) => updateField("hero_cta_primary_text", value)}
+                    fieldName="Final CTA"
+                  />
                 </Button>
               </div>
             </div>
@@ -832,7 +895,7 @@ const TemplateEditor = () => {
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto text-center">
                 {/* Badge */}
-                <div className="inline-flex items-center gap-2 px-4 py-2 bg-amber-100/80 rounded-full text-amber-800 text-sm font-medium mb-8">
+                <div className="inline-flex items-center gap-2 px-4 py-2 bg-primary/10 rounded-full text-primary text-sm font-medium mb-8">
                   <RichTextEditor
                     value={template.hero_badge || "Kicker Video — B2B Video Production"}
                     onChange={(value) => updateField("hero_badge", value)}
@@ -865,7 +928,7 @@ const TemplateEditor = () => {
 
                 {/* CTA Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-                  <Button size="lg" className="bg-amber-500 hover:bg-amber-600 text-gray-900 font-semibold px-6">
+                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6">
                     <Play className="w-4 h-4 mr-2" />
                     <EditableText
                       value={template.hero_cta_primary_text || "Book a 15‑min strategy call"}
@@ -873,7 +936,7 @@ const TemplateEditor = () => {
                       fieldName="Primary CTA"
                     />
                   </Button>
-                  <Button variant="outline" size="lg" className="border-gray-300 text-gray-700">
+                  <Button variant="outline" size="lg" className="border-primary/30 text-foreground hover:bg-primary/10 hover:text-foreground">
                     <DollarSign className="w-4 h-4 mr-2" />
                     <EditableText
                       value={template.hero_cta_secondary_text || "Get pricing"}
@@ -945,7 +1008,7 @@ const TemplateEditor = () => {
                 <div className="space-y-4 mb-12">
                   {featureList.map((item: any, index: number) => (
                     <div key={index} className="flex items-start gap-3">
-                      <Check className="w-6 h-6 text-green-600 flex-shrink-0 mt-0.5" />
+                      <Check className="w-6 h-6 text-primary flex-shrink-0 mt-0.5" />
                       <div className="flex-1">
                         <span className="font-semibold text-gray-700">
                           <EditableText
@@ -1033,7 +1096,7 @@ const TemplateEditor = () => {
                 <div className="grid md:grid-cols-3 gap-6">
                   {testimonials.map((testimonial: any, index: number) => (
                     <div key={index} className="bg-white border border-gray-200 rounded-lg p-6">
-                      <div className="text-gray-300 text-3xl mb-4">❝</div>
+                      <div className="text-primary/30 text-3xl mb-4">❝</div>
                       <blockquote className="text-gray-700 mb-4">
                         <RichTextEditor
                           value={testimonial.quote}
@@ -1090,7 +1153,7 @@ const TemplateEditor = () => {
                   {pricingTiers.map((tier: any, index: number) => (
                     <div 
                       key={index} 
-                      className={`border rounded-lg p-6 ${tier.featured ? 'border-amber-300 bg-amber-50/50 ring-2 ring-amber-200' : 'border-gray-200 bg-white'}`}
+                      className={`border rounded-lg p-6 ${tier.featured ? 'border-primary/30 bg-primary/5 ring-2 ring-primary/20' : 'border-gray-200 bg-white'}`}
                     >
                       <h3 className="text-lg font-semibold text-gray-900 mb-1">
                         <EditableText
@@ -1128,7 +1191,7 @@ const TemplateEditor = () => {
                       <ul className="space-y-2 mb-6">
                         {(tier.features || []).map((feature: string, fIndex: number) => (
                           <li key={fIndex} className="flex items-center gap-2 text-gray-600 text-sm">
-                            <Check className="w-4 h-4 text-green-600" />
+                            <Check className="w-4 h-4 text-primary" />
                             <EditableText
                               value={feature}
                               onChange={(value) => {
@@ -1145,7 +1208,7 @@ const TemplateEditor = () => {
                       </ul>
                       <Button 
                         variant={tier.featured ? "default" : "outline"} 
-                        className={`w-full ${tier.featured ? 'bg-amber-500 hover:bg-amber-600 text-gray-900' : 'border-gray-300'}`}
+                        className={`w-full ${tier.featured ? 'bg-primary hover:bg-primary/90 text-primary-foreground' : 'border-gray-300 hover:bg-primary/10 hover:text-foreground'}`}
                       >
                         <EditableText
                           value={tier.cta}
@@ -1186,12 +1249,20 @@ const TemplateEditor = () => {
                   />
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button size="lg" className="bg-gray-900 hover:bg-gray-800 text-white">
+                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
                     <Mail className="w-4 h-4 mr-2" />
-                    Request a curated reel
+                    <EditableText
+                      value={template.hero_cta_primary_text || "Request a curated reel"}
+                      onChange={(value) => updateField("hero_cta_primary_text", value)}
+                      fieldName="Portfolio CTA Primary"
+                    />
                   </Button>
-                  <Button variant="outline" size="lg" className="border-amber-600 text-amber-700 hover:bg-amber-50">
-                    Get a sample brief
+                  <Button variant="outline" size="lg" className="border-primary/30 text-foreground hover:bg-primary/10 hover:text-foreground">
+                    <EditableText
+                      value={template.hero_cta_secondary_text || "Get a sample brief"}
+                      onChange={(value) => updateField("hero_cta_secondary_text", value)}
+                      fieldName="Portfolio CTA Secondary"
+                    />
                   </Button>
                 </div>
               </div>
@@ -1352,7 +1423,11 @@ const TemplateEditor = () => {
         <section className="py-12 bg-secondary/30 border-y border-border/50">
           <div className="container mx-auto px-4">
             <p className="text-center text-sm text-muted-foreground uppercase tracking-wider mb-8">
-              Trusted by public organizations nationwide
+              <EditableText
+                value={template.about_content || "Trusted by public organizations nationwide"}
+                onChange={(value) => updateField("about_content", value)}
+                fieldName="Trust Section Text"
+              />
             </p>
             
             <div className="flex justify-center">
