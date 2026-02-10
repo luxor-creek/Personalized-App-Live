@@ -142,11 +142,11 @@ const TemplateEditor = () => {
     const cacheBuster = `?t=${Date.now()}`;
     
     let previewPath = "";
-    if (template?.slug === "police-recruitment") {
+    if (template?.slug?.startsWith("police-recruitment")) {
       previewPath = "/police-recruitment";
-    } else if (template?.slug === "b2b-demo") {
+    } else if (template?.slug?.startsWith("b2b-demo")) {
       previewPath = "/b2b-demo";
-    } else if (template?.slug === "wine-video") {
+    } else if (template?.slug?.startsWith("wine-video")) {
       previewPath = "/wine-video";
     }
     
@@ -202,7 +202,7 @@ const TemplateEditor = () => {
   };
   const isSectionVisible = (key: string) => sectionVisibility[key] !== false;
 
-  if (template.slug === "wine-video") {
+  if (template.slug.startsWith("wine-video")) {
     return (
       <TemplateAccentProvider accentColor={template.accent_color} className="min-h-screen bg-[#f0f4f8]">
         {/* Sidebar */}
