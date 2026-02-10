@@ -46,20 +46,7 @@ const AboutSection = ({
   }, [content]);
 
   // Parse title for gradient effect
-  const renderTitle = () => {
-    // Check if title contains "Kicker Video" to apply gradient
-    if (title.includes("Kicker Video")) {
-      const parts = title.split("Kicker Video");
-      return (
-        <>
-          {parts[0]}
-          <span className="text-gradient">Kicker Video</span>
-          {parts[1]}
-        </>
-      );
-    }
-    return renderFormattedText(title);
-  };
+  const renderTitle = () => renderFormattedText(title);
 
   return (
     <section id="about" className="py-20 lg:py-32 bg-card relative">
