@@ -127,6 +127,9 @@ const B2BDemo = () => {
   const pricingTitle = template?.pricing_title || "Project‑based pricing";
   const pricingSubtitle = template?.pricing_subtitle || "Every project is scoped to your needs. Typical ranges shown below.";
 
+  const vis = template?.personalization_config || {};
+  const isSectionVisible = (key: string) => vis[key] !== false;
+
   return (
     <div className="min-h-screen bg-white">
       {/* Header */}
@@ -197,6 +200,7 @@ const B2BDemo = () => {
       </section>
 
       {/* Trust Logos */}
+      {isSectionVisible("show_trust") && (
       <section className="py-12 bg-white border-y border-gray-100">
         <div className="container mx-auto px-4 text-center">
           <p className="text-gray-500 text-sm font-medium mb-6">
@@ -209,8 +213,10 @@ const B2BDemo = () => {
           />
         </div>
       </section>
+      )}
 
       {/* Features Section */}
+      {isSectionVisible("show_features") && (
       <section className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
@@ -275,8 +281,10 @@ const B2BDemo = () => {
           </div>
         </div>
       </section>
+      )}
 
       {/* Testimonials Section */}
+      {isSectionVisible("show_testimonials") && (
       <section className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto">
@@ -303,8 +311,10 @@ const B2BDemo = () => {
           </div>
         </div>
       </section>
+      )}
 
       {/* Pricing Section */}
+      {isSectionVisible("show_pricing") && (
       <section id="pricing" className="py-20 bg-white">
         <div className="container mx-auto px-4">
           <div className="max-w-5xl mx-auto">
@@ -361,8 +371,10 @@ const B2BDemo = () => {
           </div>
         </div>
       </section>
+      )}
 
       {/* Work/Portfolio CTA Section */}
+      {isSectionVisible("show_portfolio_cta") && (
       <section id="work" className="py-16 bg-gray-50 border-y border-gray-200">
         <div className="container mx-auto px-4">
           <div className="max-w-3xl mx-auto text-center">
@@ -394,9 +406,12 @@ const B2BDemo = () => {
           </div>
         </div>
       </section>
+      )}
 
       {/* Contact Section with Sample Request Form */}
+      {isSectionVisible("show_form") && (
       <SampleRequestForm />
+      )}
 
       {/* Footer */}
       {template?.logo_url && (

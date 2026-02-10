@@ -148,6 +148,9 @@ const PersonalizedLanding = () => {
       document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' });
     };
 
+    const vis = template?.personalization_config || {};
+    const isSectionVisible = (key: string) => vis[key] !== false;
+
     const defaultPortfolioVideos = [
       { title: "Product overview", videoId: "1084786498" },
       { title: "Brand story", videoId: "1084786498" },
@@ -243,6 +246,7 @@ const PersonalizedLanding = () => {
         </section>
 
         {/* Simple Video Production Section */}
+        {isSectionVisible("show_features") && (
         <section className="py-16 px-6">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -268,8 +272,10 @@ const PersonalizedLanding = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* Process Section */}
+        {isSectionVisible("show_process") && (
         <section className="py-16 px-6 bg-white">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-12 text-center">
@@ -297,8 +303,10 @@ const PersonalizedLanding = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* Recent Work Section */}
+        {isSectionVisible("show_portfolio") && (
         <section className="py-16 px-6">
           <div className="max-w-6xl mx-auto">
             <div className="flex flex-col md:flex-row md:items-start md:justify-between gap-4 mb-4">
@@ -334,8 +342,10 @@ const PersonalizedLanding = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* Testimonials Section */}
+        {isSectionVisible("show_testimonials") && (
         <section className="py-16 px-6 bg-white">
           <div className="max-w-5xl mx-auto">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-10 text-center">
@@ -355,8 +365,10 @@ const PersonalizedLanding = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* Comparison Section */}
+        {isSectionVisible("show_comparison") && (
         <section className="py-16 px-6 bg-gray-50">
           <div className="max-w-6xl mx-auto">
             <div className="grid md:grid-cols-2 gap-8">
@@ -408,8 +420,10 @@ const PersonalizedLanding = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* Pricing Section */}
+        {isSectionVisible("show_pricing") && (
         <section className="py-16 px-6">
           <div className="max-w-5xl mx-auto">
             <div className="grid md:grid-cols-2 gap-12 items-center">
@@ -454,8 +468,10 @@ const PersonalizedLanding = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* CTA Section */}
+        {isSectionVisible("show_cta_banner") && (
         <section className="py-16 px-6 bg-gradient-to-br from-primary to-primary/80">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-primary-foreground mb-4">
@@ -466,13 +482,17 @@ const PersonalizedLanding = () => {
             </p>
           </div>
         </section>
+        )}
 
+        {isSectionVisible("show_form") && (
         <SampleRequestForm 
           title={template?.form_section_title || undefined}
           subtitle={template?.form_section_subtitle || undefined}
         />
+        )}
 
         {/* Final CTA Section */}
+        {isSectionVisible("show_contact") && (
         <section className="py-16 px-6 bg-white">
           <div className="max-w-4xl mx-auto text-center">
             <h2 className="text-3xl md:text-4xl font-bold text-foreground mb-4">
@@ -494,6 +514,7 @@ const PersonalizedLanding = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* Footer */}
         {template?.logo_url && (
@@ -508,6 +529,9 @@ const PersonalizedLanding = () => {
   }
 
   // Default: Police Recruitment Template (or B2B Demo - they use similar components)
+  const policeVis = template?.personalization_config || {};
+  const isPoliceVisible = (key: string) => policeVis[key] !== false;
+
   return (
     <TemplateAccentProvider accentColor={template?.accent_color} className="min-h-screen bg-background">
       <PersonalizedHeroSection 
@@ -524,22 +548,30 @@ const PersonalizedLanding = () => {
         ctaSecondaryText={template?.hero_cta_secondary_text || undefined}
         videoId={template?.hero_video_id || undefined}
       />
-      <LogoCarousel 
-        imageUrl={template?.client_logos_url || undefined}
-        title={template?.cta_banner_subtitle ? applyPersonalization(template.cta_banner_subtitle, personalizationData) : undefined}
-      />
-      <AboutSection 
-        title={template?.features_title ? applyPersonalization(template.features_title, personalizationData) : undefined}
-        content={template?.about_content ? applyPersonalization(template.about_content, personalizationData) : undefined}
-      />
-      <PortfolioStrip 
-        imageUrl={template?.portfolio_strip_url || undefined}
-      />
-      <CTASection 
-        title={template?.contact_title ? applyPersonalization(template.contact_title, personalizationData) : undefined}
-        subtitle={template?.contact_subtitle ? applyPersonalization(template.contact_subtitle, personalizationData) : undefined}
-        contactEmail={template?.contact_email || undefined}
-      />
+      {isPoliceVisible("show_trust") && (
+        <LogoCarousel 
+          imageUrl={template?.client_logos_url || undefined}
+          title={template?.cta_banner_subtitle ? applyPersonalization(template.cta_banner_subtitle, personalizationData) : undefined}
+        />
+      )}
+      {isPoliceVisible("show_about") && (
+        <AboutSection 
+          title={template?.features_title ? applyPersonalization(template.features_title, personalizationData) : undefined}
+          content={template?.about_content ? applyPersonalization(template.about_content, personalizationData) : undefined}
+        />
+      )}
+      {isPoliceVisible("show_portfolio_strip") && (
+        <PortfolioStrip 
+          imageUrl={template?.portfolio_strip_url || undefined}
+        />
+      )}
+      {isPoliceVisible("show_contact") && (
+        <CTASection 
+          title={template?.contact_title ? applyPersonalization(template.contact_title, personalizationData) : undefined}
+          subtitle={template?.contact_subtitle ? applyPersonalization(template.contact_subtitle, personalizationData) : undefined}
+          contactEmail={template?.contact_email || undefined}
+        />
+      )}
       <Footer logoUrl={template?.logo_url} />
     </TemplateAccentProvider>
   );
