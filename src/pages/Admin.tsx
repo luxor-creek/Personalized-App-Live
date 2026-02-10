@@ -1351,7 +1351,7 @@ const Admin = () => {
                           </h3>
                         )}
                         <p className="text-xs text-muted-foreground mb-4 font-mono">{t.slug}</p>
-                        <div className="flex gap-2">
+                        <div className="grid grid-cols-2 gap-2">
                           {liveTemplateIds.has(t.id) && (
                             <Button
                               variant="outline"
@@ -1366,7 +1366,6 @@ const Admin = () => {
                           {liveTemplateIds.has(t.id) ? (
                             <Button
                               size="sm"
-                              className="flex-1"
                               onClick={() => {
                                 setLiveWarningTemplateName(t.name);
                                 setLiveWarningCampaignNames(liveTemplateCampaigns[t.id] || []);
@@ -1379,7 +1378,7 @@ const Admin = () => {
                               Edit
                             </Button>
                           ) : (
-                            <Link to={t.is_builder_template ? `/builder/${t.slug}` : `/template-editor/${t.slug}`} className="flex-1">
+                            <Link to={t.is_builder_template ? `/builder/${t.slug}` : `/template-editor/${t.slug}`} className="col-span-1">
                               <Button size="sm" className="w-full">
                                 <Pencil className="w-4 h-4 mr-2" />
                                 Edit
@@ -1403,7 +1402,8 @@ const Admin = () => {
                             className="text-destructive hover:text-destructive"
                             title="Delete"
                           >
-                            <Trash2 className="w-4 h-4" />
+                            <Trash2 className="w-4 h-4 mr-1" />
+                            Delete
                           </Button>
                         </div>
                       </div>
