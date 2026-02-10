@@ -153,7 +153,18 @@ const PersonalizedLanding = () => {
     full_name: `${pageData?.first_name || ""} ${pageData?.last_name || ""}`.trim(),
   };
 
-  // Render builder template if applicable
+  const handleVideoPlay = async () => {
+    if (!pageData?.id) return;
+    try {
+      await supabase.from("video_clicks").insert({
+        personalized_page_id: pageData.id,
+        user_agent: navigator.userAgent,
+      });
+    } catch (err) {
+      console.error("Error tracking video click:", err);
+    }
+  };
+
   if (template.is_builder_template && Array.isArray(template.sections) && template.sections.length > 0) {
     return (
       <TemplateAccentProvider accentColor={template.accent_color} className="min-h-screen bg-white">
@@ -198,6 +209,7 @@ const PersonalizedLanding = () => {
         videoId={template.hero_video_id || undefined}
         showHeaderCta={isPoliceVisible("show_header_cta")}
         showCtaSecondary={isPoliceVisible("show_hero_cta_secondary")}
+        onVideoPlay={handleVideoPlay}
       />
       {isPoliceVisible("show_trust") && (
         <LogoCarousel 

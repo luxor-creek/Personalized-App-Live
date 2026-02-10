@@ -10,6 +10,7 @@ import { Plus, Upload, ExternalLink, Trash2, BarChart3, LogOut, Eye, Layout, Pen
 import { Link } from "react-router-dom";
 import heroThumbnail from "@/assets/hero-thumbnail.jpg";
 import FormSubmissionsPanel from "@/components/admin/FormSubmissionsPanel";
+import CampaignAnalyticsPanel from "@/components/admin/CampaignAnalyticsPanel";
 import { Textarea } from "@/components/ui/textarea";
 import type { User, Session } from "@supabase/supabase-js";
 import { useUsageLimits } from "@/hooks/useUsageLimits";
@@ -183,6 +184,7 @@ const Admin = () => {
   const [liveWarningTemplateName, setLiveWarningTemplateName] = useState("");
   const [liveWarningCampaignNames, setLiveWarningCampaignNames] = useState<string[]>([]);
   const [previewTemplateSlug, setPreviewTemplateSlug] = useState<string | null>(null);
+  const [showCampaignAnalytics, setShowCampaignAnalytics] = useState(false);
   const [liveWarningEditSlug, setLiveWarningEditSlug] = useState<string | null>(null);
   const [liveWarningIsBuilder, setLiveWarningIsBuilder] = useState(false);
 
@@ -324,7 +326,8 @@ const Admin = () => {
   useEffect(() => {
     if (selectedCampaign) {
       fetchPages(selectedCampaign.id);
-      setWorkflowCardsExpanded(true); // Reset when switching campaigns
+      setWorkflowCardsExpanded(true);
+      setShowCampaignAnalytics(false); // Reset when switching campaigns
     }
   }, [selectedCampaign]);
 
@@ -1683,6 +1686,14 @@ const Admin = () => {
                 {/* Campaign Details - Full Width */}
                 {selectedCampaign ? (
                   <div className="space-y-6">
+                    {showCampaignAnalytics ? (
+                      <CampaignAnalyticsPanel
+                        campaignId={selectedCampaign.id}
+                        campaignName={selectedCampaign.name}
+                        onBack={() => setShowCampaignAnalytics(false)}
+                      />
+                    ) : (
+                    <div className="space-y-6">
                     {/* Campaign Header */}
                     <div className="bg-card rounded-lg border border-border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                       <h3 className="text-xl font-semibold text-foreground">
@@ -1691,6 +1702,10 @@ const Admin = () => {
                       <div className="flex flex-wrap gap-2">
                         {pages.length > 0 && (
                           <>
+                            <Button variant="outline" size="sm" onClick={() => setShowCampaignAnalytics(true)}>
+                              <BarChart3 className="w-4 h-4 mr-2" />
+                              Campaign Analytics
+                            </Button>
                             <Button variant="outline" size="sm" onClick={openTestEmail}>
                               <Mail className="w-4 h-4 mr-2" />
                               Send Test Email
@@ -2228,6 +2243,8 @@ const Admin = () => {
                           </TableBody>
                         </Table>
                       </div>
+                    )}
+                    </div>
                     )}
                   </div>
                 ) : (

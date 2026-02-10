@@ -4,17 +4,23 @@ import { useState } from "react";
 interface VideoPlayerProps {
   videoId?: string;
   thumbnailUrl?: string;
+  onVideoPlay?: () => void;
 }
 
-const VideoPlayer = ({ videoId = "1153753885", thumbnailUrl }: VideoPlayerProps) => {
+const VideoPlayer = ({ videoId = "1153753885", thumbnailUrl, onVideoPlay }: VideoPlayerProps) => {
   const [isPlaying, setIsPlaying] = useState(false);
+
+  const handlePlay = () => {
+    setIsPlaying(true);
+    onVideoPlay?.();
+  };
 
   return (
     <div className="relative w-full aspect-video rounded-xl overflow-hidden card-elevated border border-border/50 bg-card">
       {!isPlaying && thumbnailUrl ? (
         <div 
           className="absolute inset-0 cursor-pointer group"
-          onClick={() => setIsPlaying(true)}
+          onClick={handlePlay}
         >
           <img 
             src={thumbnailUrl} 
@@ -34,7 +40,7 @@ const VideoPlayer = ({ videoId = "1153753885", thumbnailUrl }: VideoPlayerProps)
           className="w-full h-full"
           allow="autoplay; fullscreen; picture-in-picture"
           allowFullScreen
-          title="Police Recruitment Video Demo"
+          title="Video"
         />
       )}
     </div>

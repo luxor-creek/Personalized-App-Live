@@ -547,6 +547,35 @@ export type Database = {
         }
         Relationships: []
       }
+      video_clicks: {
+        Row: {
+          clicked_at: string
+          id: string
+          personalized_page_id: string
+          user_agent: string | null
+        }
+        Insert: {
+          clicked_at?: string
+          id?: string
+          personalized_page_id: string
+          user_agent?: string | null
+        }
+        Update: {
+          clicked_at?: string
+          id?: string
+          personalized_page_id?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "video_clicks_personalized_page_id_fkey"
+            columns: ["personalized_page_id"]
+            isOneToOne: false
+            referencedRelation: "personalized_pages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       profiles_public: {
