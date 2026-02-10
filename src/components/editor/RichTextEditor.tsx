@@ -56,7 +56,7 @@ const TEXT_COLORS = [
   { value: "white", label: "White", color: "#ffffff", marker: "[[color:white]]" },
 ];
 
-const ColorPickerPopover = ({ onSelectColor, onSelectCustomColor }: { onSelectColor: (marker: string) => void; onSelectCustomColor: (hex: string) => void }) => {
+const ColorPickerPopover = ({ onSelectColor, onSelectCustomColor, onBeforeOpen }: { onSelectColor: (marker: string) => void; onSelectCustomColor: (hex: string) => void; onBeforeOpen?: () => void }) => {
   const [customHex, setCustomHex] = useState("#");
   const [open, setOpen] = useState(false);
   
@@ -75,8 +75,14 @@ const ColorPickerPopover = ({ onSelectColor, onSelectCustomColor }: { onSelectCo
   };
 
   return (
-    <Popover open={open} onOpenChange={setOpen}>
-      <PopoverTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 h-8 px-3">
+    <Popover open={open} onOpenChange={(nextOpen) => {
+      if (nextOpen) onBeforeOpen?.();
+      setOpen(nextOpen);
+    }}>
+      <PopoverTrigger
+        onMouseDown={(e) => { e.preventDefault(); onBeforeOpen?.(); }}
+        className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 h-8 px-3"
+      >
         <Palette className="w-4 h-4 mr-1" />
         Color
         <ChevronDown className="w-3 h-3 ml-1" />
@@ -86,6 +92,7 @@ const ColorPickerPopover = ({ onSelectColor, onSelectCustomColor }: { onSelectCo
           {TEXT_COLORS.filter(c => c.marker).map((color) => (
             <button
               key={color.value}
+              onMouseDown={(e) => e.preventDefault()}
               onClick={() => handleSwatchClick(color.marker)}
               className="w-7 h-7 rounded-full border border-border hover:scale-110 transition-transform relative group"
               style={{ backgroundColor: color.color }}
@@ -189,18 +196,14 @@ const RichTextEditor = ({
   };
 
   const wrapSelection = (before: string, after: string) => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      const start = textarea.selectionStart;
-      const end = textarea.selectionEnd;
-      const selectedText = editValue.substring(start, end);
-      const newValue = editValue.substring(0, start) + before + selectedText + after + editValue.substring(end);
-      setEditValue(newValue);
-      setTimeout(() => {
-        textarea.focus();
-        textarea.setSelectionRange(start + before.length, end + before.length);
-      }, 0);
-    }
+    const { start, end } = getSelection();
+    const selectedText = editValue.substring(start, end);
+    const newValue = editValue.substring(0, start) + before + selectedText + after + editValue.substring(end);
+    setEditValue(newValue);
+    setTimeout(() => {
+      textareaRef.current?.focus();
+      textareaRef.current?.setSelectionRange(start + before.length, end + before.length);
+    }, 0);
   };
 
   // Save selection whenever textarea selection changes (before popover steals focus)
@@ -381,6 +384,7 @@ const RichTextEditor = ({
             <button
               type="button"
               className="inline-flex items-center justify-center h-8 px-2 rounded-md text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+              onMouseDown={(e) => { e.preventDefault(); saveSelection(); }}
               onClick={() => wrapSelection('**', '**')}
               title="Bold"
             >
@@ -389,6 +393,7 @@ const RichTextEditor = ({
             <button
               type="button"
               className="inline-flex items-center justify-center h-8 px-2 rounded-md text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50"
+              onMouseDown={(e) => { e.preventDefault(); saveSelection(); }}
               onClick={() => wrapSelection('*', '*')}
               title="Italic"
             >
@@ -399,7 +404,10 @@ const RichTextEditor = ({
 
             {/* Font Size Dropdown */}
             <DropdownMenu>
-              <DropdownMenuTrigger className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 h-8 px-3">
+              <DropdownMenuTrigger
+                onMouseDown={(e) => { e.preventDefault(); saveSelection(); }}
+                className="inline-flex items-center justify-center whitespace-nowrap rounded-md text-sm font-medium border border-gray-300 bg-white text-gray-700 hover:bg-gray-50 h-8 px-3"
+              >
                 <Type className="w-4 h-4 mr-1" />
                 Size
                 <ChevronDown className="w-3 h-3 ml-1" />
@@ -421,6 +429,7 @@ const RichTextEditor = ({
             <ColorPickerPopover 
               onSelectColor={(marker) => applyFormatMarker(marker)}
               onSelectCustomColor={(hex) => applyCustomColor(hex)}
+              onBeforeOpen={saveSelection}
             />
             
             <div className="w-px h-6 bg-gray-200 mx-1" />
