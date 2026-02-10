@@ -14,6 +14,104 @@ export type Database = {
   }
   public: {
     Tables: {
+      affiliate_referrals: {
+        Row: {
+          affiliate_id: string
+          commission_amount: number | null
+          converted_at: string
+          created_at: string
+          id: string
+          paid_at: string | null
+          plan: string | null
+          referred_email: string | null
+          referred_user_id: string | null
+          status: string
+          subscription_amount: number | null
+        }
+        Insert: {
+          affiliate_id: string
+          commission_amount?: number | null
+          converted_at?: string
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          plan?: string | null
+          referred_email?: string | null
+          referred_user_id?: string | null
+          status?: string
+          subscription_amount?: number | null
+        }
+        Update: {
+          affiliate_id?: string
+          commission_amount?: number | null
+          converted_at?: string
+          created_at?: string
+          id?: string
+          paid_at?: string | null
+          plan?: string | null
+          referred_email?: string | null
+          referred_user_id?: string | null
+          status?: string
+          subscription_amount?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "affiliate_referrals_affiliate_id_fkey"
+            columns: ["affiliate_id"]
+            isOneToOne: false
+            referencedRelation: "affiliates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      affiliates: {
+        Row: {
+          affiliate_code: string
+          commission_rate: number
+          created_at: string
+          email: string
+          id: string
+          name: string
+          payout_details: string | null
+          payout_method: string | null
+          status: string
+          total_earned: number
+          total_paid: number
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          affiliate_code?: string
+          commission_rate?: number
+          created_at?: string
+          email: string
+          id?: string
+          name: string
+          payout_details?: string | null
+          payout_method?: string | null
+          status?: string
+          total_earned?: number
+          total_paid?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          affiliate_code?: string
+          commission_rate?: number
+          created_at?: string
+          email?: string
+          id?: string
+          name?: string
+          payout_details?: string | null
+          payout_method?: string | null
+          status?: string
+          total_earned?: number
+          total_paid?: number
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       campaigns: {
         Row: {
           created_at: string
