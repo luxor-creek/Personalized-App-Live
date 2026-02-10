@@ -1752,7 +1752,7 @@ const Admin = () => {
                             <ol className="text-sm text-muted-foreground space-y-1 list-decimal list-inside">
                               <li>Select your source contact list</li>
                               <li>Select your drip campaign list</li>
-                              <li>We generate pages & sync the <code className="text-xs bg-muted px-1 py-0.5 rounded">{"{{landing_page}}"}</code> link</li>
+                              <li>We generate pages & sync the <code className="text-xs bg-muted px-1 py-0.5 rounded">{"{{Personalized Page}}"}</code> link</li>
                             </ol>
                             <Dialog open={snovDialogOpen} onOpenChange={setSnovDialogOpen}>
                               <DialogTrigger asChild>
