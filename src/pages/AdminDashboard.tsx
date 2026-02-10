@@ -99,6 +99,7 @@ const AdminDashboard = () => {
 
   // Drilldown
   const [drilldownFilter, setDrilldownFilter] = useState<DrilldownFilter>(null);
+  const [drilldownSort, setDrilldownSort] = useState<"newest" | "oldest" | "name_asc" | "ending_soon">("newest");
 
   // Add to campaign
   const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
@@ -271,7 +272,7 @@ const AdminDashboard = () => {
   // Drilldown filtered users
   const drilldownUsers = useMemo(() => {
     if (!drilldownFilter) return [];
-    return users.filter(u => {
+    const filtered = users.filter(u => {
       switch (drilldownFilter) {
         case "trial_active":
           return u.plan === "trial" && u.trial_ends_at && new Date(u.trial_ends_at) > new Date();
@@ -287,7 +288,27 @@ const AdminDashboard = () => {
           return false;
       }
     });
-  }, [drilldownFilter, users]);
+    const sorted = [...filtered];
+    switch (drilldownSort) {
+      case "newest":
+        sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        break;
+      case "oldest":
+        sorted.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        break;
+      case "name_asc":
+        sorted.sort((a, b) => (a.full_name || a.email || "").localeCompare(b.full_name || b.email || ""));
+        break;
+      case "ending_soon":
+        sorted.sort((a, b) => {
+          const aEnd = a.trial_ends_at ? new Date(a.trial_ends_at).getTime() : Infinity;
+          const bEnd = b.trial_ends_at ? new Date(b.trial_ends_at).getTime() : Infinity;
+          return aEnd - bEnd;
+        });
+        break;
+    }
+    return sorted;
+  }, [drilldownFilter, users, drilldownSort]);
 
   // Selection helpers
   const toggleUserSelection = (userId: string) => {
@@ -516,7 +537,7 @@ const AdminDashboard = () => {
               <div className="bg-card rounded-lg border border-border p-6">
                 {drilldownFilter ? (
                   <>
-                    <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center justify-between mb-3">
                       <div className="flex items-center gap-2">
                         <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => { setDrilldownFilter(null); setSelectedUserIds(new Set()); }}>
                           <ArrowLeft className="w-4 h-4" />
@@ -526,9 +547,31 @@ const AdminDashboard = () => {
                       </div>
                       {selectedUserIds.size > 0 && (
                         <Button size="sm" variant="outline" onClick={openAddToCampaign}>
-                          <Send className="w-3.5 h-3.5 mr-1.5" />Campaign
+                          <Send className="w-3.5 h-3.5 mr-1.5" />Campaign ({selectedUserIds.size})
                         </Button>
                       )}
+                    </div>
+                    <div className="flex items-center gap-2 mb-3">
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          checked={drilldownUsers.length > 0 && drilldownUsers.every(u => selectedUserIds.has(u.id))}
+                          onCheckedChange={() => toggleAllVisible(drilldownUsers)}
+                        />
+                        <span className="text-xs text-muted-foreground">Select all</span>
+                      </div>
+                      <div className="ml-auto">
+                        <Select value={drilldownSort} onValueChange={(v) => setDrilldownSort(v as any)}>
+                          <SelectTrigger className="h-7 text-xs w-[140px]">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="newest">Newest first</SelectItem>
+                            <SelectItem value="oldest">Oldest first</SelectItem>
+                            <SelectItem value="name_asc">Name A–Z</SelectItem>
+                            <SelectItem value="ending_soon">Ending soon</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
                     </div>
                     <div className="space-y-1 max-h-[400px] overflow-y-auto">
                       {drilldownUsers.map(profile => (
