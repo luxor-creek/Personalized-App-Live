@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import TemplateAccentProvider from "@/components/TemplateAccentProvider";
 import { useParams, useNavigate } from "react-router-dom";
 import { useTemplateEditor } from "@/hooks/useTemplateEditor";
@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 import clientLogos from "@/assets/client-logos.png";
 import portfolioStrip from "@/assets/portfolio-strip.png";
-import { ArrowDown, Play, DollarSign, Mail, ExternalLink, X, Check, Upload, Trash2 } from "lucide-react";
+import { ArrowDown, Play, DollarSign, Mail, ExternalLink, X, Check, Upload, Trash2, AlertTriangle } from "lucide-react";
 import EditableSampleRequestForm from "@/components/editor/EditableSampleRequestForm";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -48,6 +48,40 @@ const TemplateEditor = () => {
     discardChanges,
   } = useTemplateEditor(slug);
   const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [activeCampaignCount, setActiveCampaignCount] = useState(0);
+
+  // Check if this template is used by any active campaigns with personalized pages
+  useEffect(() => {
+    const checkActiveCampaigns = async () => {
+      if (!template?.id) return;
+      try {
+        // Find campaigns using this template
+        const { data: campaigns } = await supabase
+          .from("campaigns")
+          .select("id")
+          .eq("template_id", template.id);
+        
+        if (!campaigns || campaigns.length === 0) {
+          setActiveCampaignCount(0);
+          return;
+        }
+
+        // Check if any of those campaigns have personalized pages
+        let count = 0;
+        for (const campaign of campaigns) {
+          const { count: pageCount } = await supabase
+            .from("personalized_pages")
+            .select("*", { count: "exact", head: true })
+            .eq("campaign_id", campaign.id);
+          if (pageCount && pageCount > 0) count++;
+        }
+        setActiveCampaignCount(count);
+      } catch (err) {
+        console.error("Error checking active campaigns:", err);
+      }
+    };
+    checkActiveCampaigns();
+  }, [template?.id]);
 
   const handleLogoUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -155,6 +189,16 @@ const TemplateEditor = () => {
           onPreview={handlePreview}
           onInsertToken={handleInsertToken}
         />
+
+        {/* Live campaign warning */}
+        {activeCampaignCount > 0 && (
+          <div className="mr-80 bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+            <p className="text-sm text-amber-800">
+              <strong>Heads up:</strong> This template is used by {activeCampaignCount} active campaign{activeCampaignCount > 1 ? 's' : ''} with live personalized links. Any changes you save will immediately update those links.
+            </p>
+          </div>
+        )}
 
         {/* Main content - with right margin for sidebar */}
         <div className="mr-80">
@@ -750,6 +794,16 @@ const TemplateEditor = () => {
           onInsertToken={handleInsertToken}
         />
 
+        {/* Live campaign warning */}
+        {activeCampaignCount > 0 && (
+          <div className="mr-80 bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+            <p className="text-sm text-amber-800">
+              <strong>Heads up:</strong> This template is used by {activeCampaignCount} active campaign{activeCampaignCount > 1 ? 's' : ''} with live personalized links. Any changes you save will immediately update those links.
+            </p>
+          </div>
+        )}
+
         {/* Main content - with right margin for sidebar */}
         <div className="mr-80">
           {/* Hero Section */}
@@ -1158,8 +1212,18 @@ const TemplateEditor = () => {
         onInsertToken={handleInsertToken}
       />
 
-      {/* Main content - with right margin for sidebar */}
-      <div className="mr-80">
+        {/* Live campaign warning */}
+        {activeCampaignCount > 0 && (
+          <div className="mr-80 bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-center gap-3">
+            <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0" />
+            <p className="text-sm text-amber-800">
+              <strong>Heads up:</strong> This template is used by {activeCampaignCount} active campaign{activeCampaignCount > 1 ? 's' : ''} with live personalized links. Any changes you save will immediately update those links.
+            </p>
+          </div>
+        )}
+
+        {/* Main content - with right margin for sidebar */}
+        <div className="mr-80">
         {/* Hero Section */}
         <section className="min-h-screen hero-gradient relative overflow-hidden">
           {/* Subtle background pattern */}
