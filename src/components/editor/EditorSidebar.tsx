@@ -1,10 +1,12 @@
-import { Save, X, Eye, Tag, Type, Image, Video, Info, ArrowLeft, Palette } from "lucide-react";
+import { Save, X, Eye, Tag, Type, Image, Video, Info, ArrowLeft, Palette, Menu } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
 import { Input } from "@/components/ui/input";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
 import { useState, useEffect, useCallback } from "react";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface EditorSidebarProps {
   templateName: string;
@@ -48,13 +50,13 @@ function hexToHsl(hex: string): string {
     switch (max) {
       case r: h = ((g - b) / d + (g < b ? 6 : 0)) / 6; break;
       case g: h = ((b - r) / d + 2) / 6; break;
-      case b: h = ((r - g) / d + 4) / 6; break;
+      case b: h = ((r - g) / d + 2) / 6; break;
     }
   }
   return `${Math.round(h * 360)} ${Math.round(s * 100)}% ${Math.round(l * 100)}%`;
 }
 
-const EditorSidebar = ({
+const SidebarContent = ({
   templateName,
   hasChanges,
   isSaving,
@@ -70,7 +72,6 @@ const EditorSidebar = ({
     onInsertToken?.(token);
   };
 
-  // Convert current HSL accent to closest hex for the color input
   const [customHex, setCustomHex] = useState("#7c5cfc");
 
   const handlePresetClick = (hsl: string) => {
@@ -83,7 +84,7 @@ const EditorSidebar = ({
   }, [onAccentColorChange]);
 
   return (
-    <div className="w-80 bg-gray-900 text-white flex flex-col h-screen fixed right-0 top-0 z-50 shadow-2xl">
+    <>
       {/* Header */}
       <div className="p-4 border-b border-gray-700">
         <div className="flex items-center gap-2 mb-2">
@@ -237,6 +238,38 @@ const EditorSidebar = ({
           Back to Admin
         </Button>
       </div>
+    </>
+  );
+};
+
+const EditorSidebar = (props: EditorSidebarProps) => {
+  const isMobile = useIsMobile();
+  const [open, setOpen] = useState(false);
+
+  if (isMobile) {
+    return (
+      <>
+        {/* Floating toggle button */}
+        <Sheet open={open} onOpenChange={setOpen}>
+          <SheetTrigger asChild>
+            <Button
+              size="icon"
+              className="fixed bottom-4 right-4 z-50 w-12 h-12 rounded-full bg-gray-900 hover:bg-gray-800 text-white shadow-xl"
+            >
+              <Menu className="w-5 h-5" />
+            </Button>
+          </SheetTrigger>
+          <SheetContent side="right" className="w-80 p-0 bg-gray-900 text-white border-gray-700 flex flex-col">
+            <SidebarContent {...props} />
+          </SheetContent>
+        </Sheet>
+      </>
+    );
+  }
+
+  return (
+    <div className="w-80 bg-gray-900 text-white flex flex-col h-screen fixed right-0 top-0 z-50 shadow-2xl">
+      <SidebarContent {...props} />
     </div>
   );
 };
