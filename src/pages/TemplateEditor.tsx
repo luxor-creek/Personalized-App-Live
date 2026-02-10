@@ -336,9 +336,14 @@ const TemplateEditor = () => {
                       onVideoChange={(videoId) => updateField("hero_video_id", videoId)}
                       onThumbnailChange={(url) => updateField("hero_video_thumbnail_url", url)}
                     />
-                    <p className="mt-3 text-muted-foreground">
-                      <span className="text-primary font-medium">{"{{first_name}}"}</span>, take a look at this video demo.
-                    </p>
+                    <div className="mt-3 text-muted-foreground">
+                      <RichTextEditor
+                        value={template.hero_cta_secondary_text || "{{first_name}}, take a look at this video demo."}
+                        onChange={(value) => updateField("hero_cta_secondary_text", value)}
+                        fieldName="Video Caption"
+                        supportsPersonalization
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
