@@ -391,10 +391,23 @@ const Admin = () => {
     if (!newCampaignName.trim() || !user || !selectedTemplateId) return;
 
     try {
+      // If the selected template is a library template (user_id IS NULL),
+      // check if the user has a personal clone and use that instead.
+      let resolvedTemplateId = selectedTemplateId;
+      const selectedTemplate = templates.find(t => t.id === selectedTemplateId);
+      if (selectedTemplate && !selectedTemplate.user_id) {
+        const userClone = templates.find(
+          t => t.user_id === user.id && t.slug?.startsWith(selectedTemplate.slug)
+        );
+        if (userClone) {
+          resolvedTemplateId = userClone.id;
+        }
+      }
+
       const { error } = await supabase.from("campaigns").insert({
         name: newCampaignName.trim(),
         user_id: user.id,
-        template_id: selectedTemplateId,
+        template_id: resolvedTemplateId,
       });
 
       if (error) throw error;
