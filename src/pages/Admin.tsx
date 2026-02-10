@@ -1195,6 +1195,12 @@ const Admin = () => {
         <div className="container mx-auto px-4 py-4 flex items-center justify-between">
           <BrandLogo className="h-8" />
           <div className="flex items-center gap-4">
+            {isAdmin && (
+              <Button variant="outline" size="sm" onClick={() => navigate("/admin-dashboard")}>
+                <Shield className="w-4 h-4 mr-2" />
+                Admin Dashboard
+              </Button>
+            )}
             <span className="text-sm text-muted-foreground hidden sm:block">
               {user?.email}
             </span>

@@ -13,6 +13,7 @@ import B2BDemo from "./pages/B2BDemo";
 import TemplateEditor from "./pages/TemplateEditor";
 import WineVideoTemplate from "./pages/WineVideoTemplate";
 import BuilderPage from "./pages/BuilderPage";
+import AdminDashboard from "./pages/AdminDashboard";
 
 const queryClient = new QueryClient();
 
@@ -28,6 +29,7 @@ const App = () => (
           <Route path="/wine-video-landing" element={<WineVideoTemplate />} />
           <Route path="/admin" element={<Admin />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/admin/edit/:slug" element={<TemplateEditor />} />
           <Route path="/b2b-demo" element={<B2BDemo />} />
           <Route path="/wine-video" element={<WineVideoTemplate />} />
