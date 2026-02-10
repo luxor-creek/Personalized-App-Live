@@ -1449,7 +1449,7 @@ const Admin = () => {
                     <div className="p-4">
                       <h3 className="font-semibold text-muted-foreground mb-1">Get Started</h3>
                       <p className="text-sm text-muted-foreground">
-                        Browse the Template Library below and click "Use Template" to clone one.
+                        {isAdmin ? "Browse the Template Library below and click \"Use Template\" to clone one." : "Create a new page from scratch using the Builder or start from a blank template."}
                       </p>
                     </div>
                   </div>
@@ -1457,8 +1457,8 @@ const Admin = () => {
               </div>
             </div>
 
-            {/* Template Library - shared templates (user_id IS NULL) */}
-            <div className="mt-12">
+            {/* Template Library - shared templates (user_id IS NULL) - admin only */}
+            {isAdmin && <div className="mt-12">
               <h2 className="text-2xl font-bold text-foreground mb-2">Template Library</h2>
               <p className="text-muted-foreground mb-6">
                 Browse pre-built templates. Click "Use Template" to clone one into your account and customize it.
@@ -1553,7 +1553,7 @@ const Admin = () => {
                   <p className="text-muted-foreground col-span-3">No library templates available.</p>
                 )}
               </div>
-            </div>
+            </div>}
           </TabsContent>
 
           {/* Campaigns Tab */}
