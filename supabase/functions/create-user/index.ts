@@ -200,8 +200,29 @@ serve(async (req: Request) => {
     );
   } catch (error: any) {
     console.error("create-user error:", error.message);
+
+    // Map technical errors to human-friendly messages
+    const raw = error.message || "Unknown error";
+    let friendly = raw;
+
+    if (raw.includes("already been registered")) {
+      friendly = "This email address is already in use. Please use a different email or manage the existing user.";
+    } else if (raw.includes("Missing required fields")) {
+      friendly = "Please fill in all required fields: name, email, and plan.";
+    } else if (raw.includes("Invalid plan")) {
+      friendly = "The selected plan is not valid. Please choose Trial, Starter, Pro, or Enterprise.";
+    } else if (raw.includes("Missing authorization") || raw.includes("Unauthorized")) {
+      friendly = "You're not logged in or your session has expired. Please sign in again.";
+    } else if (raw.includes("Admin access required")) {
+      friendly = "Only admins can create user accounts.";
+    } else if (raw.includes("Failed to create user")) {
+      friendly = raw.replace("Failed to create user: ", "Could not create the account: ");
+    } else if (raw.includes("rate limit") || raw.includes("too many")) {
+      friendly = "Too many requests. Please wait a moment and try again.";
+    }
+
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: friendly }),
       { status: 400, headers: { "Content-Type": "application/json", ...corsHeaders } }
     );
   }
