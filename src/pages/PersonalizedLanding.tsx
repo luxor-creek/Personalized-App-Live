@@ -185,10 +185,12 @@ const PersonalizedLanding = () => {
               </>
             )}
           </div>
+          {isSectionVisible("show_header_cta") && (
           <Button variant="outline" className="gap-2" onClick={scrollToForm}>
             <Phone className="w-4 h-4" />
             Contact Us
           </Button>
+          )}
         </header>
 
         {/* Hero Section */}
@@ -212,14 +214,18 @@ const PersonalizedLanding = () => {
                   </p>
 
                   <div className="flex flex-wrap gap-3">
+                    {isSectionVisible("show_hero_cta_primary") && (
                     <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground" onClick={scrollToForm}>
                       <Calendar className="w-4 h-4" />
                       {template?.hero_cta_primary_text || "Contact Us"}
                     </Button>
+                    )}
+                    {isSectionVisible("show_hero_cta_secondary") && (
                     <Button variant="outline" className="gap-2">
                       <PlayCircle className="w-4 h-4" />
                       {template?.hero_cta_secondary_text || "See portfolio"}
                     </Button>
+                    )}
                   </div>
                 </div>
 
@@ -449,9 +455,11 @@ const PersonalizedLanding = () => {
                 </ul>
 
                 <div className="flex flex-wrap gap-3">
+                  {isSectionVisible("show_pricing_cta") && (
                   <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
                     Get a tailored quote
                   </Button>
+                  )}
                   <Button variant="outline" className="gap-2">
                     See more work
                   </Button>
@@ -503,10 +511,12 @@ const PersonalizedLanding = () => {
             </p>
 
             <div className="flex flex-wrap gap-4 justify-center">
+              {isSectionVisible("show_final_cta") && (
               <Button size="lg" className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground" onClick={scrollToForm}>
                 <Phone className="w-4 h-4" />
                 Contact Us
               </Button>
+              )}
               <Button size="lg" variant="outline" className="gap-2">
                 <Film className="w-4 h-4" />
                 Request reel
@@ -547,6 +557,8 @@ const PersonalizedLanding = () => {
         ctaPrimaryText={template?.hero_cta_primary_text || undefined}
         ctaSecondaryText={template?.hero_cta_secondary_text || undefined}
         videoId={template?.hero_video_id || undefined}
+        showHeaderCta={isPoliceVisible("show_header_cta")}
+        showCtaSecondary={isPoliceVisible("show_hero_cta_secondary")}
       />
       {isPoliceVisible("show_trust") && (
         <LogoCarousel 
@@ -570,6 +582,8 @@ const PersonalizedLanding = () => {
           title={template?.contact_title ? applyPersonalization(template.contact_title, personalizationData) : undefined}
           subtitle={template?.contact_subtitle ? applyPersonalization(template.contact_subtitle, personalizationData) : undefined}
           contactEmail={template?.contact_email || undefined}
+          showPrimaryButton={isPoliceVisible("show_contact_cta_primary")}
+          showSecondaryButton={isPoliceVisible("show_contact_cta_secondary")}
         />
       )}
       <Footer logoUrl={template?.logo_url} />

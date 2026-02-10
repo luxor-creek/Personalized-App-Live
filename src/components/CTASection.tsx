@@ -6,12 +6,16 @@ interface CTASectionProps {
   title?: string;
   subtitle?: string;
   contactEmail?: string;
+  showPrimaryButton?: boolean;
+  showSecondaryButton?: boolean;
 }
 
 const CTASection = ({ 
   title = "Ready to Transform Your Recruitment Strategy?",
   subtitle = "Let's discuss how Kicker Video can help your department attract the next generation of law enforcement professionals.",
-  contactEmail = "hello@kickervideo.com"
+  contactEmail = "hello@kickervideo.com",
+  showPrimaryButton = true,
+  showSecondaryButton = true,
 }: CTASectionProps) => {
 
   // Parse title for gradient effect
@@ -45,18 +49,22 @@ const CTASection = ({
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
+            {showPrimaryButton && (
             <Button variant="hero" size="xl" asChild>
               <a href={`mailto:${contactEmail}`}>
                 <Mail className="w-5 h-5" />
                 Contact Us
               </a>
             </Button>
+            )}
+            {showSecondaryButton && (
             <Button variant="heroOutline" size="xl" asChild>
               <a href="https://kickervideo.com" target="_blank" rel="noopener noreferrer">
                 <ExternalLink className="w-5 h-5" />
                 Visit Website
               </a>
             </Button>
+            )}
           </div>
 
           <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-muted-foreground">

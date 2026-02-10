@@ -17,6 +17,8 @@ interface PersonalizedHeroSectionProps {
   ctaPrimaryText?: string;
   ctaSecondaryText?: string;
   videoId?: string;
+  showHeaderCta?: boolean;
+  showCtaSecondary?: boolean;
 }
 
 const PersonalizedHeroSection = ({ 
@@ -31,7 +33,9 @@ const PersonalizedHeroSection = ({
   subheadline,
   ctaPrimaryText = "Get in Touch",
   ctaSecondaryText = "Learn More",
-  videoId = "1153753885"
+  videoId = "1153753885",
+  showHeaderCta = true,
+  showCtaSecondary = true,
 }: PersonalizedHeroSectionProps) => {
   const scrollToContact = () => {
     document.getElementById("contact")?.scrollIntoView({ behavior: "smooth" });
@@ -81,9 +85,11 @@ const PersonalizedHeroSection = ({
           ) : (
             <div />
           )}
+          {showHeaderCta && (
           <Button variant="heroOutline" size="lg" onClick={scrollToContact}>
             {ctaPrimaryText}
           </Button>
+          )}
         </header>
 
         <div className="max-w-5xl mx-auto text-center mb-12 lg:mb-16">
@@ -102,6 +108,7 @@ const PersonalizedHeroSection = ({
           <VideoPlayer videoId={videoId} thumbnailUrl={thumbnailUrl} />
         </div>
 
+        {showCtaSecondary && (
         <div className="flex justify-center mt-12 lg:mt-16 animate-fade-up-delay-2">
           <button 
             onClick={() => document.getElementById("about")?.scrollIntoView({ behavior: "smooth" })}
@@ -111,6 +118,7 @@ const PersonalizedHeroSection = ({
             <ArrowDown className="w-5 h-5 animate-bounce" />
           </button>
         </div>
+        )}
       </div>
     </section>
   );
