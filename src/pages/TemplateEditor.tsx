@@ -915,6 +915,16 @@ const TemplateEditor = () => {
             onInsertToken={handleInsertToken}
             accentColor={template.accent_color}
             onAccentColorChange={(color) => updateField("accent_color", color)}
+            sectionToggles={[
+              { key: "show_trust", label: "Trust Logos" },
+              { key: "show_features", label: "Features Section" },
+              { key: "show_testimonials", label: "Testimonials" },
+              { key: "show_pricing", label: "Pricing Tiers" },
+              { key: "show_portfolio_cta", label: "Portfolio CTA" },
+              { key: "show_form", label: "Contact Form" },
+            ]}
+            sectionVisibility={sectionVisibility}
+            onSectionVisibilityChange={handleSectionVisibilityChange}
           />
         )}
 
@@ -1005,6 +1015,7 @@ const TemplateEditor = () => {
           </section>
 
           {/* Trust Logos */}
+          {isSectionVisible("show_trust") && (
           <section className="py-12 bg-white border-y border-gray-100">
             <div className="container mx-auto px-4 text-center">
               <div className="text-gray-500 text-sm font-medium mb-6">
@@ -1026,8 +1037,10 @@ const TemplateEditor = () => {
               </div>
             </div>
           </section>
+          )}
 
           {/* Features Section */}
+          {isSectionVisible("show_features") && (
           <section className="py-20 bg-white">
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto">
@@ -1115,8 +1128,10 @@ const TemplateEditor = () => {
               </div>
             </div>
           </section>
+          )}
 
           {/* Testimonials Section */}
+          {isSectionVisible("show_testimonials") && (
           <section className="py-20 bg-gray-50">
             <div className="container mx-auto px-4">
               <div className="max-w-4xl mx-auto">
@@ -1171,8 +1186,10 @@ const TemplateEditor = () => {
               </div>
             </div>
           </section>
+          )}
 
           {/* Pricing Section */}
+          {isSectionVisible("show_pricing") && (
           <section className="py-20 bg-white">
             <div className="container mx-auto px-4">
               <div className="max-w-5xl mx-auto">
@@ -1271,8 +1288,10 @@ const TemplateEditor = () => {
               </div>
             </div>
           </section>
+          )}
 
           {/* Work/Portfolio CTA Section */}
+          {isSectionVisible("show_portfolio_cta") && (
           <section className="py-16 bg-gray-50 border-y border-gray-200">
             <div className="container mx-auto px-4">
               <div className="max-w-3xl mx-auto text-center">
@@ -1313,8 +1332,10 @@ const TemplateEditor = () => {
               </div>
             </div>
           </section>
+          )}
 
           {/* Contact Section with Sample Request Form */}
+          {isSectionVisible("show_form") && (
           <EditableSampleRequestForm
             formTitle={template.form_section_title || "Request a Sample Video"}
             formSubtitle={template.form_section_subtitle || "See what Kicker can do with your content. We'll generate a sample video from your existing page—no creative brief required."}
@@ -1323,6 +1344,7 @@ const TemplateEditor = () => {
             formSteps={template.form_steps}
             onStepsChange={(steps) => updateField("form_steps", steps)}
           />
+          )}
 
           {/* Footer */}
           <footer className="py-6 bg-gray-100 border-t border-gray-200">
@@ -1352,6 +1374,14 @@ const TemplateEditor = () => {
           onInsertToken={handleInsertToken}
           accentColor={template.accent_color}
           onAccentColorChange={(color) => updateField("accent_color", color)}
+          sectionToggles={[
+            { key: "show_trust", label: "Trust Logos" },
+            { key: "show_about", label: "About Section" },
+            { key: "show_portfolio_strip", label: "Portfolio Strip" },
+            { key: "show_contact", label: "CTA / Contact" },
+          ]}
+          sectionVisibility={sectionVisibility}
+          onSectionVisibilityChange={handleSectionVisibilityChange}
         />
       )}
 
@@ -1469,6 +1499,7 @@ const TemplateEditor = () => {
         </section>
 
         {/* Logo Carousel Section */}
+        {isSectionVisible("show_trust") && (
         <section className="py-12 bg-secondary/30 border-y border-border/50">
           <div className="container mx-auto px-4">
             <p className="text-center text-sm text-muted-foreground uppercase tracking-wider mb-8">
@@ -1490,8 +1521,10 @@ const TemplateEditor = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* About Section */}
+        {isSectionVisible("show_about") && (
         <section id="about" className="py-20 lg:py-32 bg-card relative">
           {/* Accent line */}
           <div className="absolute top-0 left-1/2 -translate-x-1/2 w-24 h-1 bg-primary rounded-full" />
@@ -1521,8 +1554,10 @@ const TemplateEditor = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* Portfolio Strip */}
+        {isSectionVisible("show_portfolio_strip") && (
         <section className="bg-background">
           <div className="w-full">
             <EditableImage
@@ -1533,8 +1568,10 @@ const TemplateEditor = () => {
             />
           </div>
         </section>
+        )}
 
         {/* CTA Section */}
+        {isSectionVisible("show_contact") && (
         <section id="contact" className="py-20 lg:py-32 hero-gradient relative overflow-hidden">
           {/* Background accent */}
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full bg-primary/5 blur-3xl" />
@@ -1600,6 +1637,7 @@ const TemplateEditor = () => {
             </div>
           </div>
         </section>
+        )}
 
         {/* Footer */}
         <footer className="py-8 bg-background border-t border-border">
