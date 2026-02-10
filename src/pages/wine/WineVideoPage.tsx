@@ -142,10 +142,12 @@ export default function WineVideoPage({ template }: { template: TemplateContent 
               </>
             )}
         </div>
+        {isSectionVisible("show_header_cta") && (
         <Button variant="outline" className="gap-2" onClick={scrollToForm}>
           <Phone className="w-4 h-4" />
           {template?.hero_cta_primary_text || "Get a Free Video"}
         </Button>
+        )}
       </header>
 
       {/* Hero Section */}
@@ -174,6 +176,7 @@ export default function WineVideoPage({ template }: { template: TemplateContent 
                 </p>
 
                 <div className="flex flex-wrap gap-3">
+                  {isSectionVisible("show_hero_cta_primary") && (
                   <Button
                     className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
                     onClick={scrollToForm}
@@ -181,6 +184,7 @@ export default function WineVideoPage({ template }: { template: TemplateContent 
                     <Calendar className="w-4 h-4" />
                     {template?.hero_cta_primary_text || "Get a Free Video"}
                   </Button>
+                  )}
                 </div>
               </div>
 
@@ -388,9 +392,11 @@ export default function WineVideoPage({ template }: { template: TemplateContent 
               </ul>
 
               <div className="flex flex-wrap gap-3">
+                {isSectionVisible("show_pricing_cta") && (
                 <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground" onClick={scrollToForm}>
                   Get a Free Video
                 </Button>
+                )}
               </div>
             </div>
 
@@ -449,12 +455,14 @@ export default function WineVideoPage({ template }: { template: TemplateContent 
             )}
           </p>
 
+          {isSectionVisible("show_final_cta") && (
           <div className="flex flex-wrap gap-4 justify-center">
             <Button size="lg" className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground" onClick={scrollToForm}>
               <Phone className="w-4 h-4" />
               Get a Free Video
             </Button>
           </div>
+          )}
         </div>
       </section>
       )}

@@ -13,6 +13,7 @@ import clientLogos from "@/assets/client-logos.png";
 import portfolioStrip from "@/assets/portfolio-strip.png";
 import { ArrowDown, Play, DollarSign, Mail, ExternalLink, X, Check, Upload, Trash2, AlertTriangle } from "lucide-react";
 import EditableSampleRequestForm from "@/components/editor/EditableSampleRequestForm";
+import ButtonToggleWrapper from "@/components/editor/ButtonToggleWrapper";
 import { supabase } from "@/integrations/supabase/client";
 
 const DEFAULT_ABOUT_CONTENT = `Most police recruitment videos aren't broken.
@@ -269,13 +270,15 @@ const TemplateEditor = () => {
                 </span>
               </div>
             </div>
-            <Button variant="outline" className="gap-2">
-              <EditableText
-                value={template.hero_cta_primary_text || "Get a Free Video"}
-                onChange={(value) => updateField("hero_cta_primary_text", value)}
-                fieldName="Header CTA"
-              />
-            </Button>
+            <ButtonToggleWrapper configKey="show_header_cta" visible={isSectionVisible("show_header_cta")} onToggle={handleSectionVisibilityChange}>
+              <Button variant="outline" className="gap-2">
+                <EditableText
+                  value={template.hero_cta_primary_text || "Get a Free Video"}
+                  onChange={(value) => updateField("hero_cta_primary_text", value)}
+                  fieldName="Header CTA"
+                />
+              </Button>
+            </ButtonToggleWrapper>
           </header>
 
           {/* Hero Section */}
@@ -313,13 +316,15 @@ const TemplateEditor = () => {
                       />
                     </div>
                     <div className="flex flex-wrap gap-3">
-                      <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
-                        <EditableText
-                          value={template.hero_cta_primary_text || "Get a Free Video"}
-                          onChange={(value) => updateField("hero_cta_primary_text", value)}
-                          fieldName="Hero CTA"
-                        />
-                      </Button>
+                      <ButtonToggleWrapper configKey="show_hero_cta_primary" visible={isSectionVisible("show_hero_cta_primary")} onToggle={handleSectionVisibilityChange}>
+                        <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
+                          <EditableText
+                            value={template.hero_cta_primary_text || "Get a Free Video"}
+                            onChange={(value) => updateField("hero_cta_primary_text", value)}
+                            fieldName="Hero CTA"
+                          />
+                        </Button>
+                      </ButtonToggleWrapper>
                     </div>
                   </div>
 
@@ -750,13 +755,15 @@ const TemplateEditor = () => {
                   </ul>
 
                   <div className="flex flex-wrap gap-3">
-                    <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
-                      <EditableText
-                        value={template.hero_cta_primary_text || "Get a Free Video"}
-                        onChange={(value) => updateField("hero_cta_primary_text", value)}
-                        fieldName="Pricing CTA"
-                      />
-                    </Button>
+                    <ButtonToggleWrapper configKey="show_pricing_cta" visible={isSectionVisible("show_pricing_cta")} onToggle={handleSectionVisibilityChange}>
+                      <Button className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
+                        <EditableText
+                          value={template.hero_cta_primary_text || "Get a Free Video"}
+                          onChange={(value) => updateField("hero_cta_primary_text", value)}
+                          fieldName="Pricing CTA"
+                        />
+                      </Button>
+                    </ButtonToggleWrapper>
                   </div>
                 </div>
 
@@ -837,13 +844,15 @@ const TemplateEditor = () => {
               </div>
 
               <div className="flex flex-wrap gap-4 justify-center">
-                <Button size="lg" className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
-                  <EditableText
-                    value={template.hero_cta_primary_text || "Get a Free Video"}
-                    onChange={(value) => updateField("hero_cta_primary_text", value)}
-                    fieldName="Final CTA"
-                  />
-                </Button>
+                <ButtonToggleWrapper configKey="show_final_cta" visible={isSectionVisible("show_final_cta")} onToggle={handleSectionVisibilityChange}>
+                  <Button size="lg" className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground">
+                    <EditableText
+                      value={template.hero_cta_primary_text || "Get a Free Video"}
+                      onChange={(value) => updateField("hero_cta_primary_text", value)}
+                      fieldName="Final CTA"
+                    />
+                  </Button>
+                </ButtonToggleWrapper>
               </div>
             </div>
           </section>
@@ -983,22 +992,26 @@ const TemplateEditor = () => {
 
                 {/* CTA Buttons */}
                 <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6">
-                    <Play className="w-4 h-4 mr-2" />
-                    <EditableText
-                      value={template.hero_cta_primary_text || "Book a 15‑min strategy call"}
-                      onChange={(value) => updateField("hero_cta_primary_text", value)}
-                      fieldName="Primary CTA"
-                    />
-                  </Button>
-                  <Button variant="outline" size="lg" className="border-primary/30 text-foreground hover:bg-primary/10 hover:text-foreground">
-                    <DollarSign className="w-4 h-4 mr-2" />
-                    <EditableText
-                      value={template.hero_cta_secondary_text || "Get pricing"}
-                      onChange={(value) => updateField("hero_cta_secondary_text", value)}
-                      fieldName="Secondary CTA"
-                    />
-                  </Button>
+                  <ButtonToggleWrapper configKey="show_hero_cta_primary" visible={isSectionVisible("show_hero_cta_primary")} onToggle={handleSectionVisibilityChange}>
+                    <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground font-semibold px-6">
+                      <Play className="w-4 h-4 mr-2" />
+                      <EditableText
+                        value={template.hero_cta_primary_text || "Book a 15‑min strategy call"}
+                        onChange={(value) => updateField("hero_cta_primary_text", value)}
+                        fieldName="Primary CTA"
+                      />
+                    </Button>
+                  </ButtonToggleWrapper>
+                  <ButtonToggleWrapper configKey="show_hero_cta_secondary" visible={isSectionVisible("show_hero_cta_secondary")} onToggle={handleSectionVisibilityChange}>
+                    <Button variant="outline" size="lg" className="border-primary/30 text-foreground hover:bg-primary/10 hover:text-foreground">
+                      <DollarSign className="w-4 h-4 mr-2" />
+                      <EditableText
+                        value={template.hero_cta_secondary_text || "Get pricing"}
+                        onChange={(value) => updateField("hero_cta_secondary_text", value)}
+                        fieldName="Secondary CTA"
+                      />
+                    </Button>
+                  </ButtonToggleWrapper>
                 </div>
 
                 {/* Video Player */}
@@ -1313,21 +1326,25 @@ const TemplateEditor = () => {
                   />
                 </div>
                 <div className="flex flex-col sm:flex-row gap-4 justify-center">
-                  <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
-                    <Mail className="w-4 h-4 mr-2" />
-                    <EditableText
-                      value={template.hero_cta_primary_text || "Request a curated reel"}
-                      onChange={(value) => updateField("hero_cta_primary_text", value)}
-                      fieldName="Portfolio CTA Primary"
-                    />
-                  </Button>
-                  <Button variant="outline" size="lg" className="border-primary/30 text-foreground hover:bg-primary/10 hover:text-foreground">
-                    <EditableText
-                      value={template.hero_cta_secondary_text || "Get a sample brief"}
-                      onChange={(value) => updateField("hero_cta_secondary_text", value)}
-                      fieldName="Portfolio CTA Secondary"
-                    />
-                  </Button>
+                  <ButtonToggleWrapper configKey="show_portfolio_cta_primary" visible={isSectionVisible("show_portfolio_cta_primary")} onToggle={handleSectionVisibilityChange}>
+                    <Button size="lg" className="bg-primary hover:bg-primary/90 text-primary-foreground">
+                      <Mail className="w-4 h-4 mr-2" />
+                      <EditableText
+                        value={template.hero_cta_primary_text || "Request a curated reel"}
+                        onChange={(value) => updateField("hero_cta_primary_text", value)}
+                        fieldName="Portfolio CTA Primary"
+                      />
+                    </Button>
+                  </ButtonToggleWrapper>
+                  <ButtonToggleWrapper configKey="show_portfolio_cta_secondary" visible={isSectionVisible("show_portfolio_cta_secondary")} onToggle={handleSectionVisibilityChange}>
+                    <Button variant="outline" size="lg" className="border-primary/30 text-foreground hover:bg-primary/10 hover:text-foreground">
+                      <EditableText
+                        value={template.hero_cta_secondary_text || "Get a sample brief"}
+                        onChange={(value) => updateField("hero_cta_secondary_text", value)}
+                        fieldName="Portfolio CTA Secondary"
+                      />
+                    </Button>
+                  </ButtonToggleWrapper>
                 </div>
               </div>
             </div>
@@ -1432,13 +1449,15 @@ const TemplateEditor = () => {
                   </label>
                 )}
               </div>
-              <Button variant="outline" size="lg">
-                <EditableText
-                  value={template.hero_cta_primary_text || "Get in Touch"}
-                  onChange={(value) => updateField("hero_cta_primary_text", value)}
-                  fieldName="Header CTA"
-                />
-              </Button>
+              <ButtonToggleWrapper configKey="show_header_cta" visible={isSectionVisible("show_header_cta")} onToggle={handleSectionVisibilityChange}>
+                <Button variant="outline" size="lg">
+                  <EditableText
+                    value={template.hero_cta_primary_text || "Get in Touch"}
+                    onChange={(value) => updateField("hero_cta_primary_text", value)}
+                    fieldName="Header CTA"
+                  />
+                </Button>
+              </ButtonToggleWrapper>
             </header>
 
             {/* Main Content */}
@@ -1597,18 +1616,22 @@ const TemplateEditor = () => {
               </div>
 
               <div className="flex flex-col sm:flex-row gap-4 justify-center mb-12">
-                <Button variant="hero" size="xl" asChild>
-                  <a href="mailto:hello@kickervideo.com">
-                    <Mail className="w-5 h-5" />
-                    Contact Us
-                  </a>
-                </Button>
-                <Button variant="heroOutline" size="xl" asChild>
-                  <a href="https://kickervideo.com" target="_blank" rel="noopener noreferrer">
-                    <ExternalLink className="w-5 h-5" />
-                    Visit Website
-                  </a>
-                </Button>
+                <ButtonToggleWrapper configKey="show_contact_cta_primary" visible={isSectionVisible("show_contact_cta_primary")} onToggle={handleSectionVisibilityChange}>
+                  <Button variant="hero" size="xl" asChild>
+                    <a href="mailto:hello@kickervideo.com">
+                      <Mail className="w-5 h-5" />
+                      Contact Us
+                    </a>
+                  </Button>
+                </ButtonToggleWrapper>
+                <ButtonToggleWrapper configKey="show_contact_cta_secondary" visible={isSectionVisible("show_contact_cta_secondary")} onToggle={handleSectionVisibilityChange}>
+                  <Button variant="heroOutline" size="xl" asChild>
+                    <a href="https://kickervideo.com" target="_blank" rel="noopener noreferrer">
+                      <ExternalLink className="w-5 h-5" />
+                      Visit Website
+                    </a>
+                  </Button>
+                </ButtonToggleWrapper>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-6 justify-center items-center text-muted-foreground">
