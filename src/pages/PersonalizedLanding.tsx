@@ -143,7 +143,7 @@ const PersonalizedLanding = () => {
   }
 
   // Render Wine Video Template
-  if (templateSlug === "wine-video") {
+  if (templateSlug?.startsWith("wine-video")) {
     const scrollToForm = () => {
       document.getElementById('contact-form')?.scrollIntoView({ behavior: 'smooth' });
     };
