@@ -1561,10 +1561,12 @@ const Admin = () => {
                             </Button>
                           </>
                         )}
-                        <Button size="sm" variant="outline" onClick={openSnovStatsDialog}>
-                          <TrendingUp className="w-4 h-4 mr-2" />
-                          Snov.io Stats
-                        </Button>
+                        {usedSnovWorkflow && (
+                          <Button size="sm" variant="outline" onClick={openSnovStatsDialog}>
+                            <TrendingUp className="w-4 h-4 mr-2" />
+                            Snov.io Stats
+                          </Button>
+                        )}
                         {/* Snov.io Campaign Stats Dialog */}
                         <Dialog open={snovStatsDialogOpen} onOpenChange={setSnovStatsDialogOpen}>
                           <DialogContent className="max-w-2xl">
