@@ -203,7 +203,7 @@ const TemplateEditor = () => {
 
         {/* Live campaign warning */}
         {!isPreviewOnly && activeCampaignCount > 0 && (
-          <div className="mr-80 bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-start gap-3">
+          <div className="lg:mr-80 bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-amber-800">
               <p>
@@ -217,7 +217,7 @@ const TemplateEditor = () => {
         )}
 
         {/* Main content - with right margin for sidebar */}
-        <div className={isPreviewOnly ? "" : "mr-80"}>
+        <div className={isPreviewOnly ? "" : "lg:mr-80"}>
           {/* Header */}
           <header className="py-4 px-6 flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -879,7 +879,7 @@ const TemplateEditor = () => {
 
         {/* Live campaign warning */}
         {!isPreviewOnly && activeCampaignCount > 0 && (
-          <div className="mr-80 bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-start gap-3">
+          <div className="lg:mr-80 bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-amber-800">
               <p>
@@ -893,7 +893,7 @@ const TemplateEditor = () => {
         )}
 
         {/* Main content - with right margin for sidebar */}
-        <div className={isPreviewOnly ? "" : "mr-80"}>
+        <div className={isPreviewOnly ? "" : "lg:mr-80"}>
           {/* Hero Section */}
           <section className="pt-24 pb-16 bg-gradient-to-b from-amber-50/50 to-white">
             <div className="container mx-auto px-4">
@@ -1314,7 +1314,7 @@ const TemplateEditor = () => {
 
         {/* Live campaign warning */}
         {!isPreviewOnly && activeCampaignCount > 0 && (
-          <div className="mr-80 bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-start gap-3">
+          <div className="lg:mr-80 bg-amber-50 border-b border-amber-200 px-6 py-3 flex items-start gap-3">
             <AlertTriangle className="w-5 h-5 text-amber-600 flex-shrink-0 mt-0.5" />
             <div className="text-sm text-amber-800">
               <p>
@@ -1328,7 +1328,7 @@ const TemplateEditor = () => {
         )}
 
         {/* Main content - with right margin for sidebar */}
-        <div className={isPreviewOnly ? "" : "mr-80"}>
+        <div className={isPreviewOnly ? "" : "lg:mr-80"}>
         {/* Hero Section */}
         <section className={`${isPreviewOnly ? "min-h-0" : "min-h-screen"} hero-gradient relative overflow-hidden`}>
           {/* Subtle background pattern */}
