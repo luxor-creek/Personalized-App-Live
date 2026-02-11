@@ -30,11 +30,14 @@ Section type: ${sectionType || "general"}
 ${toneInstruction}
 ${context ? `Page context: ${context}` : ""}
 
-Rules:
+CRITICAL RULES:
 - Keep the same general meaning but make it significantly better
 - Keep it concise — shorter is usually better for landing pages
-- Preserve any personalization tokens like {{first_name}} or {{company}}
-- Preserve any color markup like [[color:primary]] ... [[/color:primary]]
+- If the original text contains personalization tokens like {{first_name}}, {{company}}, {{company_name}}, {{last_name}}, {{full_name}}, {{landing_page}}, or {{custom_field}}, keep them EXACTLY as-is in the same position
+- Do NOT add any new {{...}} tokens that were not in the original text
+- Do NOT invent or insert variables that the user did not include
+- If the original text has NO {{...}} tokens, do NOT add any
+- Preserve any formatting markup like [[color:primary]] ... [[/color:primary]] or [[size:large]] ... [[/size:large]]
 - Return ONLY the rewritten text, no quotes, no explanation, no markdown`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
