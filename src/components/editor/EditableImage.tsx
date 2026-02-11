@@ -13,6 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
+import { compressImage } from "@/lib/compressImage";
 
 interface EditableImageProps {
   src: string;
@@ -65,16 +66,15 @@ const EditableImage = ({
     reader.onload = (ev) => setUploadPreview(ev.target?.result as string);
     reader.readAsDataURL(file);
 
-    // Upload to storage
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() || "png";
+      const { blob, ext } = await compressImage(file);
       const folder = templateId || "general";
       const path = `${folder}/${Date.now()}.${ext}`;
 
       const { error: uploadError } = await supabase.storage
         .from("template-images")
-        .upload(path, file, { upsert: true });
+        .upload(path, blob, { upsert: true, contentType: `image/${ext}` });
 
       if (uploadError) throw uploadError;
 
