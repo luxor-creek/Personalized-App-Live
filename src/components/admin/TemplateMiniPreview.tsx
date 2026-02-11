@@ -50,7 +50,7 @@ const TemplateMiniPreview = ({ slug, isBuilderTemplate }: TemplateMiniPreviewPro
             <iframe
               src={previewUrl}
               title="Template preview"
-              sandbox="allow-same-origin"
+              sandbox="allow-same-origin allow-scripts"
               loading="lazy"
               className="w-full h-full border-0"
               style={{ pointerEvents: "none" }}
