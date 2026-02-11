@@ -10,9 +10,10 @@ import { X, Bold, Italic, AlignLeft, AlignCenter, AlignRight, Plus, Trash2, Uplo
 import { Switch } from "@/components/ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import VariableInsert from "./VariableInsert";
 import AICopywriterButton from "./AICopywriterButton";
+import { compressImage } from "@/lib/compressImage";
 
 // Track the last focused input/textarea and cursor position
 let lastFocusedInput: HTMLInputElement | HTMLTextAreaElement | null = null;
@@ -44,16 +45,24 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
     onUpdate({ ...section, style: { ...section.style, ...updates } });
   };
 
+  const uploadCompressedImage = async (file: File): Promise<string> => {
+    if (!file.type.startsWith('image/')) {
+      throw new Error("Only image files are supported");
+    }
+    const { blob, ext } = await compressImage(file);
+    const path = `builder/${Date.now()}.${ext}`;
+    const { error } = await supabase.storage.from('template-logos').upload(path, blob, { contentType: `image/${ext}` });
+    if (error) throw error;
+    const { data: { publicUrl } } = supabase.storage.from('template-logos').getPublicUrl(path);
+    return publicUrl;
+  };
+
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
     setUploading(true);
     try {
-      const ext = file.name.split('.').pop();
-      const path = `builder/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from('template-logos').upload(path, file);
-      if (error) throw error;
-      const { data: { publicUrl } } = supabase.storage.from('template-logos').getPublicUrl(path);
+      const publicUrl = await uploadCompressedImage(file);
       updateContent({ [field]: publicUrl });
       toast({ title: "Uploaded!" });
     } catch (err: any) {
@@ -66,18 +75,13 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, field: string) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    // Only allow image uploads
     if (!file.type.startsWith('image/')) {
       toast({ title: "Only images can be uploaded", description: "For documents and videos, paste a shared link instead.", variant: "destructive" });
       return;
     }
     setUploading(true);
     try {
-      const ext = file.name.split('.').pop();
-      const path = `builder/${Date.now()}.${ext}`;
-      const { error } = await supabase.storage.from('template-logos').upload(path, file);
-      if (error) throw error;
-      const { data: { publicUrl } } = supabase.storage.from('template-logos').getPublicUrl(path);
+      const publicUrl = await uploadCompressedImage(file);
       updateContent({ [field]: publicUrl });
       toast({ title: "Uploaded!" });
     } catch (err: any) {
@@ -204,9 +208,31 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
               <>
                 <Label>Images ({(section.content.imageUrls || []).length})</Label>
                 {(section.content.imageUrls || []).map((url, i) => (
-                  <div key={i} className="flex gap-2">
-                    <Input value={url} onChange={(e) => { const urls = [...(section.content.imageUrls || [])]; urls[i] = e.target.value; updateContent({ imageUrls: urls }); }} placeholder="Image URL" className="flex-1" />
-                    <Button variant="ghost" size="sm" onClick={() => updateContent({ imageUrls: (section.content.imageUrls || []).filter((_, idx) => idx !== i) })}><Trash2 className="w-3 h-3" /></Button>
+                  <div key={i} className="space-y-1">
+                    <div className="flex gap-2">
+                      <Input value={url} onChange={(e) => { const urls = [...(section.content.imageUrls || [])]; urls[i] = e.target.value; updateContent({ imageUrls: urls }); }} placeholder="Image URL" className="flex-1" />
+                      <Button variant="ghost" size="sm" onClick={() => updateContent({ imageUrls: (section.content.imageUrls || []).filter((_, idx) => idx !== i) })}><Trash2 className="w-3 h-3" /></Button>
+                    </div>
+                    <div className="relative">
+                      <Button variant="outline" size="sm" className="w-full" disabled={uploading}>
+                        <Upload className="w-4 h-4 mr-2" />
+                        {uploading ? "Uploading..." : "Upload"}
+                      </Button>
+                      <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={async (ev) => {
+                        const file = ev.target.files?.[0];
+                        if (!file) return;
+                        setUploading(true);
+                        try {
+                          const publicUrl = await uploadCompressedImage(file);
+                          const urls = [...(section.content.imageUrls || [])];
+                          urls[i] = publicUrl;
+                          updateContent({ imageUrls: urls });
+                          toast({ title: "Uploaded!" });
+                        } catch (err: any) {
+                          toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+                        } finally { setUploading(false); }
+                      }} />
+                    </div>
                   </div>
                 ))}
                 <Button variant="outline" size="sm" className="w-full" onClick={() => updateContent({ imageUrls: [...(section.content.imageUrls || []), ''] })}><Plus className="w-3 h-3 mr-2" /> Add Image</Button>
@@ -678,9 +704,31 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
             <Separator />
             <Label>Images ({(section.content.galleryUrls || []).length})</Label>
             {(section.content.galleryUrls || []).map((url, i) => (
-              <div key={i} className="flex gap-2">
-                <Input value={url} onChange={(e) => { const urls = [...(section.content.galleryUrls || [])]; urls[i] = e.target.value; updateContent({ galleryUrls: urls }); }} placeholder="Image URL" className="flex-1 text-xs" />
-                <Button variant="ghost" size="sm" onClick={() => updateContent({ galleryUrls: (section.content.galleryUrls || []).filter((_, idx) => idx !== i) })}><Trash2 className="w-3 h-3" /></Button>
+              <div key={i} className="space-y-1">
+                <div className="flex gap-2">
+                  <Input value={url} onChange={(e) => { const urls = [...(section.content.galleryUrls || [])]; urls[i] = e.target.value; updateContent({ galleryUrls: urls }); }} placeholder="Image URL" className="flex-1 text-xs" />
+                  <Button variant="ghost" size="sm" onClick={() => updateContent({ galleryUrls: (section.content.galleryUrls || []).filter((_, idx) => idx !== i) })}><Trash2 className="w-3 h-3" /></Button>
+                </div>
+                <div className="relative">
+                  <Button variant="outline" size="sm" className="w-full" disabled={uploading}>
+                    <Upload className="w-4 h-4 mr-2" />
+                    {uploading ? "Uploading..." : "Upload"}
+                  </Button>
+                  <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={async (ev) => {
+                    const file = ev.target.files?.[0];
+                    if (!file) return;
+                    setUploading(true);
+                    try {
+                      const publicUrl = await uploadCompressedImage(file);
+                      const urls = [...(section.content.galleryUrls || [])];
+                      urls[i] = publicUrl;
+                      updateContent({ galleryUrls: urls });
+                      toast({ title: "Uploaded!" });
+                    } catch (err: any) {
+                      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+                    } finally { setUploading(false); }
+                  }} />
+                </div>
               </div>
             ))}
             <Button variant="outline" size="sm" className="w-full" onClick={() => updateContent({ galleryUrls: [...(section.content.galleryUrls || []), ''] })}><Plus className="w-3 h-3 mr-2" />Add Image</Button>
@@ -831,7 +879,7 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
         const colCount = section.type === 'columns2' ? 2 : 3;
         const children = section.content.columnChildren || Array.from({ length: colCount }, () => []);
         // Nestable section types (simple content types only)
-        const nestableTypes: SectionType[] = ['headline', 'body', 'image', 'video', 'cta', 'quote', 'spacer', 'divider', 'form', 'document', 'qrCode'];
+        const nestableTypes: SectionType[] = ['headline', 'body', 'image', 'gallery', 'video', 'cta', 'quote', 'spacer', 'divider', 'form', 'document', 'qrCode'];
 
         const addChildSection = (colIdx: number, childType: SectionType) => {
           const defaults = SECTION_DEFAULTS[childType];
@@ -994,11 +1042,7 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
                               if (!file) return;
                               setUploading(true);
                               try {
-                                const ext = file.name.split('.').pop();
-                                const path = `builder/${Date.now()}.${ext}`;
-                                const { error } = await supabase.storage.from('template-logos').upload(path, file);
-                                if (error) throw error;
-                                const { data: { publicUrl } } = supabase.storage.from('template-logos').getPublicUrl(path);
+                                const publicUrl = await uploadCompressedImage(file);
                                 const updated = children.map((col, i) =>
                                   i === colIdx
                                     ? (col as BuilderSection[]).map((s) =>
@@ -1015,6 +1059,78 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
                               }
                             }} />
                           </div>
+                        </div>
+                      )}
+                      {child.type === 'gallery' && (
+                        <div className="space-y-1">
+                          <Label className="text-xs">Gallery Images ({(child.content.galleryUrls || []).length})</Label>
+                          {(child.content.galleryUrls || []).map((gUrl, gi) => (
+                            <div key={gi} className="space-y-1">
+                              <div className="flex gap-1">
+                                <Input value={gUrl} onChange={(e) => {
+                                  const urls = [...(child.content.galleryUrls || [])];
+                                  urls[gi] = e.target.value;
+                                  const updated = children.map((col, i) =>
+                                    i === colIdx
+                                      ? (col as BuilderSection[]).map((s) =>
+                                          s.id === child.id ? { ...s, content: { ...s.content, galleryUrls: urls } } : s
+                                        )
+                                      : col
+                                  );
+                                  updateContent({ columnChildren: updated });
+                                }} placeholder="Image URL" className="flex-1 text-xs" />
+                                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => {
+                                  const urls = (child.content.galleryUrls || []).filter((_, idx) => idx !== gi);
+                                  const updated = children.map((col, i) =>
+                                    i === colIdx
+                                      ? (col as BuilderSection[]).map((s) =>
+                                          s.id === child.id ? { ...s, content: { ...s.content, galleryUrls: urls } } : s
+                                        )
+                                      : col
+                                  );
+                                  updateContent({ columnChildren: updated });
+                                }}><Trash2 className="w-3 h-3" /></Button>
+                              </div>
+                              <div className="relative">
+                                <Button variant="outline" size="sm" className="w-full text-xs" disabled={uploading}>
+                                  <Upload className="w-3 h-3 mr-1" />
+                                  {uploading ? "Uploading..." : "Upload"}
+                                </Button>
+                                <input type="file" accept="image/*" className="absolute inset-0 opacity-0 cursor-pointer" onChange={async (ev) => {
+                                  const file = ev.target.files?.[0];
+                                  if (!file) return;
+                                  setUploading(true);
+                                  try {
+                                    const publicUrl = await uploadCompressedImage(file);
+                                    const urls = [...(child.content.galleryUrls || [])];
+                                    urls[gi] = publicUrl;
+                                    const updated = children.map((col, i) =>
+                                      i === colIdx
+                                        ? (col as BuilderSection[]).map((s) =>
+                                            s.id === child.id ? { ...s, content: { ...s.content, galleryUrls: urls } } : s
+                                          )
+                                        : col
+                                    );
+                                    updateContent({ columnChildren: updated });
+                                    toast({ title: "Uploaded!" });
+                                  } catch (err: any) {
+                                    toast({ title: "Upload failed", description: err.message, variant: "destructive" });
+                                  } finally { setUploading(false); }
+                                }} />
+                              </div>
+                            </div>
+                          ))}
+                          <Button variant="outline" size="sm" className="w-full text-xs" onClick={() => {
+                            const urls = [...(child.content.galleryUrls || []), ''];
+                            const updated = children.map((col, i) =>
+                              i === colIdx
+                                ? (col as BuilderSection[]).map((s) =>
+                                    s.id === child.id ? { ...s, content: { ...s.content, galleryUrls: urls } } : s
+                                  )
+                                : col
+                            );
+                            updateContent({ columnChildren: updated });
+                          }}><Plus className="w-3 h-3 mr-1" />Add Image</Button>
                         </div>
                       )}
                       {child.type === 'video' && (
