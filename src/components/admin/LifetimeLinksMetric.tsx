@@ -90,16 +90,16 @@ export default function LifetimeLinksMetric({ userId }: { userId: string | undef
   return (
     <Popover>
       <PopoverTrigger asChild>
-        <button className="group text-right cursor-pointer rounded-lg border border-border/50 bg-card/50 px-4 py-2.5 transition-colors hover:bg-card hover:border-border">
-          <div className="flex items-center gap-2">
-            <Link2 className="w-4 h-4 text-muted-foreground" />
-            <span className="text-sm font-semibold text-foreground tabular-nums">
+        <button className="group text-right cursor-pointer rounded-lg border border-border/50 bg-card/50 px-5 py-3.5 transition-colors hover:bg-card hover:border-border">
+          <div className="flex items-center gap-2.5">
+            <Link2 className="w-5 h-5 text-primary" />
+            <span className="text-2xl font-bold text-primary tabular-nums">
               {formatted(stats.totalLinks)}
             </span>
-            <span className="text-sm text-muted-foreground">
+            <span className="text-base text-muted-foreground">
               Personalized Links Generated
             </span>
-            <ChevronRight className="w-3.5 h-3.5 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5" />
+            <ChevronRight className="w-4 h-4 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5" />
           </div>
           {stats.totalCampaigns > 0 ? (
             <p className="text-xs text-muted-foreground mt-0.5">
