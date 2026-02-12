@@ -1347,12 +1347,10 @@ const Admin = () => {
         {/* Usage limit banner */}
         <UsageLimitBanner {...usageLimits} />
 
-        <div className="flex justify-end">
-          <LifetimeLinksMetric userId={user?.id} />
-        </div>
-
         <Tabs defaultValue={new URLSearchParams(window.location.search).get("tab") || "landing-pages"} className="space-y-6">
+          <div className="flex items-center justify-between gap-4">
           <TabsList>
+
             <TabsTrigger value="landing-pages" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
               <Layout className="w-4 h-4 mr-2" />
               Landing Pages
@@ -1375,6 +1373,8 @@ const Admin = () => {
               Variables
             </TabsTrigger>
           </TabsList>
+          <LifetimeLinksMetric userId={user?.id} />
+          </div>
 
           {/* Landing Pages Tab */}
           <TabsContent value="landing-pages" className="space-y-6">
