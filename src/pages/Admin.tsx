@@ -14,6 +14,7 @@ import VariablesPanel from "@/components/admin/VariablesPanel";
 import TemplateMiniPreview from "@/components/admin/TemplateMiniPreview";
 import TemplatePageGrid from "@/components/admin/TemplatePageGrid";
 import LifetimeLinksMetric from "@/components/admin/LifetimeLinksMetric";
+import DashboardOnboarding from "@/components/admin/DashboardOnboarding";
 import CampaignAnalyticsPanel from "@/components/admin/CampaignAnalyticsPanel";
 import LinkedInEnrichDialog from "@/components/admin/LinkedInEnrichDialog";
 import AICsvMapper from "@/components/admin/AICsvMapper";
@@ -1346,6 +1347,17 @@ const Admin = () => {
       <div className="container mx-auto px-4 py-8 space-y-6">
         {/* Usage limit banner */}
         <UsageLimitBanner {...usageLimits} />
+
+        <DashboardOnboarding
+          templateCount={templates.filter(t => t.user_id === user?.id).length}
+          liveTemplateIds={liveTemplateIds}
+          activeCampaignCount={campaigns.filter(c => (c.page_count || 0) > 0).length}
+          totalLinks={campaigns.reduce((sum, c) => sum + (c.page_count || 0), 0)}
+          onGoToCampaigns={() => {
+            const el = document.querySelector('[data-state][value="campaigns"]') as HTMLElement;
+            el?.click();
+          }}
+        />
 
         <Tabs defaultValue={new URLSearchParams(window.location.search).get("tab") || "landing-pages"} className="space-y-6">
           <div className="flex items-center justify-between gap-4">
