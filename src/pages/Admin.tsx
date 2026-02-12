@@ -13,6 +13,7 @@ import FormSubmissionsPanel from "@/components/admin/FormSubmissionsPanel";
 import VariablesPanel from "@/components/admin/VariablesPanel";
 import TemplateMiniPreview from "@/components/admin/TemplateMiniPreview";
 import TemplatePageGrid from "@/components/admin/TemplatePageGrid";
+import LifetimeLinksMetric from "@/components/admin/LifetimeLinksMetric";
 import CampaignAnalyticsPanel from "@/components/admin/CampaignAnalyticsPanel";
 import LinkedInEnrichDialog from "@/components/admin/LinkedInEnrichDialog";
 import AICsvMapper from "@/components/admin/AICsvMapper";
@@ -1345,6 +1346,10 @@ const Admin = () => {
       <div className="container mx-auto px-4 py-8 space-y-6">
         {/* Usage limit banner */}
         <UsageLimitBanner {...usageLimits} />
+
+        <div className="flex justify-end">
+          <LifetimeLinksMetric userId={user?.id} />
+        </div>
 
         <Tabs defaultValue={new URLSearchParams(window.location.search).get("tab") || "landing-pages"} className="space-y-6">
           <TabsList>
