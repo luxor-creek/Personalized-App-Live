@@ -384,6 +384,9 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
               <div className="space-y-1"><Label className="text-xs">Btn Color</Label><input type="color" value={section.style.buttonColor || '#6d54df'} onChange={(e) => updateStyle({ buttonColor: e.target.value })} className="w-8 h-8 rounded border cursor-pointer" /></div>
               <div className="space-y-1"><Label className="text-xs">Btn Text</Label><input type="color" value={section.style.buttonTextColor || '#ffffff'} onChange={(e) => updateStyle({ buttonTextColor: e.target.value })} className="w-8 h-8 rounded border cursor-pointer" /></div>
             </div>
+            <Separator />
+            <div className="flex items-center justify-between"><Label className="text-xs">Parallax Effect</Label><Switch checked={!!section.content.parallax} onCheckedChange={(v) => updateContent({ parallax: v })} /></div>
+            <p className="text-xs text-muted-foreground">Elements move at different speeds on scroll for a depth effect</p>
           </>
         );
 
@@ -420,6 +423,9 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
               <div className="space-y-1"><Label className="text-xs">Btn Color</Label><input type="color" value={section.style.buttonColor || '#6d54df'} onChange={(e) => updateStyle({ buttonColor: e.target.value })} className="w-8 h-8 rounded border cursor-pointer" /></div>
               <div className="space-y-1"><Label className="text-xs">Btn Text</Label><input type="color" value={section.style.buttonTextColor || '#ffffff'} onChange={(e) => updateStyle({ buttonTextColor: e.target.value })} className="w-8 h-8 rounded border cursor-pointer" /></div>
             </div>
+            <Separator />
+            <div className="flex items-center justify-between"><Label className="text-xs">Parallax Effect</Label><Switch checked={!!section.content.parallax} onCheckedChange={(v) => updateContent({ parallax: v })} /></div>
+            <p className="text-xs text-muted-foreground">Elements move at different speeds on scroll for a depth effect</p>
           </>
         );
 
@@ -460,6 +466,9 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
               <div className="space-y-1"><Label className="text-xs">Btn Color</Label><input type="color" value={section.style.buttonColor || '#6d54df'} onChange={(e) => updateStyle({ buttonColor: e.target.value })} className="w-8 h-8 rounded border cursor-pointer" /></div>
               <div className="space-y-1"><Label className="text-xs">Btn Text</Label><input type="color" value={section.style.buttonTextColor || '#ffffff'} onChange={(e) => updateStyle({ buttonTextColor: e.target.value })} className="w-8 h-8 rounded border cursor-pointer" /></div>
             </div>
+            <Separator />
+            <div className="flex items-center justify-between"><Label className="text-xs">Parallax Effect</Label><Switch checked={!!section.content.parallax} onCheckedChange={(v) => updateContent({ parallax: v })} /></div>
+            <p className="text-xs text-muted-foreground">Elements move at different speeds on scroll for a depth effect</p>
           </>
         );
 
@@ -474,6 +483,9 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
               <Input value={section.content.videoUrl || ''} onChange={(e) => updateContent({ videoUrl: e.target.value })} placeholder="YouTube, Vimeo, or direct video URL" />
               <p className="text-xs text-muted-foreground">Supports YouTube, Vimeo, or any direct video link</p>
             </div>
+            <Separator />
+            <div className="flex items-center justify-between"><Label className="text-xs">Parallax Effect</Label><Switch checked={!!section.content.parallax} onCheckedChange={(v) => updateContent({ parallax: v })} /></div>
+            <p className="text-xs text-muted-foreground">Elements move at different speeds on scroll for a depth effect</p>
           </>
         );
 
@@ -484,6 +496,9 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
             <div className="space-y-2"><VarLabel label="Subheadline" value={section.content.heroSubheadline || ''} onChange={(v) => updateContent({ heroSubheadline: v })} /><Textarea value={section.content.heroSubheadline || ''} onChange={(e) => updateContent({ heroSubheadline: e.target.value })} rows={2} className="resize-none" /></div>
             <Separator />
             <div className="space-y-2"><Label>Image</Label><Input value={section.content.heroImageUrl || ''} onChange={(e) => updateContent({ heroImageUrl: e.target.value })} placeholder="Paste image URL" /><UploadButton label="Upload Image" field="heroImageUrl" /></div>
+            <Separator />
+            <div className="flex items-center justify-between"><Label className="text-xs">Parallax Effect</Label><Switch checked={!!section.content.parallax} onCheckedChange={(v) => updateContent({ parallax: v })} /></div>
+            <p className="text-xs text-muted-foreground">Elements move at different speeds on scroll for a depth effect</p>
           </>
         );
 
@@ -516,6 +531,9 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
               ))}
               <Button variant="outline" size="sm" onClick={() => updateContent({ heroFormFields: [...(section.content.heroFormFields || []), 'New Field'] })} className="w-full"><Plus className="w-3 h-3 mr-2" />Add Field</Button>
             </div>
+            <Separator />
+            <div className="flex items-center justify-between"><Label className="text-xs">Parallax Effect</Label><Switch checked={!!section.content.parallax} onCheckedChange={(v) => updateContent({ parallax: v })} /></div>
+            <p className="text-xs text-muted-foreground">Elements move at different speeds on scroll for a depth effect</p>
           </>
         );
       case 'features':

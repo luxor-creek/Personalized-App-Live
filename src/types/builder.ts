@@ -226,6 +226,8 @@ export interface SectionContent {
   qrCodeLabel?: string;
   // Column Layouts
   columnChildren?: BuilderSection[][];
+  // Parallax
+  parallax?: boolean;
 }
 
 export interface BuilderSection {
