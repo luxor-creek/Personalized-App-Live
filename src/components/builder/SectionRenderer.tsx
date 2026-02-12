@@ -1,6 +1,38 @@
 import { BuilderSection } from "@/types/builder";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { QRCodeSVG } from "qrcode.react";
+
+// Parallax hook — returns scroll offset for the section
+const useParallax = (enabled: boolean) => {
+  const ref = useRef<HTMLDivElement>(null);
+  const [offset, setOffset] = useState(0);
+
+  const handleScroll = useCallback(() => {
+    if (!ref.current) return;
+    const rect = ref.current.getBoundingClientRect();
+    const windowH = window.innerHeight;
+    // Only compute when section is in viewport
+    if (rect.bottom < 0 || rect.top > windowH) return;
+    // Normalized: 0 when section enters bottom, 1 when exits top
+    const progress = (windowH - rect.top) / (windowH + rect.height);
+    setOffset((progress - 0.5) * 100); // range roughly -50 to 50
+  }, []);
+
+  useEffect(() => {
+    if (!enabled) return;
+    // Check both window scroll and parent iframe/container scroll
+    const scrollTarget = ref.current?.closest('.overflow-auto, .overflow-y-auto') || window;
+    scrollTarget.addEventListener('scroll', handleScroll, { passive: true });
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    handleScroll();
+    return () => {
+      scrollTarget.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('scroll', handleScroll);
+    };
+  }, [enabled, handleScroll]);
+
+  return { ref, offset };
+};
 
 interface SectionRendererProps {
   section: BuilderSection;
@@ -54,6 +86,14 @@ const useCountdown = (targetDate: string) => {
 
 const SectionRenderer = ({ section, isSelected, onClick, isPreview, personalization }: SectionRendererProps) => {
   const { type, content, style } = section;
+  const isHeroType = type.startsWith('hero');
+  const parallaxEnabled = !!(content.parallax && isHeroType);
+  const { ref: parallaxRef, offset: parallaxOffset } = useParallax(parallaxEnabled);
+
+  // Parallax layer transform helpers
+  const pxSlow = parallaxEnabled ? { transform: `translateY(${parallaxOffset * 0.3}px)`, transition: 'transform 0.1s linear' } : {};
+  const pxMedium = parallaxEnabled ? { transform: `translateY(${parallaxOffset * 0.15}px)`, transition: 'transform 0.1s linear' } : {};
+  const pxFast = parallaxEnabled ? { transform: `translateY(${parallaxOffset * 0.05}px)`, transition: 'transform 0.1s linear' } : {};
 
   const containerStyle: React.CSSProperties = {
     backgroundColor: style.backgroundColor,
@@ -245,34 +285,34 @@ const SectionRenderer = ({ section, isSelected, onClick, isPreview, personalizat
 
       case 'hero':
         return (
-          <div style={containerStyle}>
+          <div style={{ ...containerStyle, overflow: parallaxEnabled ? 'hidden' : undefined }} ref={parallaxEnabled ? parallaxRef : undefined}>
             <div style={{ ...innerStyle, maxWidth: '1100px', textAlign: style.textAlign as any || 'center' }}>
-              {content.heroBadge && <span className="inline-block rounded-full px-4 py-1 text-xs font-semibold mb-6" style={{ backgroundColor: (style.buttonColor || '#6d54df') + '20', color: style.buttonColor || '#6d54df' }}>{content.heroBadge}</span>}
-              <h1 style={{ ...textStyle, lineHeight: 1.1, marginBottom: '24px' }}>{applyPersonalization(content.text, personalization)}</h1>
-              {content.heroSubheadline && <p style={{ color: style.textColor, opacity: 0.75, fontSize: '20px', maxWidth: '700px', margin: '0 auto 40px', lineHeight: 1.6 }}>{applyPersonalization(content.heroSubheadline, personalization)}</p>}
-              <div className="flex gap-4 justify-center flex-wrap">
+              {content.heroBadge && <div style={pxSlow}><span className="inline-block rounded-full px-4 py-1 text-xs font-semibold mb-6" style={{ backgroundColor: (style.buttonColor || '#6d54df') + '20', color: style.buttonColor || '#6d54df' }}>{content.heroBadge}</span></div>}
+              <div style={pxMedium}><h1 style={{ ...textStyle, lineHeight: 1.1, marginBottom: '24px' }}>{applyPersonalization(content.text, personalization)}</h1></div>
+              {content.heroSubheadline && <div style={pxMedium}><p style={{ color: style.textColor, opacity: 0.75, fontSize: '20px', maxWidth: '700px', margin: '0 auto 40px', lineHeight: 1.6 }}>{applyPersonalization(content.heroSubheadline, personalization)}</p></div>}
+              <div style={pxFast} className="flex gap-4 justify-center flex-wrap">
                 {content.buttonText && !content.hideButton && <a href={content.buttonLink || '#'} className="inline-flex items-center justify-center rounded-lg px-8 py-3 font-semibold transition-all hover:opacity-90" style={{ backgroundColor: style.buttonColor, color: style.buttonTextColor }}>{content.buttonText}</a>}
                 {content.secondaryButtonText && !content.hideSecondaryButton && <a href={content.secondaryButtonLink || '#'} className="inline-flex items-center justify-center rounded-lg px-8 py-3 font-semibold border-2 transition-all hover:opacity-90" style={{ borderColor: style.secondaryButtonTextColor, color: style.secondaryButtonTextColor }}>{content.secondaryButtonText}</a>}
               </div>
-              {content.heroImageUrl && <img src={content.heroImageUrl} alt="" className="mt-12 mx-auto rounded-xl shadow-2xl max-w-full" />}
+              {content.heroImageUrl && <div style={pxSlow}><img src={content.heroImageUrl} alt="" className="mt-12 mx-auto rounded-xl shadow-2xl max-w-full" /></div>}
             </div>
           </div>
         );
 
       case 'heroBg':
         return (
-          <div style={{ ...containerStyle, position: 'relative', overflow: 'hidden', minHeight: '500px', display: 'flex', alignItems: 'center' }}>
+          <div ref={parallaxEnabled ? parallaxRef : undefined} style={{ ...containerStyle, position: 'relative', overflow: 'hidden', minHeight: '500px', display: 'flex', alignItems: 'center' }}>
             {content.imageUrl && (
               <>
-                <img src={content.imageUrl} alt="" className="absolute inset-0 w-full h-full object-cover" />
+                <img src={content.imageUrl} alt="" className="absolute inset-0 w-full h-full object-cover" style={pxSlow} />
                 <div className="absolute inset-0" style={{ backgroundColor: style.overlayColor || '#6d54df', opacity: style.overlayOpacity ?? 0.6 }} />
               </>
             )}
             <div style={{ ...innerStyle, maxWidth: '1100px', textAlign: style.textAlign as any || 'center', position: 'relative', zIndex: 1, width: '100%' }}>
-              {content.heroBadge && <span className="inline-block rounded-full px-4 py-1 text-xs font-semibold mb-6" style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: style.textColor || '#ffffff' }}>{content.heroBadge}</span>}
-              <h1 style={{ ...textStyle, lineHeight: 1.1, marginBottom: '24px' }}>{applyPersonalization(content.text, personalization)}</h1>
-              {content.heroSubheadline && <p style={{ color: style.textColor, opacity: 0.85, fontSize: '20px', maxWidth: '700px', margin: '0 auto 40px', lineHeight: 1.6 }}>{applyPersonalization(content.heroSubheadline, personalization)}</p>}
-              <div className="flex gap-4 justify-center flex-wrap">
+              {content.heroBadge && <div style={pxSlow}><span className="inline-block rounded-full px-4 py-1 text-xs font-semibold mb-6" style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: style.textColor || '#ffffff' }}>{content.heroBadge}</span></div>}
+              <div style={pxMedium}><h1 style={{ ...textStyle, lineHeight: 1.1, marginBottom: '24px' }}>{applyPersonalization(content.text, personalization)}</h1></div>
+              {content.heroSubheadline && <div style={pxMedium}><p style={{ color: style.textColor, opacity: 0.85, fontSize: '20px', maxWidth: '700px', margin: '0 auto 40px', lineHeight: 1.6 }}>{applyPersonalization(content.heroSubheadline, personalization)}</p></div>}
+              <div style={pxFast} className="flex gap-4 justify-center flex-wrap">
                 {content.buttonText && !content.hideButton && <a href={content.buttonLink || '#'} className="inline-flex items-center justify-center rounded-lg px-8 py-3 font-semibold transition-all hover:opacity-90" style={{ backgroundColor: style.buttonColor, color: style.buttonTextColor }}>{content.buttonText}</a>}
                 {content.secondaryButtonText && !content.hideSecondaryButton && <a href={content.secondaryButtonLink || '#'} className="inline-flex items-center justify-center rounded-lg px-8 py-3 font-semibold border-2 transition-all hover:opacity-90" style={{ borderColor: style.secondaryButtonTextColor, color: style.secondaryButtonTextColor }}>{content.secondaryButtonText}</a>}
               </div>
@@ -284,9 +324,9 @@ const SectionRenderer = ({ section, isSelected, onClick, isPreview, personalizat
         const bgVideoUrl = content.videoUrl || '';
         const isDirectVideo = bgVideoUrl && (bgVideoUrl.endsWith('.mp4') || bgVideoUrl.endsWith('.webm') || bgVideoUrl.endsWith('.ogg') || bgVideoUrl.includes('.mp4') || bgVideoUrl.includes('.webm'));
         return (
-          <div style={{ ...containerStyle, position: 'relative', overflow: 'hidden', minHeight: '500px', display: 'flex', alignItems: 'center' }}>
+          <div ref={parallaxEnabled ? parallaxRef : undefined} style={{ ...containerStyle, position: 'relative', overflow: 'hidden', minHeight: '500px', display: 'flex', alignItems: 'center' }}>
             {bgVideoUrl && isDirectVideo && (
-              <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover">
+              <video autoPlay muted loop playsInline className="absolute inset-0 w-full h-full object-cover" style={pxSlow}>
                 <source src={bgVideoUrl} />
               </video>
             )}
@@ -294,8 +334,8 @@ const SectionRenderer = ({ section, isSelected, onClick, isPreview, personalizat
               const vimeoMatch = bgVideoUrl.match(/(?:vimeo\.com\/)(\d+)/);
               const vimeoId = vimeoMatch ? vimeoMatch[1] : (/^\d+$/.test(bgVideoUrl) ? bgVideoUrl : null);
               const ytMatch = bgVideoUrl.match(/(?:youtube\.com\/(?:watch\?v=|embed\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-              if (vimeoId) return <iframe src={`https://player.vimeo.com/video/${vimeoId}?background=1&autoplay=1&loop=1&byline=0&title=0&muted=1`} className="absolute inset-0 w-full h-full border-0" style={{ transform: 'scale(1.2)' }} allow="autoplay; fullscreen" />;
-              if (ytMatch) return <iframe src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}&controls=0&showinfo=0&rel=0&modestbranding=1`} className="absolute inset-0 w-full h-full border-0" style={{ transform: 'scale(1.2)' }} allow="autoplay; fullscreen" />;
+              if (vimeoId) return <iframe src={`https://player.vimeo.com/video/${vimeoId}?background=1&autoplay=1&loop=1&byline=0&title=0&muted=1`} className="absolute inset-0 w-full h-full border-0" style={{ transform: `scale(1.2) ${parallaxEnabled ? `translateY(${parallaxOffset * 0.3}px)` : ''}` }} allow="autoplay; fullscreen" />;
+              if (ytMatch) return <iframe src={`https://www.youtube.com/embed/${ytMatch[1]}?autoplay=1&mute=1&loop=1&playlist=${ytMatch[1]}&controls=0&showinfo=0&rel=0&modestbranding=1`} className="absolute inset-0 w-full h-full border-0" style={{ transform: `scale(1.2) ${parallaxEnabled ? `translateY(${parallaxOffset * 0.3}px)` : ''}` }} allow="autoplay; fullscreen" />;
               return null;
             })()}
             {!bgVideoUrl && (
@@ -303,10 +343,10 @@ const SectionRenderer = ({ section, isSelected, onClick, isPreview, personalizat
             )}
             <div className="absolute inset-0" style={{ backgroundColor: style.overlayColor || '#000000', opacity: style.overlayOpacity ?? 0.5 }} />
             <div style={{ ...innerStyle, maxWidth: '1100px', textAlign: style.textAlign as any || 'center', position: 'relative', zIndex: 1, width: '100%' }}>
-              {content.heroBadge && <span className="inline-block rounded-full px-4 py-1 text-xs font-semibold mb-6" style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: style.textColor || '#ffffff' }}>{content.heroBadge}</span>}
-              <h1 style={{ ...textStyle, lineHeight: 1.1, marginBottom: '24px' }}>{applyPersonalization(content.text, personalization)}</h1>
-              {content.heroSubheadline && <p style={{ color: style.textColor, opacity: 0.85, fontSize: '20px', maxWidth: '700px', margin: '0 auto 40px', lineHeight: 1.6 }}>{applyPersonalization(content.heroSubheadline, personalization)}</p>}
-              <div className="flex gap-4 justify-center flex-wrap">
+              {content.heroBadge && <div style={pxSlow}><span className="inline-block rounded-full px-4 py-1 text-xs font-semibold mb-6" style={{ backgroundColor: 'rgba(255,255,255,0.2)', color: style.textColor || '#ffffff' }}>{content.heroBadge}</span></div>}
+              <div style={pxMedium}><h1 style={{ ...textStyle, lineHeight: 1.1, marginBottom: '24px' }}>{applyPersonalization(content.text, personalization)}</h1></div>
+              {content.heroSubheadline && <div style={pxMedium}><p style={{ color: style.textColor, opacity: 0.85, fontSize: '20px', maxWidth: '700px', margin: '0 auto 40px', lineHeight: 1.6 }}>{applyPersonalization(content.heroSubheadline, personalization)}</p></div>}
+              <div style={pxFast} className="flex gap-4 justify-center flex-wrap">
                 {content.buttonText && !content.hideButton && <a href={content.buttonLink || '#'} className="inline-flex items-center justify-center rounded-lg px-8 py-3 font-semibold transition-all hover:opacity-90" style={{ backgroundColor: style.buttonColor, color: style.buttonTextColor }}>{content.buttonText}</a>}
                 {content.secondaryButtonText && !content.hideSecondaryButton && <a href={content.secondaryButtonLink || '#'} className="inline-flex items-center justify-center rounded-lg px-8 py-3 font-semibold border-2 transition-all hover:opacity-90" style={{ borderColor: style.secondaryButtonTextColor, color: style.secondaryButtonTextColor }}>{content.secondaryButtonText}</a>}
               </div>
@@ -318,13 +358,13 @@ const SectionRenderer = ({ section, isSelected, onClick, isPreview, personalizat
       case 'heroVideo': {
         const embedUrl = parseVideoUrl(content.videoUrl || content.videoId || '');
         return (
-          <div style={containerStyle}>
+          <div ref={parallaxEnabled ? parallaxRef : undefined} style={{ ...containerStyle, overflow: parallaxEnabled ? 'hidden' : undefined }}>
             <div style={{ ...innerStyle, maxWidth: '1100px' }} className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              <div style={{ textAlign: 'left' }}>
+              <div style={{ textAlign: 'left', ...pxMedium }}>
                 <h1 style={{ ...textStyle, textAlign: 'left', lineHeight: 1.1, marginBottom: '20px' }}>{applyPersonalization(content.text, personalization)}</h1>
                 {content.heroSubheadline && <p style={{ color: style.textColor, opacity: 0.75, fontSize: '18px', lineHeight: 1.6 }}>{applyPersonalization(content.heroSubheadline, personalization)}</p>}
               </div>
-              <div>
+              <div style={pxSlow}>
                 {embedUrl ? (
                   <div className="relative w-full" style={{ paddingBottom: '56.25%' }}>
                     <iframe src={embedUrl} className="absolute inset-0 w-full h-full rounded-xl" allow="autoplay; fullscreen; picture-in-picture" allowFullScreen title="Video" />
@@ -342,13 +382,13 @@ const SectionRenderer = ({ section, isSelected, onClick, isPreview, personalizat
 
       case 'heroImage':
         return (
-          <div style={containerStyle}>
+          <div ref={parallaxEnabled ? parallaxRef : undefined} style={{ ...containerStyle, overflow: parallaxEnabled ? 'hidden' : undefined }}>
             <div style={{ ...innerStyle, maxWidth: '1100px' }} className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              <div style={{ textAlign: 'left' }}>
+              <div style={{ textAlign: 'left', ...pxMedium }}>
                 <h1 style={{ ...textStyle, textAlign: 'left', lineHeight: 1.1, marginBottom: '20px' }}>{applyPersonalization(content.text, personalization)}</h1>
                 {content.heroSubheadline && <p style={{ color: style.textColor, opacity: 0.75, fontSize: '18px', lineHeight: 1.6 }}>{applyPersonalization(content.heroSubheadline, personalization)}</p>}
               </div>
-              <div>
+              <div style={pxSlow}>
                 {content.heroImageUrl ? (
                   <img src={content.heroImageUrl} alt="" className="w-full rounded-xl shadow-2xl object-cover" />
                 ) : (
@@ -361,13 +401,13 @@ const SectionRenderer = ({ section, isSelected, onClick, isPreview, personalizat
 
       case 'heroForm':
         return (
-          <div style={containerStyle}>
+          <div ref={parallaxEnabled ? parallaxRef : undefined} style={{ ...containerStyle, overflow: parallaxEnabled ? 'hidden' : undefined }}>
             <div style={{ ...innerStyle, maxWidth: '1100px' }} className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-              <div style={{ textAlign: 'left' }}>
+              <div style={{ textAlign: 'left', ...pxMedium }}>
                 <h1 style={{ ...textStyle, textAlign: 'left', lineHeight: 1.1, marginBottom: '20px' }}>{applyPersonalization(content.text, personalization)}</h1>
                 {content.heroSubheadline && <p style={{ color: style.textColor, opacity: 0.75, fontSize: '18px', lineHeight: 1.6 }}>{applyPersonalization(content.heroSubheadline, personalization)}</p>}
               </div>
-              <div className="bg-white/10 rounded-xl p-8 backdrop-blur-sm">
+              <div style={pxSlow} className="bg-white/10 rounded-xl p-8 backdrop-blur-sm">
                 {content.heroFormTitle && <h3 className="text-xl font-bold mb-6" style={{ color: style.textColor }}>{applyPersonalization(content.heroFormTitle, personalization)}</h3>}
                 <div className="space-y-4">
                   {(content.heroFormFields || []).map((field, i) => (
