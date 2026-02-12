@@ -186,7 +186,7 @@ const Billing = () => {
             <div className="space-y-4">
               <div>
                 <div className="flex items-center justify-between text-sm mb-1">
-                  <span className="text-muted-foreground">Personalized Pages</span>
+                  <span className="text-muted-foreground">Personalized Pages Created</span>
                   <span className="font-medium text-foreground">
                     {pageCount} / {isUnlimited ? "∞" : maxPages}
                   </span>

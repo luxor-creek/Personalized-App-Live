@@ -227,6 +227,7 @@ const Admin = () => {
   const usageLimits = useUsageLimits(user?.id);
   const [upgradeDialogOpen, setUpgradeDialogOpen] = useState(false);
   const [upgradeResourceType, setUpgradeResourceType] = useState<"page" | "campaign">("campaign");
+  const [manageSubOpen, setManageSubOpen] = useState(false);
 
   // Email alert toggle
   const [alertConfirmDialogOpen, setAlertConfirmDialogOpen] = useState(false);
@@ -2286,9 +2287,14 @@ const Admin = () => {
                     <p className="font-semibold text-foreground capitalize">{usageLimits.plan || "trial"} Plan</p>
                     <p className="text-sm text-muted-foreground">{user?.email}</p>
                   </div>
-                  <Button variant="outline" size="sm" className="ml-auto" onClick={() => navigate("/pricing")}>
-                    {usageLimits.plan === "trial" ? "Upgrade" : "Change Plan"}
-                  </Button>
+                  <div className="ml-auto flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => setManageSubOpen(true)}>
+                      Manage
+                    </Button>
+                    <Button size="sm" onClick={() => navigate("/pricing")}>
+                      {usageLimits.plan === "trial" ? "Upgrade" : "Change Plan"}
+                    </Button>
+                  </div>
                 </div>
               </div>
 
@@ -2296,7 +2302,7 @@ const Admin = () => {
                 <h4 className="font-semibold text-foreground text-sm">Usage</h4>
                 <div className="space-y-3">
                   <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Personalized Pages</span>
+                    <span className="text-muted-foreground">Personalized Pages Created</span>
                     <span className="font-medium text-foreground">{usageLimits.pageCount} / {usageLimits.maxPages >= 999999 ? "∞" : usageLimits.maxPages}</span>
                   </div>
                   <div className="flex items-center justify-between text-sm">
@@ -2793,6 +2799,64 @@ const Admin = () => {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      {/* Manage Subscription Dialog */}
+      <Dialog open={manageSubOpen} onOpenChange={setManageSubOpen}>
+        <DialogContent className="max-w-md">
+          <DialogHeader>
+            <DialogTitle>Manage Subscription</DialogTitle>
+            <DialogDescription>
+              Your current plan details and usage.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 pt-2">
+            {/* Plan info */}
+            <div className="bg-muted rounded-lg p-4 space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Plan</span>
+                <span className="font-semibold text-foreground capitalize">{usageLimits.plan || "trial"}</span>
+              </div>
+              {usageLimits.plan === "trial" && usageLimits.trialDaysLeft !== null && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Trial ends in</span>
+                  <span className={`font-semibold ${usageLimits.trialExpired ? "text-destructive" : "text-foreground"}`}>
+                    {usageLimits.trialExpired ? "Expired" : `${usageLimits.trialDaysLeft} day${usageLimits.trialDaysLeft !== 1 ? "s" : ""}`}
+                  </span>
+                </div>
+              )}
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Personalized Pages Created</span>
+                <span className="font-medium text-foreground">{usageLimits.pageCount} / {usageLimits.isUnlimited ? "∞" : usageLimits.maxPages}</span>
+              </div>
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-muted-foreground">Campaigns</span>
+                <span className="font-medium text-foreground">{usageLimits.campaignCount} / {usageLimits.isUnlimited ? "∞" : usageLimits.maxCampaigns}</span>
+              </div>
+            </div>
+
+            {/* Actions */}
+            <div className="space-y-2">
+              <Button className="w-full" onClick={() => { setManageSubOpen(false); navigate("/pricing"); }}>
+                {usageLimits.plan === "trial" ? "Upgrade Plan" : "Change Plan"}
+              </Button>
+              {usageLimits.plan !== "trial" && (
+                <>
+                  <Button variant="outline" className="w-full" onClick={() => {
+                    toast({ title: "Pause subscription", description: "Subscription pausing will be available once billing is fully integrated." });
+                  }}>
+                    Pause Subscription
+                  </Button>
+                  <Button variant="ghost" className="w-full text-destructive hover:text-destructive" onClick={() => {
+                    toast({ title: "Cancel subscription", description: "Subscription cancellation will be available once billing is fully integrated." });
+                  }}>
+                    Cancel Subscription
+                  </Button>
+                </>
+              )}
+            </div>
+          </div>
+        </DialogContent>
+      </Dialog>
 
       <AIChatAssistant />
     </div>
