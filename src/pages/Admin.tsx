@@ -2264,12 +2264,12 @@ const Admin = () => {
 
           {/* Settings Tab */}
           <TabsContent value="settings" className="space-y-6">
-            <div className="max-w-2xl space-y-6">
-              {/* Billing & Subscription Section */}
+            <div className="max-w-2xl space-y-8">
+              {/* Plan & Billing */}
               <div>
-                <h3 className="text-lg font-semibold text-foreground">Billing & Subscription</h3>
+                <h3 className="text-lg font-semibold text-foreground">Plan & Billing</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Manage your plan, usage, and account details.
+                  Your current plan and account details.
                 </p>
               </div>
 
@@ -2279,12 +2279,18 @@ const Admin = () => {
                     <CreditCard className="w-5 h-5 text-primary" />
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground capitalize">{usageLimits.plan || "trial"} Plan</p>
-                    <p className="text-sm text-muted-foreground">{user?.email}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-muted-foreground">Plan</p>
+                      <p className="font-semibold text-foreground capitalize">{usageLimits.plan || "trial"}</p>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <p className="text-sm text-muted-foreground">Account Email</p>
+                      <p className="text-sm text-foreground">{user?.email}</p>
+                    </div>
                   </div>
                   <div className="ml-auto flex items-center gap-2">
                     <Button variant="outline" size="sm" onClick={() => setManageSubOpen(true)}>
-                      Manage
+                      Manage Billing
                     </Button>
                     <Button size="sm" onClick={() => navigate("/pricing")}>
                       {usageLimits.plan === "trial" ? "Upgrade" : "Change Plan"}
@@ -2293,29 +2299,37 @@ const Admin = () => {
                 </div>
               </div>
 
-              <div className="bg-card rounded-xl border border-border p-5 space-y-4">
-                <h4 className="font-semibold text-foreground text-sm">Usage</h4>
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Personalized Pages Created</span>
-                    <span className="font-medium text-foreground">{usageLimits.pageCount} / {usageLimits.maxPages >= 999999 ? "∞" : usageLimits.maxPages}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Campaigns</span>
-                    <span className="font-medium text-foreground">{usageLimits.campaignCount} / {usageLimits.maxCampaigns >= 999999 ? "∞" : usageLimits.maxCampaigns}</span>
-                  </div>
-                </div>
-              </div>
-
-              {/* Custom Domain Section */}
-              <div className="pt-4 border-t border-border">
-                <h3 className="text-lg font-semibold text-foreground">Custom Domain</h3>
+              {/* Usage */}
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">Usage</h3>
                 <p className="text-sm text-muted-foreground mt-1">
-                  Set a custom domain for your personalized page URLs.
+                  Your account activity to date.
                 </p>
               </div>
 
-              <div className="bg-card rounded-xl border p-5 space-y-4">
+              <div className="bg-card rounded-xl border border-border p-5 space-y-3">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Personalized Links Generated</span>
+                  <span className="font-medium text-foreground">{usageLimits.pageCount}{!usageLimits.isUnlimited ? ` / ${usageLimits.maxPages}` : ""}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm">
+                  <span className="text-muted-foreground">Campaigns Created</span>
+                  <span className="font-medium text-foreground">{usageLimits.campaignCount}{!usageLimits.isUnlimited ? ` / ${usageLimits.maxCampaigns}` : ""}</span>
+                </div>
+                {!usageLimits.isUnlimited && (
+                  <p className="text-xs text-muted-foreground pt-1">Limits are based on your current plan.</p>
+                )}
+              </div>
+
+              {/* Custom Domain */}
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">Custom Domain</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Use your own domain for personalized page links.
+                </p>
+              </div>
+
+              <div className="bg-card rounded-xl border border-border p-5 space-y-4">
                 <div className="space-y-2">
                   <Label htmlFor="custom-domain" className="text-sm font-medium">Domain</Label>
                   <div className="flex gap-2">
@@ -2337,7 +2351,7 @@ const Admin = () => {
                     </Button>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Enter your domain without http:// or trailing slashes. Example: <code className="bg-muted px-1 rounded">pages.yourcompany.com</code>
+                    Enter your domain without <code className="bg-muted px-1 rounded">http://</code> or trailing slashes. Example: <code className="bg-muted px-1 rounded">pages.yourcompany.com</code>
                   </p>
                 </div>
 
@@ -2351,14 +2365,16 @@ const Admin = () => {
                   </div>
                 )}
 
-                <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-3">
-                  <div className="flex items-start gap-2">
-                    <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 mt-0.5 shrink-0" />
-                    <div className="text-xs text-amber-700 dark:text-amber-400 space-y-1">
-                      <p className="font-medium">DNS setup required</p>
-                      <p>Point your domain to this app by adding a CNAME record pointing to <code className="bg-amber-100 dark:bg-amber-900/50 px-1 rounded">personalized.page</code> at your DNS provider.</p>
-                    </div>
+                <div className="space-y-2">
+                  <p className="text-sm font-medium text-foreground">DNS Setup</p>
+                  <p className="text-xs text-muted-foreground">
+                    To activate your domain, add a CNAME record with your DNS provider:
+                  </p>
+                  <div className="bg-muted/50 rounded-lg p-3 space-y-1 text-xs font-mono">
+                    <p><span className="text-muted-foreground">Host:</span> <span className="text-foreground">{customDomainDraft || "pages.yourdomain.com"}</span></p>
+                    <p><span className="text-muted-foreground">Points to:</span> <span className="text-foreground">personalized.page</span></p>
                   </div>
+                  <p className="text-xs text-muted-foreground">DNS changes can take up to 24 hours to update.</p>
                 </div>
               </div>
             </div>
@@ -2795,17 +2811,16 @@ const Admin = () => {
         </AlertDialogContent>
       </AlertDialog>
 
-      {/* Manage Subscription Dialog */}
+      {/* Manage Billing Dialog */}
       <Dialog open={manageSubOpen} onOpenChange={setManageSubOpen}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Manage Subscription</DialogTitle>
+            <DialogTitle>Manage Billing</DialogTitle>
             <DialogDescription>
-              Your current plan details and usage.
+              Your subscription details and account activity.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 pt-2">
-            {/* Plan info */}
             <div className="bg-muted rounded-lg p-4 space-y-3">
               <div className="flex items-center justify-between">
                 <span className="text-sm text-muted-foreground">Plan</span>
@@ -2820,16 +2835,15 @@ const Admin = () => {
                 </div>
               )}
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Personalized Pages Created</span>
-                <span className="font-medium text-foreground">{usageLimits.pageCount} / {usageLimits.isUnlimited ? "∞" : usageLimits.maxPages}</span>
+                <span className="text-sm text-muted-foreground">Personalized Links Generated</span>
+                <span className="font-medium text-foreground">{usageLimits.pageCount}{!usageLimits.isUnlimited ? ` / ${usageLimits.maxPages}` : ""}</span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Campaigns</span>
-                <span className="font-medium text-foreground">{usageLimits.campaignCount} / {usageLimits.isUnlimited ? "∞" : usageLimits.maxCampaigns}</span>
+                <span className="text-sm text-muted-foreground">Campaigns Created</span>
+                <span className="font-medium text-foreground">{usageLimits.campaignCount}{!usageLimits.isUnlimited ? ` / ${usageLimits.maxCampaigns}` : ""}</span>
               </div>
             </div>
 
-            {/* Actions */}
             <div className="space-y-2">
               <Button className="w-full" onClick={() => { setManageSubOpen(false); navigate("/pricing"); }}>
                 {usageLimits.plan === "trial" ? "Upgrade Plan" : "Change Plan"}
