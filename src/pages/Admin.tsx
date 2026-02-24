@@ -19,7 +19,6 @@ import CampaignAnalyticsPanel from "@/components/admin/CampaignAnalyticsPanel";
 import LinkedInEnrichDialog from "@/components/admin/LinkedInEnrichDialog";
 import AICsvMapper from "@/components/admin/AICsvMapper";
 import ManualImportFlow from "@/components/admin/ManualImportFlow";
-import AIChatAssistant from "@/components/AIChatAssistant";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import type { User, Session } from "@supabase/supabase-js";
@@ -2867,7 +2866,6 @@ const Admin = () => {
         </DialogContent>
       </Dialog>
 
-      <AIChatAssistant />
     </div>
   );
 };

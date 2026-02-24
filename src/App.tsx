@@ -18,6 +18,7 @@ import BuilderPreview from "./pages/BuilderPreview";
 import AdminDashboard from "./pages/AdminDashboard";
 import Pricing from "./pages/Pricing";
 import Billing from "./pages/Billing";
+import AuthenticatedChatBubble from "./components/AuthenticatedChatBubble";
 
 const queryClient = new QueryClient();
 
@@ -48,6 +49,7 @@ const App = () => (
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
+      <AuthenticatedChatBubble />
     </TooltipProvider>
   </QueryClientProvider>
 );

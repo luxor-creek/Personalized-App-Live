@@ -2,7 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { X, Send, Loader2, Sparkles, RotateCcw } from "lucide-react";
+import { X, Send, Loader2, RotateCcw } from "lucide-react";
 import { cn } from "@/lib/utils";
 import botIcon from "@/assets/bot-icon.png";
 
@@ -12,11 +12,12 @@ interface ChatMessage {
 }
 
 const SUGGESTED_QUESTIONS = [
-  "How do I create my first campaign?",
-  "How do I import contacts from a CSV?",
-  "What personalization variables can I use?",
-  "How do I connect Snov.io?",
-  "How does the AI copywriter work?",
+  "Show me my templates",
+  "What campaigns do I have?",
+  "Connect me to Snov.io",
+  "Create a personalized page for John Smith at Acme Corp",
+  "How are my campaigns performing?",
+  "What can you help me with?",
 ];
 
 const AIChatAssistant = () => {
@@ -35,31 +36,42 @@ const AIChatAssistant = () => {
 
   useEffect(() => {
     if (open && inputRef.current) {
-      inputRef.current.focus();
+      setTimeout(() => inputRef.current?.focus(), 100);
     }
   }, [open]);
 
   const sendMessage = async (text: string) => {
     if (!text.trim() || loading) return;
     const userMsg: ChatMessage = { role: "user", content: text.trim() };
-    setMessages((prev) => [...prev, userMsg]);
+    const updatedMessages = [...messages, userMsg];
+    setMessages(updatedMessages);
     setInput("");
     setLoading(true);
 
     try {
-      const { data, error } = await supabase.functions.invoke("ai-assistant-chat", {
-        body: { question: text.trim() },
+      // Send full conversation history to DeepSeek
+      const apiMessages = updatedMessages.map((m) => ({
+        role: m.role,
+        content: m.content,
+      }));
+
+      const { data, error } = await supabase.functions.invoke("deepseek-chat", {
+        body: { messages: apiMessages },
       });
+
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: data.answer || "Sorry, I couldn't find an answer." },
-      ]);
+
+      const reply = data?.reply || "Sorry, I couldn't generate a response.";
+      setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
     } catch (err: any) {
+      console.error("Chat error:", err);
       setMessages((prev) => [
         ...prev,
-        { role: "assistant", content: `Sorry, something went wrong: ${err.message}` },
+        {
+          role: "assistant",
+          content: `Sorry, something went wrong: ${err.message}`,
+        },
       ]);
     } finally {
       setLoading(false);
@@ -74,13 +86,29 @@ const AIChatAssistant = () => {
   const renderContent = (text: string) => {
     const lines = text.split("\n");
     return lines.map((line, i) => {
-      const parts = line.split(/(\*\*[^*]+\*\*)/g);
+      const isBullet = /^[\-\*•]\s/.test(line.trim());
+      const bulletContent = isBullet ? line.trim().replace(/^[\-\*•]\s/, "") : line;
+
+      const parts = bulletContent.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
       const rendered = parts.map((part, j) => {
         if (part.startsWith("**") && part.endsWith("**")) {
           return <strong key={j} className="font-semibold">{part.slice(2, -2)}</strong>;
         }
+        if (part.startsWith("`") && part.endsWith("`")) {
+          return <code key={j} className="bg-primary/10 text-primary px-1 py-0.5 rounded text-xs font-mono">{part.slice(1, -1)}</code>;
+        }
         return part;
       });
+
+      if (isBullet) {
+        return (
+          <div key={i} className="flex gap-1.5 ml-1">
+            <span className="text-primary shrink-0">•</span>
+            <span>{rendered}</span>
+          </div>
+        );
+      }
+
       return (
         <span key={i}>
           {rendered}
@@ -92,7 +120,7 @@ const AIChatAssistant = () => {
 
   return (
     <>
-      {/* Floating button - custom bot icon */}
+      {/* Floating button */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
@@ -103,14 +131,17 @@ const AIChatAssistant = () => {
         </button>
       )}
 
-      {/* Chat panel - mobile optimized */}
+      {/* Chat panel */}
       {open && (
-        <div className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[380px] h-[100dvh] sm:h-[520px] bg-card border border-border sm:rounded-2xl rounded-none shadow-2xl flex flex-col overflow-hidden">
+        <div className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[400px] h-[100dvh] sm:h-[560px] bg-card border border-border sm:rounded-2xl rounded-none shadow-2xl flex flex-col overflow-hidden">
           {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary/5">
             <div className="flex items-center gap-2">
               <img src={botIcon} alt="" className="w-7 h-7 rounded-full" />
-              <span className="font-semibold text-sm">AI Assistant</span>
+              <div>
+                <span className="font-semibold text-sm">AI Assistant</span>
+                <span className="text-[10px] text-muted-foreground ml-2">powered by DeepSeek</span>
+              </div>
             </div>
             <div className="flex items-center gap-1">
               {messages.length > 0 && (
@@ -129,7 +160,7 @@ const AIChatAssistant = () => {
             {messages.length === 0 && (
               <div className="space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  👋 Hi! I'm the resident AI bot. Ask me anything about campaigns, templates, contacts, or integrations.
+                  👋 Hi! I can help you manage templates, campaigns, personalized pages, and Snov.io integrations. I can actually do things for you — not just answer questions. Try:
                 </p>
                 <div className="space-y-1.5">
                   {SUGGESTED_QUESTIONS.map((q) => (
@@ -162,7 +193,7 @@ const AIChatAssistant = () => {
             {loading && (
               <div className="flex items-center gap-2 text-muted-foreground text-sm">
                 <Loader2 className="w-4 h-4 animate-spin" />
-                Thinking…
+                Working on it…
               </div>
             )}
           </div>
@@ -173,7 +204,7 @@ const AIChatAssistant = () => {
               ref={inputRef}
               value={input}
               onChange={(e) => setInput(e.target.value)}
-              placeholder="Or ask me a question…"
+              placeholder="Ask me anything…"
               className="text-sm"
               disabled={loading}
             />
