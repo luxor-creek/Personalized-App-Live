@@ -12,11 +12,11 @@ interface ChatMessage {
 }
 
 const SUGGESTED_QUESTIONS = [
+  "How do I get started?",
   "Show me my templates",
-  "What campaigns do I have?",
-  "Connect me to Snov.io",
-  "Create a personalized page for John Smith at Acme Corp",
-  "How are my campaigns performing?",
+  "How do I connect Snov.io?",
+  "What variables can I use?",
+  "How do I add contacts?",
   "What can you help me with?",
 ];
 
@@ -25,6 +25,7 @@ const AIChatAssistant = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
+  const [offTopicCount, setOffTopicCount] = useState(0);
   const scrollRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -40,6 +41,11 @@ const AIChatAssistant = () => {
     }
   }, [open]);
 
+  const resetChat = () => {
+    setMessages([]);
+    setOffTopicCount(0);
+  };
+
   const sendMessage = async (text: string) => {
     if (!text.trim() || loading) return;
     const userMsg: ChatMessage = { role: "user", content: text.trim() };
@@ -49,29 +55,38 @@ const AIChatAssistant = () => {
     setLoading(true);
 
     try {
-      // Send full conversation history to DeepSeek
-      const apiMessages = updatedMessages.map((m) => ({
+      // Send last 6 messages + off_topic_count for guardrails
+      const apiMessages = updatedMessages.slice(-6).map((m) => ({
         role: m.role,
         content: m.content,
       }));
 
       const { data, error } = await supabase.functions.invoke("deepseek-chat", {
-        body: { messages: apiMessages },
+        body: { messages: apiMessages, off_topic_count: offTopicCount },
       });
 
       if (error) throw error;
       if (data?.error) throw new Error(data.error);
 
+      // Track off-topic count from backend
+      if (data?.off_topic_count !== undefined) {
+        setOffTopicCount(data.off_topic_count);
+      }
+
       const reply = data?.reply || "Sorry, I couldn't generate a response.";
+      const tier = data?.tier;
+
       setMessages((prev) => [...prev, { role: "assistant", content: reply }]);
+
+      // Log tier for debugging (remove later)
+      if (tier !== undefined) {
+        console.log(`[AI] Tier ${tier} response${tier === 0 ? ' (cached/blocked)' : ''}`);
+      }
     } catch (err: any) {
       console.error("Chat error:", err);
       setMessages((prev) => [
         ...prev,
-        {
-          role: "assistant",
-          content: `Sorry, something went wrong: ${err.message}`,
-        },
+        { role: "assistant", content: `Sorry, something went wrong: ${err.message}` },
       ]);
     } finally {
       setLoading(false);
@@ -87,15 +102,19 @@ const AIChatAssistant = () => {
     const lines = text.split("\n");
     return lines.map((line, i) => {
       const isBullet = /^[\-\*•]\s/.test(line.trim());
-      const bulletContent = isBullet ? line.trim().replace(/^[\-\*•]\s/, "") : line;
+      const isNumbered = /^\d+[\)\.]\s/.test(line.trim());
+      const bulletContent = isBullet ? line.trim().replace(/^[\-\*•]\s/, "") : isNumbered ? line.trim() : line;
 
-      const parts = bulletContent.split(/(\*\*[^*]+\*\*|`[^`]+`)/g);
+      const parts = bulletContent.split(/(\*\*[^*]+\*\*|`[^`]+`|\{\{[^}]+\}\})/g);
       const rendered = parts.map((part, j) => {
         if (part.startsWith("**") && part.endsWith("**")) {
           return <strong key={j} className="font-semibold">{part.slice(2, -2)}</strong>;
         }
         if (part.startsWith("`") && part.endsWith("`")) {
           return <code key={j} className="bg-primary/10 text-primary px-1 py-0.5 rounded text-xs font-mono">{part.slice(1, -1)}</code>;
+        }
+        if (part.startsWith("{{") && part.endsWith("}}")) {
+          return <code key={j} className="bg-primary/10 text-primary px-1 py-0.5 rounded text-xs font-mono">{part}</code>;
         }
         return part;
       });
@@ -120,7 +139,6 @@ const AIChatAssistant = () => {
 
   return (
     <>
-      {/* Floating button */}
       {!open && (
         <button
           onClick={() => setOpen(true)}
@@ -131,21 +149,18 @@ const AIChatAssistant = () => {
         </button>
       )}
 
-      {/* Chat panel */}
       {open && (
         <div className="fixed bottom-0 right-0 sm:bottom-6 sm:right-6 z-50 w-full sm:w-[400px] h-[100dvh] sm:h-[560px] bg-card border border-border sm:rounded-2xl rounded-none shadow-2xl flex flex-col overflow-hidden">
-          {/* Header */}
           <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-primary/5">
             <div className="flex items-center gap-2">
               <img src={botIcon} alt="" className="w-7 h-7 rounded-full" />
               <div>
                 <span className="font-semibold text-sm">AI Assistant</span>
-                <span className="text-[10px] text-muted-foreground ml-2">powered by DeepSeek</span>
               </div>
             </div>
             <div className="flex items-center gap-1">
               {messages.length > 0 && (
-                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={() => setMessages([])} title="New chat">
+                <Button variant="ghost" size="sm" className="h-7 w-7 p-0" onClick={resetChat} title="New chat">
                   <RotateCcw className="w-3.5 h-3.5" />
                 </Button>
               )}
@@ -155,12 +170,11 @@ const AIChatAssistant = () => {
             </div>
           </div>
 
-          {/* Messages */}
           <div ref={scrollRef} className="flex-1 overflow-y-auto p-4 space-y-3">
             {messages.length === 0 && (
               <div className="space-y-3">
                 <p className="text-sm text-muted-foreground">
-                  👋 Hi! I can help you manage templates, campaigns, personalized pages, and Snov.io integrations. I can actually do things for you — not just answer questions. Try:
+                  👋 Hi! I can help you manage templates, campaigns, personalized pages, and Snov.io. I can actually do things for you — not just answer questions. Try:
                 </p>
                 <div className="space-y-1.5">
                   {SUGGESTED_QUESTIONS.map((q) => (
@@ -198,7 +212,6 @@ const AIChatAssistant = () => {
             )}
           </div>
 
-          {/* Input */}
           <form onSubmit={handleSubmit} className="p-3 border-t border-border flex gap-2 pb-safe">
             <Input
               ref={inputRef}
