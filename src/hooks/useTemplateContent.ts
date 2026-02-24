@@ -74,12 +74,21 @@ export function applyPersonalization(
   
   let result = text;
   
-  // Replace tokens
+  const fullName = data.full_name || `${data.first_name || ""} ${data.last_name || ""}`.trim();
+  
+  // ALL CAPS variants (must come before case-insensitive replacements)
+  result = result.replace(/\{\{FIRST_NAME\}\}/g, (data.first_name || "").toUpperCase());
+  result = result.replace(/\{\{LAST_NAME\}\}/g, (data.last_name || "").toUpperCase());
+  result = result.replace(/\{\{COMPANY\}\}/g, (data.company || "").toUpperCase());
+  result = result.replace(/\{\{COMPANY_NAME\}\}/g, (data.company || "").toUpperCase());
+  result = result.replace(/\{\{FULL_NAME\}\}/g, fullName.toUpperCase());
+  
+  // Standard case-insensitive replacements
   result = result.replace(/\{\{first_name\}\}/gi, data.first_name || "");
   result = result.replace(/\{\{last_name\}\}/gi, data.last_name || "");
   result = result.replace(/\{\{company\}\}/gi, data.company || "");
   result = result.replace(/\{\{company_name\}\}/gi, data.company || "");
-  result = result.replace(/\{\{full_name\}\}/gi, data.full_name || `${data.first_name || ""} ${data.last_name || ""}`.trim());
+  result = result.replace(/\{\{full_name\}\}/gi, fullName);
   result = result.replace(/\{\{landing_page\}\}/gi, data.landing_page || "");
   result = result.replace(/\{\{custom_field\}\}/gi, data.custom_field || "");
   

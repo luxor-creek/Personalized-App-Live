@@ -45,12 +45,15 @@ interface SectionRendererProps {
 const applyPersonalization = (text: string | undefined, personalization?: Record<string, string>) => {
   if (!text || !personalization) return text || '';
   return text.replace(/\{\{(\w+)\}\}/g, (_, key) => {
+    // Check if the token is ALL CAPS — if so, look up the lowercase key and uppercase the result
+    const isUpperCase = key === key.toUpperCase() && key !== key.toLowerCase();
+    const lookupKey = isUpperCase ? key.toLowerCase() : key;
     // Support aliases: company_name -> company
-    const resolved = personalization[key] 
-      || (key === 'company_name' ? personalization['company'] : undefined)
-      || (key === 'full_name' ? `${personalization['first_name'] || ''} ${personalization['last_name'] || ''}`.trim() : undefined)
+    const resolved = personalization[lookupKey] 
+      || (lookupKey === 'company_name' ? personalization['company'] : undefined)
+      || (lookupKey === 'full_name' ? `${personalization['first_name'] || ''} ${personalization['last_name'] || ''}`.trim() : undefined)
       || '';
-    return resolved;
+    return isUpperCase ? resolved.toUpperCase() : resolved;
   });
 };
 
