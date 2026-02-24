@@ -64,6 +64,19 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Campaign {
   id: string;
@@ -212,6 +225,7 @@ const Admin = () => {
   const [liveWarningIsBuilder, setLiveWarningIsBuilder] = useState(false);
   const [contactSearch, setContactSearch] = useState("");
   const [showContactMethods, setShowContactMethods] = useState(false);
+  const [addContactsSheetOpen, setAddContactsSheetOpen] = useState(false);
 
   // Custom domain
   const [customDomain, setCustomDomain] = useState("");
@@ -1615,207 +1629,447 @@ const Admin = () => {
                         onBack={() => setShowCampaignAnalytics(false)}
                       />
                     ) : (
-                    <div className="space-y-6">
-                    {/* Campaign Header */}
-                    <div className="bg-card rounded-lg border border-border p-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex items-center gap-4">
-                        <Button variant="ghost" size="icon" onClick={() => setSelectedCampaign(null)}>
+                    <div className="space-y-4">
+                    {/* Campaign Header - Compact */}
+                    <div className="bg-card rounded-lg border border-border px-4 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                      <div className="flex items-center gap-3">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setSelectedCampaign(null)}>
                           <ArrowLeft className="w-4 h-4" />
                         </Button>
-                        <h3 className="text-xl font-semibold text-foreground">
+                        <h3 className="text-lg font-semibold text-foreground">
                           {selectedCampaign.name}
                         </h3>
-                        <div className="flex items-center gap-4">
-                          <div className="flex items-center gap-2">
-                            <Switch
-                              checked={!!selectedCampaign.alert_on_view}
-                              onCheckedChange={() => handleAlertToggle(selectedCampaign)}
-                            />
-                            <Label className="text-sm text-muted-foreground flex items-center gap-1 cursor-pointer" onClick={() => handleAlertToggle(selectedCampaign)}>
-                              <Bell className="w-3.5 h-3.5" />
-                              Email Alerts
-                            </Label>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <Switch
-                              checked={Notification.permission === "granted"}
-                              onCheckedChange={async (checked) => {
-                                if (checked) {
-                                  const permission = await Notification.requestPermission();
-                                  if (permission === "granted") {
-                                    toast({ title: "Browser notifications enabled" });
-                                  } else {
-                                    toast({ title: "Permission denied", description: "Please allow notifications in your browser settings.", variant: "destructive" });
-                                  }
-                                }
-                              }}
-                            />
-                            <Label className="text-sm text-muted-foreground flex items-center gap-1 cursor-pointer">
-                              <BellRing className="w-3.5 h-3.5" />
-                              Browser Alerts
-                            </Label>
-                          </div>
-                        </div>
+                        <span className="text-sm text-muted-foreground">{pages.length} contacts</span>
                       </div>
-                      <div className="flex flex-wrap gap-2">
+                      <div className="flex items-center gap-2">
                         {pages.length > 0 && (
                           <>
-                            <Button variant="outline" size="sm" onClick={() => setShowCampaignAnalytics(true)} className="relative">
-                              <BarChart3 className="w-4 h-4 mr-2" />
-                              View Stats
-                              {selectedCampaign && (selectedCampaign.page_count || 0) > 0 && (
-                                <span className="absolute -top-1 -right-1 w-3 h-3 rounded-full bg-emerald-500 animate-pulse border-2 border-card" />
-                              )}
+                            <Button variant="outline" size="sm" className="h-8" onClick={() => setShowCampaignAnalytics(true)}>
+                              <BarChart3 className="w-3.5 h-3.5 mr-1.5" />
+                              Stats
                             </Button>
-                            <Button variant="outline" size="sm" onClick={openTestEmail}>
-                              <Mail className="w-4 h-4 mr-2" />
-                              Send Test Email
+                            <Button variant="outline" size="sm" className="h-8" onClick={openTestEmail}>
+                              <Mail className="w-3.5 h-3.5 mr-1.5" />
+                              Test Email
                             </Button>
-                            <Button variant="outline" size="sm" onClick={handleDownloadCsv}>
-                              <Download className="w-4 h-4 mr-2" />
-                              Download CSV
-                            </Button>
-                            <Button variant="outline" size="sm" onClick={() => setGsheetDialogOpen(true)}>
-                              <ExternalLink className="w-4 h-4 mr-2" />
-                              Import Google Sheet
+                            <Button variant="outline" size="sm" className="h-8" onClick={handleDownloadCsv}>
+                              <Download className="w-3.5 h-3.5 mr-1.5" />
+                              CSV
                             </Button>
                           </>
                         )}
                         {usedSnovWorkflow && (
-                          <Button size="sm" variant="outline" onClick={openSnovStatsDialog}>
-                            <TrendingUp className="w-4 h-4 mr-2" />
-                            Snov.io Stats
+                          <Button size="sm" variant="outline" className="h-8" onClick={openSnovStatsDialog}>
+                            <TrendingUp className="w-3.5 h-3.5 mr-1.5" />
+                            Snov Stats
                           </Button>
                         )}
-                        {/* Snov.io Campaign Stats Dialog */}
-                        <Dialog open={snovStatsDialogOpen} onOpenChange={setSnovStatsDialogOpen}>
-                          <DialogContent className="max-w-2xl">
-                            <DialogHeader>
-                              <DialogTitle>Snov.io Campaign Stats</DialogTitle>
-                              <DialogDescription>
-                                View email engagement analytics from your Snov.io campaigns.
-                              </DialogDescription>
-                            </DialogHeader>
-                            <div className="space-y-4 pt-4">
-                              {loadingSnovCampaigns ? (
-                                <div className="flex items-center justify-center py-4">
-                                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                                </div>
-                              ) : snovCampaigns.length === 0 ? (
-                                <p className="text-sm text-muted-foreground">No Snov.io campaigns found.</p>
-                              ) : (
-                                <>
-                                  <div className="space-y-2">
-                                    <Label>Select a Snov.io Campaign</Label>
-                                    <Select
-                                      value={selectedSnovCampaignForStats?.toString() || ""}
-                                      onValueChange={(val) => fetchSnovCampaignStats(parseInt(val, 10))}
-                                    >
-                                      <SelectTrigger>
-                                        <SelectValue placeholder="Choose a campaign..." />
-                                      </SelectTrigger>
-                                      <SelectContent>
-                                        {snovCampaigns.map((c) => (
-                                          <SelectItem key={c.id} value={c.id.toString()}>
-                                            {c.name} ({c.status})
-                                          </SelectItem>
-                                        ))}
-                                      </SelectContent>
-                                    </Select>
-                                  </div>
 
-                                  {loadingSnovStats && (
-                                    <div className="flex items-center justify-center py-8">
-                                      <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                                    </div>
-                                  )}
-
-                                  {snovStats && !loadingSnovStats && (
-                                    <div className="space-y-4">
-                                      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-                                        {(() => {
-                                          const a = snovStats.analytics;
-                                          const stats = Array.isArray(a) ? a[0] : a;
-                                          return (
-                                            <>
-                                              <div className="bg-muted rounded-lg p-3 text-center">
-                                                <p className="text-2xl font-bold text-foreground">{stats?.sent || stats?.emails_sent || 0}</p>
-                                                <p className="text-xs text-muted-foreground">Sent</p>
-                                              </div>
-                                              <div className="bg-muted rounded-lg p-3 text-center">
-                                                <p className="text-2xl font-bold text-foreground">{stats?.opened || stats?.opens || 0}</p>
-                                                <p className="text-xs text-muted-foreground">Opens</p>
-                                              </div>
-                                              <div className="bg-muted rounded-lg p-3 text-center">
-                                                <p className="text-2xl font-bold text-foreground">{stats?.replied || stats?.replies || 0}</p>
-                                                <p className="text-xs text-muted-foreground">Replies</p>
-                                              </div>
-                                              <div className="bg-muted rounded-lg p-3 text-center">
-                                                <p className="text-2xl font-bold text-foreground">{stats?.clicked || stats?.clicks || 0}</p>
-                                                <p className="text-xs text-muted-foreground">Clicks</p>
-                                              </div>
-                                            </>
-                                          );
-                                        })()}
-                                      </div>
-
-                                      {snovStats.replies && (
-                                        <div>
-                                          <h4 className="text-sm font-semibold text-foreground mb-2">Recent Replies</h4>
-                                          {(() => {
-                                            const replyList = snovStats.replies?.replies || snovStats.replies?.data || [];
-                                            if (!Array.isArray(replyList) || replyList.length === 0) {
-                                              return <p className="text-sm text-muted-foreground">No replies yet.</p>;
-                                            }
-                                            return (
-                                              <div className="max-h-40 overflow-y-auto space-y-2">
-                                                {replyList.slice(0, 10).map((r: any, i: number) => (
-                                                  <div key={i} className="bg-muted rounded-lg p-3 text-sm">
-                                                    <p className="font-medium text-foreground">{r.email || r.prospect_email || "Unknown"}</p>
-                                                    {r.replied_at && <p className="text-xs text-muted-foreground">{new Date(r.replied_at).toLocaleString()}</p>}
-                                                  </div>
-                                                ))}
-                                              </div>
-                                            );
-                                          })()}
-                                        </div>
-                                      )}
-
-                                      {snovStats.opens && (
-                                        <div>
-                                          <h4 className="text-sm font-semibold text-foreground mb-2">Recent Opens</h4>
-                                          {(() => {
-                                            const openList = snovStats.opens?.recipients || snovStats.opens?.data || [];
-                                            if (!Array.isArray(openList) || openList.length === 0) {
-                                              return <p className="text-sm text-muted-foreground">No opens tracked.</p>;
-                                            }
-                                            return (
-                                              <div className="max-h-40 overflow-y-auto space-y-1">
-                                                {openList.slice(0, 10).map((o: any, i: number) => (
-                                                  <div key={i} className="flex justify-between items-center bg-muted rounded px-3 py-2 text-sm">
-                                                    <span className="text-foreground">{o.email || o.prospect_email || "Unknown"}</span>
-                                                    <span className="text-muted-foreground text-xs">{o.opens_count || o.count || 1}x</span>
-                                                  </div>
-                                                ))}
-                                              </div>
-                                            );
-                                          })()}
-                                        </div>
-                                      )}
-                                    </div>
-                                  )}
-                                </>
-                              )}
+                        {/* Settings dropdown - alerts & Google Sheets */}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm" className="h-8">
+                              <Settings className="w-3.5 h-3.5" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-56">
+                            <div className="px-3 py-2 space-y-3">
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm flex items-center gap-1.5 cursor-pointer">
+                                  <Bell className="w-3.5 h-3.5" />
+                                  Email Alerts
+                                </Label>
+                                <Switch
+                                  checked={!!selectedCampaign.alert_on_view}
+                                  onCheckedChange={() => handleAlertToggle(selectedCampaign)}
+                                />
+                              </div>
+                              <div className="flex items-center justify-between">
+                                <Label className="text-sm flex items-center gap-1.5 cursor-pointer">
+                                  <BellRing className="w-3.5 h-3.5" />
+                                  Browser Alerts
+                                </Label>
+                                <Switch
+                                  checked={Notification.permission === "granted"}
+                                  onCheckedChange={async (checked) => {
+                                    if (checked) {
+                                      const permission = await Notification.requestPermission();
+                                      if (permission === "granted") {
+                                        toast({ title: "Browser notifications enabled" });
+                                      } else {
+                                        toast({ title: "Permission denied", description: "Please allow notifications in your browser settings.", variant: "destructive" });
+                                      }
+                                    }
+                                  }}
+                                />
+                              </div>
                             </div>
-                          </DialogContent>
-                        </Dialog>
+                            <DropdownMenuItem onClick={() => setGsheetDialogOpen(true)}>
+                              <ExternalLink className="w-3.5 h-3.5 mr-2" />
+                              Import Google Sheet
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        {/* Add Contacts button - opens side drawer */}
+                        <Sheet open={addContactsSheetOpen} onOpenChange={setAddContactsSheetOpen}>
+                          <SheetTrigger asChild>
+                            <Button size="sm" className="h-8">
+                              <Plus className="w-3.5 h-3.5 mr-1.5" />
+                              Add Contacts
+                            </Button>
+                          </SheetTrigger>
+                          <SheetContent className="w-full sm:max-w-lg overflow-y-auto">
+                            <SheetHeader>
+                              <SheetTitle>Add Contacts</SheetTitle>
+                            </SheetHeader>
+                            <div className="space-y-6 mt-6">
+                              {/* Manual Import — Primary */}
+                              <div className="space-y-4">
+                                <div className="flex items-center gap-3">
+                                  <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                                    <Upload className="w-4 h-4 text-primary" />
+                                  </div>
+                                  <div>
+                                    <h4 className="font-semibold text-foreground text-sm">Upload CSV</h4>
+                                    <p className="text-xs text-muted-foreground">Upload contacts and download personalized links</p>
+                                  </div>
+                                </div>
+                                <ManualImportFlow
+                                  campaignId={selectedCampaign.id}
+                                  templateId={selectedCampaign.template_id}
+                                  templateSlug={(() => {
+                                    const t = templates.find(t => t.id === selectedCampaign.template_id);
+                                    return t?.slug || null;
+                                  })()}
+                                  isBuilderTemplate={(() => {
+                                    const t = templates.find(t => t.id === selectedCampaign.template_id);
+                                    return !!t?.is_builder_template;
+                                  })()}
+                                  customDomain={customDomain || undefined}
+                                  onGenerationComplete={() => {
+                                    if (selectedCampaign) {
+                                      fetchPages(selectedCampaign.id);
+                                      fetchCampaigns();
+                                      usageLimits.refetchLimits();
+                                    }
+                                  }}
+                                />
+
+                                {/* Add single person */}
+                                <div className="pt-2 border-t border-border">
+                                  <Dialog open={addPersonDialogOpen} onOpenChange={(open) => { setAddPersonDialogOpen(open); }}>
+                                    <DialogTrigger asChild>
+                                      <Button variant="ghost" size="sm" className="text-muted-foreground">
+                                        <Plus className="w-4 h-4 mr-2" />
+                                        Or add a single person manually
+                                      </Button>
+                                    </DialogTrigger>
+                                    <DialogContent>
+                                      <DialogHeader>
+                                        <DialogTitle>Add Person</DialogTitle>
+                                        <DialogDescription>
+                                          Create a personalized page for a single person.
+                                        </DialogDescription>
+                                      </DialogHeader>
+                                      <div className="space-y-4 pt-4">
+                                        <div className="grid grid-cols-2 gap-4">
+                                          <div className="space-y-2">
+                                            <Label htmlFor="first-name">First Name *</Label>
+                                            <Input
+                                              id="first-name"
+                                              value={newPerson.first_name}
+                                              onChange={(e) => setNewPerson({ ...newPerson, first_name: e.target.value })}
+                                              placeholder="John"
+                                            />
+                                          </div>
+                                          <div className="space-y-2">
+                                            <Label htmlFor="last-name">Last Name</Label>
+                                            <Input
+                                              id="last-name"
+                                              value={newPerson.last_name}
+                                              onChange={(e) => setNewPerson({ ...newPerson, last_name: e.target.value })}
+                                              placeholder="Doe"
+                                            />
+                                          </div>
+                                        </div>
+                                        <div className="space-y-2">
+                                          <Label htmlFor="email">Email</Label>
+                                          <Input
+                                            id="email"
+                                            type="email"
+                                            value={newPerson.email || ''}
+                                            onChange={(e) => setNewPerson({ ...newPerson, email: e.target.value })}
+                                            placeholder="john@example.com"
+                                          />
+                                        </div>
+                                        <div className="space-y-2">
+                                          <Label htmlFor="company">Company</Label>
+                                          <Input
+                                            id="company"
+                                            value={newPerson.company}
+                                            onChange={(e) => setNewPerson({ ...newPerson, company: e.target.value })}
+                                            placeholder="Acme Inc."
+                                          />
+                                        </div>
+                                        <div className="space-y-2">
+                                          <Label htmlFor="custom-message">Custom Message</Label>
+                                          <Textarea
+                                            id="custom-message"
+                                            value={newPerson.custom_message}
+                                            onChange={(e) => setNewPerson({ ...newPerson, custom_message: e.target.value })}
+                                            placeholder="Optional personalized message..."
+                                            rows={3}
+                                          />
+                                        </div>
+                                        <Button onClick={addSinglePerson} className="w-full" disabled={addingPerson}>
+                                          {addingPerson ? "Creating..." : "Create Page & Copy Link"}
+                                        </Button>
+                                      </div>
+                                    </DialogContent>
+                                  </Dialog>
+                                </div>
+                              </div>
+
+                              {/* Divider */}
+                              <div className="flex items-center gap-3">
+                                <div className="flex-1 h-px bg-border" />
+                                <span className="text-xs text-muted-foreground">Integrations</span>
+                                <div className="flex-1 h-px bg-border" />
+                              </div>
+
+                              {/* Snov.io + LinkedIn */}
+                              <div className="space-y-3">
+                                <Dialog open={snovDialogOpen} onOpenChange={setSnovDialogOpen}>
+                                  <DialogTrigger asChild>
+                                    <Button variant="outline" className="w-full justify-start" onClick={openSnovDialog}>
+                                      <Send className="w-4 h-4 mr-2" />
+                                      Connect Snov.io
+                                    </Button>
+                                  </DialogTrigger>
+                                  <DialogContent className="max-w-lg">
+                                    <DialogHeader>
+                                      <DialogTitle>Send Campaign via Snov.io</DialogTitle>
+                                      <DialogDescription>
+                                        Import contacts from a Snov.io list and add them to a drip campaign.
+                                      </DialogDescription>
+                                    </DialogHeader>
+                                    <div className="space-y-4 pt-4">
+                                      {loadingSnovLists ? (
+                                        <div className="flex items-center justify-center py-4">
+                                          <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                                        </div>
+                                      ) : snovLists.length === 0 ? (
+                                        <p className="text-sm text-muted-foreground">No lists found. Create a list in Snov.io first.</p>
+                                      ) : (
+                                        <>
+                                          <div className="space-y-2">
+                                            <Label>Source List (get contacts from)</Label>
+                                            <div className="grid gap-2 max-h-32 overflow-y-auto">
+                                              {snovLists.map((list) => (
+                                                <div
+                                                  key={list.id}
+                                                  onClick={() => setSelectedSnovList(list.id)}
+                                                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                                                    selectedSnovList === list.id
+                                                      ? "border-primary bg-primary/10"
+                                                      : "border-border hover:border-primary/50"
+                                                  }`}
+                                                >
+                                                  <div className="flex justify-between items-center">
+                                                    <span className="font-medium">{list.name}</span>
+                                                    <span className="text-sm text-muted-foreground">{list.contacts} contacts</span>
+                                                  </div>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+
+                                          <div className="space-y-2">
+                                            <Label>Target List (with drip campaign attached)</Label>
+                                            <p className="text-xs text-muted-foreground">
+                                              This list should have a drip campaign configured in Snov.io. Use {"{{landing_page}}"} in your email template for the landing page URL.
+                                            </p>
+                                            <div className="grid gap-2 max-h-32 overflow-y-auto">
+                                              {snovLists.map((list) => (
+                                                <div
+                                                  key={list.id}
+                                                  onClick={() => setSelectedSnovCampaignList(list.id)}
+                                                  className={`p-3 rounded-lg border cursor-pointer transition-all ${
+                                                    selectedSnovCampaignList === list.id
+                                                      ? "border-primary bg-primary/10"
+                                                      : "border-border hover:border-primary/50"
+                                                  }`}
+                                                >
+                                                  <div className="flex justify-between items-center">
+                                                    <span className="font-medium">{list.name}</span>
+                                                    <span className="text-sm text-muted-foreground">{list.contacts} contacts</span>
+                                                  </div>
+                                                </div>
+                                              ))}
+                                            </div>
+                                          </div>
+                                        </>
+                                      )}
+
+                                      <Button 
+                                        onClick={sendSnovCampaign} 
+                                        className="w-full" 
+                                        disabled={!selectedSnovList || !selectedSnovCampaignList || sendingSnov}
+                                      >
+                                        {sendingSnov ? (
+                                          <>
+                                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
+                                            Sending...
+                                          </>
+                                        ) : (
+                                          <>
+                                            <Send className="w-4 h-4 mr-2" />
+                                            Add to Drip Campaign
+                                          </>
+                                        )}
+                                      </Button>
+                                    </div>
+                                  </DialogContent>
+                                </Dialog>
+
+                                <LinkedInEnrichDialog
+                                  campaignId={selectedCampaign.id}
+                                  templateId={selectedCampaign.template_id}
+                                  onContactAdded={() => { fetchPages(selectedCampaign.id); fetchCampaigns(); usageLimits.refetchLimits(); }}
+                                />
+                              </div>
+                            </div>
+                          </SheetContent>
+                        </Sheet>
                       </div>
                     </div>
 
-                    {/* Pages Ready Popup removed */}
+                    {/* Snov.io Campaign Stats Dialog - kept as standalone dialog */}
+                    <Dialog open={snovStatsDialogOpen} onOpenChange={setSnovStatsDialogOpen}>
+                      <DialogContent className="max-w-2xl">
+                        <DialogHeader>
+                          <DialogTitle>Snov.io Campaign Stats</DialogTitle>
+                          <DialogDescription>
+                            View email engagement analytics from your Snov.io campaigns.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <div className="space-y-4 pt-4">
+                          {loadingSnovCampaigns ? (
+                            <div className="flex items-center justify-center py-4">
+                              <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                            </div>
+                          ) : snovCampaigns.length === 0 ? (
+                            <p className="text-sm text-muted-foreground">No Snov.io campaigns found.</p>
+                          ) : (
+                            <>
+                              <div className="space-y-2">
+                                <Label>Select a Snov.io Campaign</Label>
+                                <Select
+                                  value={selectedSnovCampaignForStats?.toString() || ""}
+                                  onValueChange={(val) => fetchSnovCampaignStats(parseInt(val, 10))}
+                                >
+                                  <SelectTrigger>
+                                    <SelectValue placeholder="Choose a campaign..." />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {snovCampaigns.map((c) => (
+                                      <SelectItem key={c.id} value={c.id.toString()}>
+                                        {c.name} ({c.status})
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
+                              </div>
 
-                    {/* Generate Personalized Links Landing — shown when no contacts and Add Contacts not yet clicked */}
-                    {pages.length === 0 && !showContactMethods ? (
+                              {loadingSnovStats && (
+                                <div className="flex items-center justify-center py-8">
+                                  <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
+                                </div>
+                              )}
+
+                              {snovStats && !loadingSnovStats && (
+                                <div className="space-y-4">
+                                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                    {(() => {
+                                      const a = snovStats.analytics;
+                                      const stats = Array.isArray(a) ? a[0] : a;
+                                      return (
+                                        <>
+                                          <div className="bg-muted rounded-lg p-3 text-center">
+                                            <p className="text-2xl font-bold text-foreground">{stats?.sent || stats?.emails_sent || 0}</p>
+                                            <p className="text-xs text-muted-foreground">Sent</p>
+                                          </div>
+                                          <div className="bg-muted rounded-lg p-3 text-center">
+                                            <p className="text-2xl font-bold text-foreground">{stats?.opened || stats?.opens || 0}</p>
+                                            <p className="text-xs text-muted-foreground">Opens</p>
+                                          </div>
+                                          <div className="bg-muted rounded-lg p-3 text-center">
+                                            <p className="text-2xl font-bold text-foreground">{stats?.replied || stats?.replies || 0}</p>
+                                            <p className="text-xs text-muted-foreground">Replies</p>
+                                          </div>
+                                          <div className="bg-muted rounded-lg p-3 text-center">
+                                            <p className="text-2xl font-bold text-foreground">{stats?.clicked || stats?.clicks || 0}</p>
+                                            <p className="text-xs text-muted-foreground">Clicks</p>
+                                          </div>
+                                        </>
+                                      );
+                                    })()}
+                                  </div>
+
+                                  {snovStats.replies && (
+                                    <div>
+                                      <h4 className="text-sm font-semibold text-foreground mb-2">Recent Replies</h4>
+                                      {(() => {
+                                        const replyList = snovStats.replies?.replies || snovStats.replies?.data || [];
+                                        if (!Array.isArray(replyList) || replyList.length === 0) {
+                                          return <p className="text-sm text-muted-foreground">No replies yet.</p>;
+                                        }
+                                        return (
+                                          <div className="max-h-40 overflow-y-auto space-y-2">
+                                            {replyList.slice(0, 10).map((r: any, i: number) => (
+                                              <div key={i} className="bg-muted rounded-lg p-3 text-sm">
+                                                <p className="font-medium text-foreground">{r.email || r.prospect_email || "Unknown"}</p>
+                                                {r.replied_at && <p className="text-xs text-muted-foreground">{new Date(r.replied_at).toLocaleString()}</p>}
+                                              </div>
+                                            ))}
+                                          </div>
+                                        );
+                                      })()}
+                                    </div>
+                                  )}
+
+                                  {snovStats.opens && (
+                                    <div>
+                                      <h4 className="text-sm font-semibold text-foreground mb-2">Recent Opens</h4>
+                                      {(() => {
+                                        const openList = snovStats.opens?.recipients || snovStats.opens?.data || [];
+                                        if (!Array.isArray(openList) || openList.length === 0) {
+                                          return <p className="text-sm text-muted-foreground">No opens tracked.</p>;
+                                        }
+                                        return (
+                                          <div className="max-h-40 overflow-y-auto space-y-1">
+                                            {openList.slice(0, 10).map((o: any, i: number) => (
+                                              <div key={i} className="flex justify-between items-center bg-muted rounded px-3 py-2 text-sm">
+                                                <span className="text-foreground">{o.email || o.prospect_email || "Unknown"}</span>
+                                                <span className="text-muted-foreground text-xs">{o.opens_count || o.count || 1}x</span>
+                                              </div>
+                                            ))}
+                                          </div>
+                                        );
+                                      })()}
+                                    </div>
+                                  )}
+                                </div>
+                              )}
+                            </>
+                          )}
+                        </div>
+                      </DialogContent>
+                    </Dialog>
+
+                    {/* Contacts Table - THE main content */}
+                    {pages.length === 0 ? (
                       <div className="text-center py-16 bg-card rounded-lg border border-border space-y-4">
                         <h3 className="text-xl font-semibold text-foreground">
                           Generate Personalized Links
@@ -1823,253 +2077,12 @@ const Admin = () => {
                         <p className="text-muted-foreground max-w-md mx-auto">
                           Upload your contacts to generate unique landing pages for each person.
                         </p>
-                        <Button onClick={() => setShowContactMethods(true)}>
+                        <Button onClick={() => setAddContactsSheetOpen(true)}>
                           <Plus className="w-4 h-4 mr-2" />
                           Add Contacts
                         </Button>
                       </div>
                     ) : (
-                    <>
-                    {/* Delivery Method Selection — shown after user clicks Add Contacts */}
-                    <div className="space-y-6">
-                      <div>
-                        <h3 className="text-lg font-semibold text-foreground">
-                          How would you like to export your personalized links?
-                        </h3>
-                        <p className="text-sm text-muted-foreground mt-1">
-                          Your app generates personalized landing pages. Email delivery happens in your outreach platform.
-                        </p>
-                      </div>
-
-                      {/* Section 1: Manual Import — Primary */}
-                      <div className="bg-card rounded-xl border-2 border-primary/20 p-6 space-y-4">
-                        <div className="flex items-center gap-3 mb-2">
-                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Upload className="w-5 h-5 text-primary" />
-                          </div>
-                          <div>
-                            <h4 className="font-semibold text-foreground">Manual Export</h4>
-                            <p className="text-sm text-muted-foreground">Upload contacts and download personalized links</p>
-                          </div>
-                        </div>
-                        <ManualImportFlow
-                          campaignId={selectedCampaign.id}
-                          templateId={selectedCampaign.template_id}
-                          templateSlug={(() => {
-                            const t = templates.find(t => t.id === selectedCampaign.template_id);
-                            return t?.slug || null;
-                          })()}
-                          isBuilderTemplate={(() => {
-                            const t = templates.find(t => t.id === selectedCampaign.template_id);
-                            return !!t?.is_builder_template;
-                          })()}
-                          customDomain={customDomain || undefined}
-                          onGenerationComplete={() => {
-                            if (selectedCampaign) {
-                              fetchPages(selectedCampaign.id);
-                              fetchCampaigns();
-                              usageLimits.refetchLimits();
-                            }
-                          }}
-                        />
-
-                        {/* Add Person remains as a separate option */}
-                        <div className="pt-2 border-t border-border">
-                          <Dialog open={addPersonDialogOpen} onOpenChange={(open) => { setAddPersonDialogOpen(open); }}>
-                            <DialogTrigger asChild>
-                              <Button variant="ghost" size="sm" className="text-muted-foreground">
-                                <Plus className="w-4 h-4 mr-2" />
-                                Or add a single person manually
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent>
-                              <DialogHeader>
-                                <DialogTitle>Add Person</DialogTitle>
-                                <DialogDescription>
-                                  Create a personalized page for a single person.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="space-y-4 pt-4">
-                                <div className="grid grid-cols-2 gap-4">
-                                  <div className="space-y-2">
-                                    <Label htmlFor="first-name">First Name *</Label>
-                                    <Input
-                                      id="first-name"
-                                      value={newPerson.first_name}
-                                      onChange={(e) => setNewPerson({ ...newPerson, first_name: e.target.value })}
-                                      placeholder="John"
-                                    />
-                                  </div>
-                                  <div className="space-y-2">
-                                    <Label htmlFor="last-name">Last Name</Label>
-                                    <Input
-                                      id="last-name"
-                                      value={newPerson.last_name}
-                                      onChange={(e) => setNewPerson({ ...newPerson, last_name: e.target.value })}
-                                      placeholder="Doe"
-                                    />
-                                  </div>
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="email">Email</Label>
-                                  <Input
-                                    id="email"
-                                    type="email"
-                                    value={newPerson.email || ''}
-                                    onChange={(e) => setNewPerson({ ...newPerson, email: e.target.value })}
-                                    placeholder="john@example.com"
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="company">Company</Label>
-                                  <Input
-                                    id="company"
-                                    value={newPerson.company}
-                                    onChange={(e) => setNewPerson({ ...newPerson, company: e.target.value })}
-                                    placeholder="Acme Inc."
-                                  />
-                                </div>
-                                <div className="space-y-2">
-                                  <Label htmlFor="custom-message">Custom Message</Label>
-                                  <Textarea
-                                    id="custom-message"
-                                    value={newPerson.custom_message}
-                                    onChange={(e) => setNewPerson({ ...newPerson, custom_message: e.target.value })}
-                                    placeholder="Optional personalized message..."
-                                    rows={3}
-                                  />
-                                </div>
-                                <Button onClick={addSinglePerson} className="w-full" disabled={addingPerson}>
-                                  {addingPerson ? "Creating..." : "Create Page & Copy Link"}
-                                </Button>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-                        </div>
-                      </div>
-
-                      {/* Divider */}
-                      <div className="flex items-center gap-3">
-                        <div className="flex-1 h-px bg-border" />
-                        <span className="text-xs text-muted-foreground">Automate with your outreach platform</span>
-                        <div className="flex-1 h-px bg-border" />
-                      </div>
-
-                      {/* Section 2: Integration Export — Secondary */}
-                      <div className="bg-card rounded-xl border border-dashed border-border p-6 space-y-4">
-                        <p className="text-sm text-muted-foreground">
-                          Automatically enrich your outreach campaigns with personalized links.
-                        </p>
-                        <div className="flex flex-wrap gap-2">
-                          <Dialog open={snovDialogOpen} onOpenChange={setSnovDialogOpen}>
-                            <DialogTrigger asChild>
-                              <Button variant="outline" className="flex-1" onClick={openSnovDialog}>
-                                <Send className="w-4 h-4 mr-2" />
-                                Connect Snov.io
-                              </Button>
-                            </DialogTrigger>
-                            <DialogContent className="max-w-lg">
-                              <DialogHeader>
-                                <DialogTitle>Send Campaign via Snov.io</DialogTitle>
-                                <DialogDescription>
-                                  Import contacts from a Snov.io list and add them to a drip campaign.
-                                </DialogDescription>
-                              </DialogHeader>
-                              <div className="space-y-4 pt-4">
-                                {loadingSnovLists ? (
-                                  <div className="flex items-center justify-center py-4">
-                                    <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-primary"></div>
-                                  </div>
-                                ) : snovLists.length === 0 ? (
-                                  <p className="text-sm text-muted-foreground">No lists found. Create a list in Snov.io first.</p>
-                                ) : (
-                                  <>
-                                    <div className="space-y-2">
-                                      <Label>Source List (get contacts from)</Label>
-                                      <div className="grid gap-2 max-h-32 overflow-y-auto">
-                                        {snovLists.map((list) => (
-                                          <div
-                                            key={list.id}
-                                            onClick={() => setSelectedSnovList(list.id)}
-                                            className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                                              selectedSnovList === list.id
-                                                ? "border-primary bg-primary/10"
-                                                : "border-border hover:border-primary/50"
-                                            }`}
-                                          >
-                                            <div className="flex justify-between items-center">
-                                              <span className="font-medium">{list.name}</span>
-                                              <span className="text-sm text-muted-foreground">{list.contacts} contacts</span>
-                                            </div>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                      <Label>Target List (with drip campaign attached)</Label>
-                                      <p className="text-xs text-muted-foreground">
-                                        This list should have a drip campaign configured in Snov.io. Use {"{{landing_page}}"} in your email template for the landing page URL.
-                                      </p>
-                                      <div className="grid gap-2 max-h-32 overflow-y-auto">
-                                        {snovLists.map((list) => (
-                                          <div
-                                            key={list.id}
-                                            onClick={() => setSelectedSnovCampaignList(list.id)}
-                                            className={`p-3 rounded-lg border cursor-pointer transition-all ${
-                                              selectedSnovCampaignList === list.id
-                                                ? "border-primary bg-primary/10"
-                                                : "border-border hover:border-primary/50"
-                                            }`}
-                                          >
-                                            <div className="flex justify-between items-center">
-                                              <span className="font-medium">{list.name}</span>
-                                              <span className="text-sm text-muted-foreground">{list.contacts} contacts</span>
-                                            </div>
-                                          </div>
-                                        ))}
-                                      </div>
-                                    </div>
-                                  </>
-                                )}
-
-                                <Button 
-                                  onClick={sendSnovCampaign} 
-                                  className="w-full" 
-                                  disabled={!selectedSnovList || !selectedSnovCampaignList || sendingSnov}
-                                >
-                                  {sendingSnov ? (
-                                    <>
-                                      <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-primary-foreground mr-2"></div>
-                                      Sending...
-                                    </>
-                                  ) : (
-                                    <>
-                                      <Send className="w-4 h-4 mr-2" />
-                                      Add to Drip Campaign
-                                    </>
-                                  )}
-                                </Button>
-                              </div>
-                            </DialogContent>
-                          </Dialog>
-
-                          <LinkedInEnrichDialog
-                            campaignId={selectedCampaign.id}
-                            templateId={selectedCampaign.template_id}
-                            onContactAdded={() => { fetchPages(selectedCampaign.id); fetchCampaigns(); usageLimits.refetchLimits(); }}
-                          />
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Contacts Table - Full Width */}
-                    {pages.length === 0 && showContactMethods ? (
-                      <div className="text-center py-8 text-muted-foreground bg-card rounded-lg border border-border">
-                        <p>No personalized pages yet.</p>
-                        <p className="text-sm">Upload a CSV or add contacts manually above to get started.</p>
-                      </div>
-                    ) : pages.length > 0 ? (
                       <div className="bg-card rounded-lg border border-border overflow-x-auto">
                         {/* Search bar */}
                         <div className="p-3 border-b border-border">
@@ -2174,8 +2187,6 @@ const Admin = () => {
                           </TableBody>
                         </Table>
                       </div>
-                    ) : null}
-                    </>
                     )}
                     </div>
                     )}
