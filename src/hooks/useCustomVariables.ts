@@ -14,9 +14,13 @@ export interface CustomVariable {
 // Built-in system variables (always available)
 export const SYSTEM_VARIABLES = [
   { token: "{{first_name}}", name: "First Name", type: "System" },
+  { token: "{{FIRST_NAME}}", name: "First Name (ALL CAPS)", type: "System" },
   { token: "{{last_name}}", name: "Last Name", type: "System" },
+  { token: "{{LAST_NAME}}", name: "Last Name (ALL CAPS)", type: "System" },
   { token: "{{company}}", name: "Company", type: "System" },
+  { token: "{{COMPANY}}", name: "Company (ALL CAPS)", type: "System" },
   { token: "{{full_name}}", name: "Full Name", type: "System" },
+  { token: "{{FULL_NAME}}", name: "Full Name (ALL CAPS)", type: "System" },
   { token: "{{landing_page}}", name: "Landing Page URL", type: "System" },
   { token: "{{custom_field}}", name: "Custom Field", type: "System" },
 ];

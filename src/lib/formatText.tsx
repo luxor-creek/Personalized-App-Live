@@ -144,13 +144,22 @@ export function applyPersonalization(
   }
 ): string {
   if (!text) return text;
-  
+
+  const fullName = data.full_name || `${data.first_name || ""} ${data.last_name || ""}`.trim();
+
   return text
+    // ALL CAPS variants (must come before case-insensitive replacements)
+    .replace(/{{FIRST_NAME}}/g, (data.first_name || "").toUpperCase())
+    .replace(/{{LAST_NAME}}/g, (data.last_name || "").toUpperCase())
+    .replace(/{{COMPANY}}/g, (data.company || "").toUpperCase())
+    .replace(/{{COMPANY_NAME}}/g, (data.company || "").toUpperCase())
+    .replace(/{{FULL_NAME}}/g, fullName.toUpperCase())
+    // Standard case-insensitive replacements
     .replace(/{{first_name}}/gi, data.first_name || "")
     .replace(/{{last_name}}/gi, data.last_name || "")
     .replace(/{{company}}/gi, data.company || "")
     .replace(/{{company_name}}/gi, data.company || "")
-    .replace(/{{full_name}}/gi, data.full_name || `${data.first_name || ""} ${data.last_name || ""}`.trim())
+    .replace(/{{full_name}}/gi, fullName)
     .replace(/{{landing_page}}/gi, data.landing_page || "")
     .replace(/{{custom_field}}/gi, data.custom_field || "");
 }
