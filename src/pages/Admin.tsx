@@ -19,6 +19,7 @@ import CampaignAnalyticsPanel from "@/components/admin/CampaignAnalyticsPanel";
 import LinkedInEnrichDialog from "@/components/admin/LinkedInEnrichDialog";
 import AICsvMapper from "@/components/admin/AICsvMapper";
 import ManualImportFlow from "@/components/admin/ManualImportFlow";
+import SnovOnboardingDialog from "@/components/admin/SnovOnboardingDialog";
 import { Textarea } from "@/components/ui/textarea";
 import { Switch } from "@/components/ui/switch";
 import type { User, Session } from "@supabase/supabase-js";
@@ -183,6 +184,8 @@ const Admin = () => {
   const [usedSnovWorkflow, setUsedSnovWorkflow] = useState(false);
 
   const [snovDialogOpen, setSnovDialogOpen] = useState(false);
+  const [snovOnboardingOpen, setSnovOnboardingOpen] = useState(false);
+  const [snovConnected, setSnovConnected] = useState(false);
   const [snovLists, setSnovLists] = useState<Array<{ id: number; name: string; contacts: number }>>([]);
   const [loadingSnovLists, setLoadingSnovLists] = useState(false);
   const [selectedSnovList, setSelectedSnovList] = useState<number | null>(null);
@@ -311,12 +314,24 @@ const Admin = () => {
       fetchCampaigns();
       fetchTemplates();
       fetchCustomDomain();
+      checkSnovConnection();
       if (isAdmin) {
         fetchInfoRequests();
         fetchLiveTemplateIds();
       }
     }
   }, [user, isAdmin]);
+
+  const checkSnovConnection = async () => {
+    if (!user) return;
+    const { data } = await supabase
+      .from("integration_credentials" as any)
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("provider", "snov")
+      .maybeSingle();
+    setSnovConnected(!!(data as any)?.id);
+  };
 
   const fetchCustomDomain = async () => {
     if (!user) return;
@@ -2387,6 +2402,43 @@ const Admin = () => {
                   <p className="text-xs text-muted-foreground">DNS changes can take up to 24 hours to update.</p>
                 </div>
               </div>
+
+              {/* Integrations */}
+              <div>
+                <h3 className="text-lg font-semibold text-foreground">Integrations</h3>
+                <p className="text-sm text-muted-foreground mt-1">
+                  Connect your outreach tools to automate personalized campaigns.
+                </p>
+              </div>
+
+              <div className="bg-card rounded-xl border border-border p-5 space-y-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <Send className="w-5 h-5 text-primary" />
+                    </div>
+                    <div>
+                      <p className="font-medium text-foreground">Snov.io</p>
+                      <p className="text-sm text-muted-foreground">
+                        {snovConnected ? "Connected — credentials saved" : "Not connected"}
+                      </p>
+                    </div>
+                  </div>
+                  <Button
+                    variant={snovConnected ? "outline" : "default"}
+                    size="sm"
+                    onClick={() => setSnovOnboardingOpen(true)}
+                  >
+                    {snovConnected ? "Edit Connection" : "Connect"}
+                  </Button>
+                </div>
+              </div>
+
+              <SnovOnboardingDialog
+                open={snovOnboardingOpen}
+                onOpenChange={setSnovOnboardingOpen}
+                onConnected={() => checkSnovConnection()}
+              />
             </div>
           </TabsContent>
         </Tabs>
