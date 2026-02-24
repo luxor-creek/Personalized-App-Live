@@ -1296,9 +1296,11 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
 
   // Sections that already have their own button controls
   const sectionsWithOwnButtons = ['hero', 'cta', 'document', 'newsletter', 'heroForm', 'form', 'pricing', 'spacer', 'divider', 'logo', 'footer', 'qrCode', 'columns2', 'columns3'];
+  // Sections that should NOT show the generic button toggle (either they handle their own or don't use buttons)
+  const noButtonSections = [...sectionsWithOwnButtons, 'image', 'video', 'gallery', 'logoCloud', 'stats', 'team', 'comparison', 'steps', 'faq', 'testimonials', 'features', 'socialProof', 'cards', 'countdown', 'benefits'];
 
   const renderOptionalButtonFields = () => {
-    if (sectionsWithOwnButtons.includes(section.type)) return null;
+    if (noButtonSections.includes(section.type)) return null;
     return (
       <>
         <Separator />
@@ -1326,7 +1328,7 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
 
   // Determine which sections show typography controls
   const textSections = ['headline', 'body', 'banner', 'cta', 'hero', 'heroVideo', 'heroImage', 'heroForm', 'quote'];
-  const colorSections = section.type !== 'spacer';
+  const colorSections = !['spacer', 'divider', 'image', 'video', 'gallery'].includes(section.type);
   const maxWidthSections = ['headline', 'body', 'video', 'image', 'form', 'features', 'testimonials', 'pricing', 'faq', 'stats', 'team', 'steps', 'gallery', 'comparison', 'cards', 'benefits', 'socialProof', 'newsletter', 'document', 'quote', 'footer', 'heroVideo', 'heroImage', 'heroForm', 'columns2', 'columns3'];
 
   const handleCursorCapture = (e: React.SyntheticEvent) => {
