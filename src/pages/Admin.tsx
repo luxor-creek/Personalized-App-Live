@@ -1855,11 +1855,12 @@ const Admin = () => {
 
                               {/* Snov.io + LinkedIn */}
                               <div className="space-y-3">
+                                {snovConnected ? (
                                 <Dialog open={snovDialogOpen} onOpenChange={setSnovDialogOpen}>
                                   <DialogTrigger asChild>
                                     <Button variant="outline" className="w-full justify-start" onClick={openSnovDialog}>
                                       <Send className="w-4 h-4 mr-2" />
-                                      Connect Snov.io
+                                      Import from Snov.io
                                     </Button>
                                   </DialogTrigger>
                                   <DialogContent className="max-w-lg">
@@ -1947,6 +1948,21 @@ const Admin = () => {
                                     </div>
                                   </DialogContent>
                                 </Dialog>
+                                ) : (
+                                  <Button
+                                    variant="outline"
+                                    className="w-full justify-start"
+                                    onClick={() => {
+                                      setAddContactsSheetOpen(false);
+                                      setActiveTab("settings");
+                                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                                    }}
+                                  >
+                                    <Send className="w-4 h-4 mr-2" />
+                                    Connect Snov.io
+                                    <span className="ml-auto text-xs text-muted-foreground">Set up in Settings</span>
+                                  </Button>
+                                )}
 
                                 <LinkedInEnrichDialog
                                   campaignId={selectedCampaign.id}
