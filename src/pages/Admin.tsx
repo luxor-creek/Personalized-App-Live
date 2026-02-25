@@ -1116,7 +1116,7 @@ const Admin = () => {
     if (!selectedSnovList || !selectedSnovCampaignList || !selectedCampaign) {
       toast({
         title: "Missing selection",
-        description: "Please select both source list and target drip campaign list",
+        description: "Please select both source list and target campaign list",
         variant: "destructive",
       });
       return;
@@ -1138,7 +1138,7 @@ const Admin = () => {
       if (data.success) {
         toast({
           title: "Campaign sent!",
-          description: `Added ${data.added} prospects to Snov.io drip campaign. ${data.errors > 0 ? `${data.errors} errors.` : ""}`,
+          description: `Added ${data.added} prospects to Snov.io campaign. ${data.errors > 0 ? `${data.errors} errors.` : ""}`,
         });
         setSnovDialogOpen(false);
         setUsedSnovWorkflow(true);
@@ -1867,7 +1867,7 @@ const Admin = () => {
                                     <DialogHeader>
                                       <DialogTitle>Send Campaign via Snov.io</DialogTitle>
                                       <DialogDescription>
-                                        Import contacts from a Snov.io list and add them to a drip campaign.
+                                        Import contacts from a Snov.io list and enrich with personalized links.
                                       </DialogDescription>
                                     </DialogHeader>
                                     <div className="space-y-4 pt-4">
@@ -1902,9 +1902,9 @@ const Admin = () => {
                                           </div>
 
                                           <div className="space-y-2">
-                                            <Label>Target List (with drip campaign attached)</Label>
+                                            <Label>Target List (to enrich with personalized links)</Label>
                                             <p className="text-xs text-muted-foreground">
-                                              This list should have a drip campaign configured in Snov.io. Use {"{{landing_page}}"} in your email template for the landing page URL.
+                                              This list should have a campaign configured in Snov.io. Use {"{{landing_page}}"} in your email template for the personalized page URL.
                                             </p>
                                             <div className="grid gap-2 max-h-32 overflow-y-auto">
                                               {snovLists.map((list) => (
@@ -1941,7 +1941,7 @@ const Admin = () => {
                                         ) : (
                                           <>
                                             <Send className="w-4 h-4 mr-2" />
-                                            Add to Drip Campaign
+                                            Add to Snov.io Campaign
                                           </>
                                         )}
                                       </Button>
@@ -2617,7 +2617,7 @@ const Admin = () => {
           <DialogHeader>
             <DialogTitle className="text-xl">How to Launch Your Campaign in Snov.io</DialogTitle>
             <DialogDescription>
-              Your personalized landing pages are ready and synced. Follow these steps to create and launch your drip campaign in Snov.io.
+              Your personalized landing pages are ready and synced. Follow these steps to create and launch your campaign in Snov.io.
             </DialogDescription>
           </DialogHeader>
 
