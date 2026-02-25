@@ -892,6 +892,57 @@ const SectionProperties = ({ section, onUpdate, onClose }: SectionPropertiesProp
           </>
         );
 
+      case 'calendarBooking':
+        return (
+          <>
+            <div className="space-y-2">
+              <VarLabel label="Title" value={section.content.calendarTitle || ''} onChange={(v) => updateContent({ calendarTitle: v })} />
+              <Input value={section.content.calendarTitle || ''} onChange={(e) => updateContent({ calendarTitle: e.target.value })} placeholder="Book a VIP Appointment" />
+            </div>
+            <div className="space-y-2">
+              <VarLabel label="Subtitle" value={section.content.calendarSubtitle || ''} onChange={(v) => updateContent({ calendarSubtitle: v })} />
+              <Textarea value={section.content.calendarSubtitle || ''} onChange={(e) => updateContent({ calendarSubtitle: e.target.value })} rows={2} className="resize-none" placeholder="Schedule a personalized demo or meeting." />
+            </div>
+            <Separator />
+            <div className="space-y-2">
+              <Label>Calendar Provider</Label>
+              <Select value={section.content.calendarProvider || 'calendly'} onValueChange={(v) => updateContent({ calendarProvider: v })}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="calendly">Calendly</SelectItem>
+                  <SelectItem value="google">Google Calendar</SelectItem>
+                  <SelectItem value="outlook">Outlook / Microsoft Bookings</SelectItem>
+                  <SelectItem value="other">Other (custom link)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="space-y-2">
+              <Label>Booking URL</Label>
+              <Input value={section.content.calendarUrl || ''} onChange={(e) => updateContent({ calendarUrl: e.target.value })} placeholder={
+                section.content.calendarProvider === 'calendly' ? 'https://calendly.com/your-name/30min' :
+                section.content.calendarProvider === 'google' ? 'https://calendar.google.com/calendar/appointments/...' :
+                section.content.calendarProvider === 'outlook' ? 'https://outlook.office365.com/owa/calendar/...' :
+                'https://your-scheduling-link.com'
+              } />
+              <p className="text-xs text-muted-foreground">
+                {section.content.calendarProvider === 'calendly' ? 'Paste your Calendly event link. It will be embedded directly on the page.' :
+                 section.content.calendarProvider === 'google' ? 'Paste your Google Calendar appointment scheduling link.' :
+                 section.content.calendarProvider === 'outlook' ? 'Paste your Microsoft Bookings or Outlook scheduling link.' :
+                 'Paste any scheduling URL. It will open in a new tab.'}
+              </p>
+            </div>
+            <Separator />
+            <div className="space-y-2">
+              <VarLabel label="Button Text" value={section.content.calendarButtonText || ''} onChange={(v) => updateContent({ calendarButtonText: v })} />
+              <Input value={section.content.calendarButtonText || ''} onChange={(e) => updateContent({ calendarButtonText: e.target.value })} placeholder="Book Now" />
+            </div>
+            <div className="grid grid-cols-2 gap-2">
+              <div className="space-y-1"><Label className="text-xs">Btn Color</Label><input type="color" value={section.style.buttonColor || '#6d54df'} onChange={(e) => updateStyle({ buttonColor: e.target.value })} className="w-8 h-8 rounded border cursor-pointer" /></div>
+              <div className="space-y-1"><Label className="text-xs">Btn Text</Label><input type="color" value={section.style.buttonTextColor || '#ffffff'} onChange={(e) => updateStyle({ buttonTextColor: e.target.value })} className="w-8 h-8 rounded border cursor-pointer" /></div>
+            </div>
+          </>
+        );
+
       case 'columns2':
       case 'columns3': {
         const colCount = section.type === 'columns2' ? 2 : 3;

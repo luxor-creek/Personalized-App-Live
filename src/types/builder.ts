@@ -34,6 +34,7 @@ export type SectionType =
   | 'benefits'
   | 'cards'
   | 'qrCode'
+  | 'calendarBooking'
   | 'columns2'
   | 'columns3';
 
@@ -224,6 +225,12 @@ export interface SectionContent {
   qrCodeUrl?: string;
   qrCodeSize?: number;
   qrCodeLabel?: string;
+  // Calendar Booking
+  calendarTitle?: string;
+  calendarSubtitle?: string;
+  calendarUrl?: string;
+  calendarProvider?: 'calendly' | 'google' | 'outlook' | 'other';
+  calendarButtonText?: string;
   // Column Layouts
   columnChildren?: BuilderSection[][];
   // Parallax
@@ -495,6 +502,13 @@ export const SECTION_DEFAULTS: Record<SectionType, { content: SectionContent; st
     category: 'Conversion',
     content: { qrCodeUrl: 'https://example.com', qrCodeSize: 200, qrCodeLabel: 'Scan to visit' },
     style: { backgroundColor: '#ffffff', textColor: '#1a1a1a', paddingY: '48px', textAlign: 'center' },
+  },
+  calendarBooking: {
+    label: 'Calendar Booking',
+    icon: 'CalendarCheck',
+    category: 'Conversion',
+    content: { calendarTitle: 'Book a VIP Appointment', calendarSubtitle: 'Schedule a personalized demo or meeting at a time that works for you.', calendarUrl: '', calendarProvider: 'calendly', calendarButtonText: 'Book Now' },
+    style: { backgroundColor: '#f8f9fa', textColor: '#1a1a1a', paddingY: '64px', textAlign: 'center', buttonColor: '#6d54df', buttonTextColor: '#ffffff' },
   },
 
   // --- Columns ---

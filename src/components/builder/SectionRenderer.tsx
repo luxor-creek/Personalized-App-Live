@@ -773,6 +773,69 @@ const SectionRenderer = ({ section, isSelected, onClick, isPreview, personalizat
           </div>
         );
 
+      case 'calendarBooking': {
+        const calUrl = applyPersonalization(content.calendarUrl || '', personalization);
+        const calTitle = applyPersonalization(content.calendarTitle || 'Book a VIP Appointment', personalization);
+        const calSubtitle = applyPersonalization(content.calendarSubtitle || '', personalization);
+        const calButtonText = applyPersonalization(content.calendarButtonText || 'Book Now', personalization);
+        const isCalendly = content.calendarProvider === 'calendly' && calUrl && calUrl.includes('calendly.com');
+
+        return (
+          <div style={containerStyle}>
+            <div style={{ ...innerStyle, maxWidth: '800px', textAlign: style.textAlign || 'center' }}>
+              {calTitle && (
+                <h2 style={{ color: style.textColor, fontSize: '32px', fontWeight: 'bold', marginBottom: '8px', lineHeight: 1.2 }}>
+                  {calTitle}
+                </h2>
+              )}
+              {calSubtitle && (
+                <p style={{ color: style.textColor, opacity: 0.75, fontSize: '18px', marginBottom: '32px', maxWidth: '600px', marginLeft: 'auto', marginRight: 'auto' }}>
+                  {calSubtitle}
+                </p>
+              )}
+              {isCalendly && isPreview ? (
+                <div style={{ borderRadius: '12px', overflow: 'hidden', border: '1px solid rgba(0,0,0,0.1)', background: '#ffffff' }}>
+                  <iframe
+                    src={calUrl}
+                    style={{ width: '100%', height: '660px', border: 'none' }}
+                    title="Book an appointment"
+                  />
+                </div>
+              ) : calUrl ? (
+                <a
+                  href={calUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: 'inline-flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '14px 32px',
+                    backgroundColor: style.buttonColor || '#6d54df',
+                    color: style.buttonTextColor || '#ffffff',
+                    borderRadius: '8px',
+                    fontWeight: '600',
+                    fontSize: '16px',
+                    textDecoration: 'none',
+                    cursor: 'pointer',
+                    transition: 'opacity 0.15s',
+                  }}
+                  onClick={(e) => { if (!isPreview) e.preventDefault(); }}
+                >
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  {calButtonText}
+                </a>
+              ) : !isPreview ? (
+                <div style={{ padding: '40px', border: '2px dashed #d1d5db', borderRadius: '12px', color: '#9ca3af' }}>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" style={{ margin: '0 auto 12px' }}><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                  <p style={{ fontSize: '14px' }}>Add your calendar booking URL in properties</p>
+                </div>
+              ) : null}
+            </div>
+          </div>
+        );
+      }
+
       case 'columns2':
       case 'columns3': {
         const colCount = type === 'columns2' ? 2 : 3;
